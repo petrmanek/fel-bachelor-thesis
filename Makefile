@@ -2,8 +2,8 @@ DVIPS = dvips
 LATEX = latex
 PDFLATEX = pdflatex
 BIBTEX = bibtex
-PROJECT = Hron-thesis-2009
-EDITOR = emacs # nebo jiny oblibeny editor
+PROJECT = thesis
+EDITOR = vim # nebo jiny oblibeny editor
 GV = gv # nebo ghostview
 
 all: $(PROJECT).tex
