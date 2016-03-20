@@ -2,7 +2,35 @@
 % 2. Forma uložení dat
 
 \section{Output Produced by Timepix}
-%  - Výstup generovaný Timepixem.
+Similarly to chips found in common digital cameras, Timepix detectors generate measurements in the form of individual frames. A single captured frame consists of values recorded by all pixels over a given time period, length of which is referred to as \textit{the acquisition time}. Returning to our camera analogy, this figure resembles the time of exposition. Upon prolonging it, we can expect more particles to interact with our detector's pixels, making the resulting frames ultimately more saturated.
+
+The technical principle behind the measurements is analogous to that of the Medipix sensor. Every pixel is equipped with an integer register called \textit{the counter}. When acquisition starts, this counter is set to zero. Throughout the set time period, the counter is possibly incremented multiple times, and its value at the end of the acquisition is read out as measurement's result for the individual pixel. This process is synchronized across all detector's pixels, producing an integer matrix constituting the captured frame. Since the pixels may not be identical due to material irregularities and manufacturing errors, every pixel has a \textit{threshold} parameter, which is subject to calibration. If, during the measurement, the analog input measured from the pixel's semiconductor exceeds this threshold, the pixel is considered to be interacting with a particle.
+
+\subsection{Raw Output}
+
+Provided that every Timepix detector has 2 layers of $256 \times 256$ pixel matrices, every captured frame consists of 131,072 integer values. The interpretation of these values depends on another parameter, \textit{the operation mode}. While it is technically possible to configure every pixel in a different mode, for reasons of practicality we have so far preferred to configure all pixels identically, making this essentially a not a parameter of a pixel, but that of a frame.
+
+The following operation modes are available:
+
+\begin{description}
+%% CITACE: Holík 1.2.5.1 pp. 27
+	\item[Hit Detection Mode (One-Hit Mode)]
+	In this mode, the counter is set to one, when the theshold is exceeded. Upon multiple interactions, the counter is not further incremented. The result is a Boolean value, indicating whether the pixel has interacted with a particle.
+
+	\item[Hit Counting Mode (Medipix Mode)]
+	In this mode, the counter is incremented upon every transition from state below the threshold to state above the threshold. The result is an integer value representing the number of particles which have interacted with the pixel.
+
+	\item[Time over Threshold Mode]
+	In this mode, the counter is incremented by every clock cycle spent above the threshold. The result is an integer value corresponding to the energy of the interacting particle. Further calibration to convert counter value to energy is required, though.
+
+	\item[Time of Arrival Mode]
+	In this mode, the counter is incremented by every clock cycle after the threshold is first exceeded. The result is an integer value corresponding to the time interval before the end of the measurement.
+\end{description}
+
+If captured frame contains data from pixels configured in multiple different modes, the frame is said to be measured in the \textbf{Mixed Mode} and should contain further details on the exact pixel configuration.
+
+\subsection{Cluster Analysis}
+
 
 \section{Common Storage Formats}
 
