@@ -1,14 +1,17 @@
 \chapter{Data Structure and Storage}
-% 2. Forma uložení dat
+In this chapter, we introduce the reader to the process of data acquisition from Timepix detectors and describe the structure of the measured results. We then give details on the automated process which evaluates measured frames to produce additional statistics. We also briefly describe some of the storage formats used to archive such processed data, their advantages and disadvantages. Considering all these properties, we then propose a data scheme capable of archiving such data for longer time periods, while striving to offer almost instantaneous access based on the time of measurement.
+
 
 \section{Output Produced by Timepix}
-Similarly to chips found in common digital cameras, Timepix detectors generate measurements in the form of individual frames. A single captured frame consists of values recorded by all pixels over a given time period, length of which is referred to as \textit{the acquisition time}. Returning to our camera analogy, this figure resembles the time of exposition. Upon prolonging it, we can expect more particles to interact with our detector's pixels, making the resulting frames ultimately more saturated.
+Similarly to photodetectors found in common digital cameras, Timepix detectors generate measurements in the form of individual frames. A single captured frame consists of values recorded by all pixels over a given time period, length of which is referred to as \textit{the acquisition time}. Returning to our camera analogy, this figure resembles the time of exposition. Upon prolonging it, we can expect more particles to interact with our detector's pixels, making the resulting frames ultimately more saturated.
 
-The technical principle behind the measurements is analogous to that of the Medipix sensor. Every pixel is equipped with an integer register called \textit{the counter}. When acquisition starts, this counter is set to zero. Throughout the set time period, the counter is possibly incremented multiple times, and its value at the end of the acquisition is read out as measurement's result for the individual pixel. This process is synchronized across all detector's pixels, producing an integer matrix constituting the captured frame. Since the pixels may not be identical due to material irregularities and manufacturing errors, every pixel has a \textit{threshold} parameter, which is subject to calibration. If, during the measurement, the analog input measured from the pixel's semiconductor exceeds this threshold, the pixel is considered to be interacting with a particle.
+The technical principle behind the measurements is analogous to that of a Medipix sensor. Every pixel is equipped with an integer register called \textit{the counter}. When acquisition starts, this counter is set to zero. Throughout the set time period, the counter is possibly incremented multiple times, and its value at the end is read out as measurement's result for the individual pixel. This process is synchronized across all detector's pixels, producing an integer matrix which constitutes the captured frame.
+
+Since the pixels may not be identical due to material irregularities and manufacturing errors, every pixel has a \textit{threshold} parameter, which is subject to calibration. If, during the measurement, the analog input measured from the pixel's semiconductor exceeds this threshold, the pixel is considered to be interacting with a particle.
+
 
 \subsection{Raw Output}
-
-Provided that every Timepix detector has 2 layers of $256 \times 256$ pixel matrices, every captured frame consists of 131,072 integer values. The interpretation of these values depends on another parameter, \textit{the operation mode}. While it is technically possible to configure every pixel in a different mode, for reasons of practicality we have so far preferred to configure all pixels identically, making this essentially a not a parameter of a pixel, but that of a frame.
+Provided that every Timepix detector has 2 layers of $256 \times 256$ pixel matrices, every captured frame consists of 131,072 integer values. The interpretation of these values depends on another parameter, \textit{the operation mode}. While it is technically possible to configure every pixel in a different mode, we have so far preferred to configure all pixels identically, making this essentially not a parameter of a pixel, but that of a frame.
 
 The following operation modes are available:
 
@@ -27,9 +30,42 @@ The following operation modes are available:
 	In this mode, the counter is incremented by every clock cycle after the threshold is first exceeded. The result is an integer value corresponding to the time interval before the end of the measurement.
 \end{description}
 
-If captured frame contains data from pixels configured in multiple different modes, the frame is said to be measured in the \textbf{Mixed Mode} and should contain further details on the exact pixel configuration.
+If a captured frame contains data from pixels configured in multiple different modes, the frame is said to be measured in the \textbf{Mixed Mode} and should contain further details on the exact pixel configuration.
+
 
 \subsection{Cluster Analysis}
+%% CITACE: flood-fill
+%% ZKRATKA: TOA, TOT
+In our measurements, we strive to configure our detectors to capture frames containing disconnected components corresponding with the interacting particles. These components, referred to as \textit{the clusters}, are discovered and evaluated in an automated process called \textit{the cluster analysis}. This procedure involves a connectivity-checking algorithm, such as \textit{flood-fill}, operating on the pixel matrices to distinguish individual clusters. In later stages, clusters are processed, measured and classified in various categories with regards to their shape. In addition, if the frame has been captured in TOT mode and calibration data is available, the automated processing script uses it to convert raw measured counter values to energy approximations.
+
+%% OBR: saturovaný snímek - špatně
+%% OBR: snímek s clustery - dobře
+
+The output of cluster analysis is a list of clusters. Every cluster may contain multiple non-zero pixels denoted by their planar coordinates. The original pixel matrix is not preserved. Instead, every pixel record is coupled with its corresponding counter value and pixels unreferenced by any cluster are assumed to be of zero value.
+
+As we hinted at the beginning of this section, many other values are calculated for every cluster during the automated processing. Most notable examples are:
+
+\begin{description}
+	\item[Shape Classification]
+	By measuring geometric properties of a cluster (such as radius or size), we are able to estimate whether the cluster resembles more a line segment or a circular blob. Similarly, we can also estimate whether the cluster looks thin or thick. From that information, we can infer the type of interacting particle and direction of its movement relative to the plane of incidence. To formally define the categories of cluster, we will use terminology consistent with the Medipix research.
+
+%% CITACE: Medipix cluster types
+%% OBR: druhy clusterů
+
+	\item[Size, Volume]
+	The size of a cluster is equal to the number of connected pixels which constitute it. The volume is a sum of counter values of those pixels.
+
+	\item[Centroid, Volumetric Centroid]
+	The centroid is defined as an unweighted average of pixel coordinates in the cluster. In analogous way, the volumetric centroid is the very same average weighted by corresponding counter values. 
+
+	\item[Minimum and Maximum Cluster Height]
+	These two figures refer to the lowest and the greatest counter values of pixels in the cluster.
+
+	\item[Energy-based Properties \textit{(available only in TOT mode)}]
+	If the energy approximations are available, many of the above-mentioned values can be also calculated with the energy substituted for counter values.
+\end{description}
+
+It is important to note at this point, that while not maintaining the original data structure, the process of cluster analysis does not lose any of the measured data. It merely reorganizes it into form which is more practical to work with. If at any point in time should we decide to alter some of the calculated statistics, it would be possible to reconstruct the measured data.
 
 
 \section{Common Storage Formats}
