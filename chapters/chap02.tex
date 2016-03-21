@@ -74,7 +74,20 @@ It is important to note at this point, that while not maintaining the original d
 %  - Multi-frame formáty, jejich výhody a nevýhody.
 
 \subsection{The ROOT Format}
-%  - Cluster analýza a ROOT formát, jeho výhody a nevýhody.
+%% CITACE: ROOT website - https://root.cern.ch/save-data
+Another storage option is the ROOT Data Analysis Framework. Originally concieved at CERN in 1995, the framework provides a set of powerful tools with various applications in data mining, manipulation and visualization. Unlike other similar toolkits, ROOT comes with its own machine-independent binary file format (identified by the \texttt{.root} extension). This format is designed to store enormous amounts of data within various types of data structures efficiently, while maintaining good overall performance by employing low-level memory optimization techniques and multi-tier content caching.
+
+%% OBR: ROOT TFile I/O Structure
+%% ZKRATKA: API
+%% ZKRATKA: ROOT?
+
+Used by many physicists at CERN for several years now, ROOT seems like a good choice of a data archivation format as many researchers have already learned its caveats and know well how to operate it despite often lacking deeper background in Computer Science. For the purposes of programmatic access, ROOT also does well with documented APIs in Python, R and C++.
+
+Should the processed data be stored in ROOT, a basic relational database concept comes to mind. With standard tables generalized in the form of \textit{trees} and their columns in the form of \textit{leaves}. One tree would suffice for the information about captured frames (such as acquisition time, operation mode, etc.) and other for the list of clusters for every frame. Such trees would efficiently abstract the entire storage structure, allowing for multiple frames to be stored in a single file, grouped for instance by a common time interval.
+
+%% CITACE: valgrind
+In spite of being over 20 years in development, ROOT is not perfect. Using memory monitoring tools such as \textit{valgrind}, we have confirmed that the C++ implementation of the ROOT framework is riddled with various memory leaks, making it unsuitable for time-extensive operations. Some might also argue, that a full tree data structure might be overly-complicated and too general for a simple output described in previous sections. Lastly, ROOT framework has quite a complex object structure, making it hard to learn for first-time users.
+
 
 \section{Expected Volume of Acquired Data}
 %  - Kapacitní nároky na systém.
