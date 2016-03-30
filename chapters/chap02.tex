@@ -94,19 +94,31 @@ In spite of being over 20 years in development, ROOT is not perfect. Using memor
 \section{Proposed Data Structure}
 
 \subsection{Formal Requirements}
-Having defined the essence of information we wish to store and several data formats as means to do it, we are now ready to focus on the definition of our database.
-
-Requirements on such a data structure are as common as database requirements can get. It should be a reliable permanent storage element, accessible for reading from multiple workstations at a same time and robust enough to withstand minor hardware failures. With 15 detectors already installed at ATLAS, and possible option of installing another 5, the database should be designed to hold processed frames from up to 30 Timepix devices for the entire expected time period of their operation at LHC (that from June 2015 to LS3 in 2021).
+Having defined the essence of information we wish to store and several data formats as means to do it, we are now ready to focus on the definition of our database. Requirements on such a data structure are as common as database requirements can get. It should be a reliable permanent storage element, accessible for reading from multiple workstations at a same time and robust enough to withstand minor hardware failures. With 15 detectors already installed at ATLAS, and possible option of installing another 5, the database should be designed to hold frames from up to 30 Timepix devices for the entire expected time period of their operation at LHC (that from June 2015 to LS3 in 2021).
 
 % ZKRATKA: LHC
 % CITACE: LHC schedule, LS2, LS3
 
-As more frames arrive from the detector network, our database should allow to be periodically extended with new data, possibly processing and converting pixel matrices into cluster lists, as described in the previous sections. We also have the advantage of knowing that the majority of user queries on our database will request data by the time of measurement and a specific detector in the network. With regards to all this information, we may optimize the data retrieval procedure to accelerate such queries.
+As more and more frames arrive from the detector network, our database should allow to be periodically extended with new data, possibly processing and converting pixel matrices into cluster lists, as described in the previous sections. Since the database will be primary storage site for all research data, there should be multiple independent copies of it as backups and the database structure should be designed with logic to enable timely synchronization of these copies.
+
+Apart from all the requirements already listed, we have the advantage of knowing how the majority of user queries will look like. With regards to this information, we may then optimize data storage and retrieval procedures to accelerate such queries. After discussing all use cases with the researchers who are going to operate the database, we have determined that most queries will filter data by time or by device. This is indeed a very natural method, provided that every device in the network is positioned and oriented in way allowing only for a certain type of particles to be observed. Researchers looking for signs of specific particles might often request data based on other experiments, which were conducted in a determinate time period and involved only a specific group of detectors in the network.
 
 
-\subsection{Proposal}
-The data will be separated into two directories depending on its processing state. When frames are acquired at ATLAS, an operator will transfer them into the first directory
+\subsection{Definition}
+With all requirements in mind, we will now formally define the database. Accounting for the ever-growing nature of our data, we will separate the database into two parts. The first part is to contain data which has already been processed by the cluster analysis, and is ready to be accessed by users. The second part will contain data which has arrived from CERN in its raw form but hasn't been processed yet. As one might note, this separation of data serves a fundamental purpose, that is to distinguish the intermediate products from the finished ones.
 
+% ZKRATKA: UNIX
+% ZKRATKA: HTTP
+% ZKRATKA: SMB
+% ZKRATKA: SSH
+% ZKRATKA: AFP
+% ZKRATKA: FTP
+% ZKRATKA: EOS
+% CITACE: UNIX file system
+
+For simplicity, the database will be represented by a UNIX file system. This will enable many users, not necessarily only those using UNIX-based operating systems, to access it directly by means of widely-used and standardized protocols, such as FTP, SMB, SSH, AFP or HTTP. Utilization of these protocols contributes not only to the universality of our database, it also takes care of shared resource access and other data concurrency issues for us. Some of these features may prove to be useful later on when synchronizing various storage sites in order to back up or restore data. UNIX file systems also offer fundamental security features, allowing us to grant read-write privileges to a certain group of users, while giving others mere read-only access.
+
+% co dál? samostatné adresáře pro detektory, dvě granularity, pojmenovávací konvence pro dny a hodiny, ROOT vs. MultiFrame
 
 \section{Expected Volume of Acquired Data}
 %  - Kapacitní nároky na systém.
