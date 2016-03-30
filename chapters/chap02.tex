@@ -91,6 +91,23 @@ Should the processed data be stored in ROOT, a basic relational database concept
 In spite of being over 20 years in development, ROOT is not perfect. Using memory monitoring tools such as \textit{valgrind}, we have confirmed that the C++ implementation of the ROOT framework is riddled with various memory leaks, making it unsuitable for time-extensive operations. Some might also argue, that a full tree data structure might be overly-complicated and too general for a simple output described in previous sections. Lastly, ROOT framework has quite a complex object structure, making it hard to learn for first-time users.
 
 
+\section{Proposed Data Structure}
+
+\subsection{Formal Requirements}
+Having defined the essence of information we wish to store and several data formats as means to do it, we are now ready to focus on the definition of our database.
+
+Requirements on such a data structure are as common as database requirements can get. It should be a reliable permanent storage element, accessible for reading from multiple workstations at a same time and robust enough to withstand minor hardware failures. With 15 detectors already installed at ATLAS, and possible option of installing another 5, the database should be designed to hold processed frames from up to 30 Timepix devices for the entire expected time period of their operation at LHC (that from June 2015 to LS3 in 2021).
+
+% ZKRATKA: LHC
+% CITACE: LHC schedule, LS2, LS3
+
+As more frames arrive from the detector network, our database should allow to be periodically extended with new data, possibly processing and converting pixel matrices into cluster lists, as described in the previous sections. We also have the advantage of knowing that the majority of user queries on our database will request data by the time of measurement and a specific detector in the network. With regards to all this information, we may optimize the data retrieval procedure to accelerate such queries.
+
+
+\subsection{Proposal}
+The data will be separated into two directories depending on its processing state. When frames are acquired at ATLAS, an operator will transfer them into the first directory
+
+
 \section{Expected Volume of Acquired Data}
 %  - Kapacitní nároky na systém.
 %  - Jednoduchá projekce do budoucnosti.
