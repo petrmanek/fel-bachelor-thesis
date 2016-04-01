@@ -129,10 +129,38 @@ The directory structure we have described so far satisfies all requirements we h
 Let us now define the data files themselves. All data files will be stored at the lowest level of our directory structure and will have time-coded names according to our naming patterns. Should more files fall under the same time code (marginal scenario), they are to be grouped in a directory with a time-coded name. File structure in such a directory is undefined. We expect all files in the \texttt{processed} directory to be stored in the ROOT format, and all files in the \texttt{downloading} directory to be stored as multi-frames. All other files of different types will be tolerated as they may contain relevant information, but regarded as secondary.
 
 % OBR: strom - ukázka adresářové struktury
+%  + db
+%  +-- downloading
+%  +-+ processed
+%  | +-- ATPX01
+%  | +-- ATPX02
+%  | +-- ATPX03
+%  | +-+ ATPX04
+%  | | +-- 2015_08_24_ATPX04.root
+%  | | +-+ 2015_08_25_ATPX04
+%  | | | +-- morning.root
+%  | | | +-- afternoon.root
+%  | | | +-- evening.root
+%  | | +-- 2015_08_26_ATPX04.root 
+%  | | +-- 2015_08_2ý_ATPX04.root 
+%  | | +-- README.txt
+%
 
-\section{Expected Volume of Acquired Data}
+% ZKRATKA: zip
+% ZKRATKA: tar
+To preserve storage space, we will allow usage of data compression in our database. The supported compression formats are ZIP, GZIP and TAR, or any combination of them. As we expect the individual data files to grow quite large in size, we will utilize compression only at the lowest level of our directory structure, that is in the time-coded data files (or directories). Every archive can store at most one time-coded file (or directory), hence the archive can adopt the file's time-coded name, while remaining unique in the file listing. It is preferred, but not required, that all data files stored in a single directory are either all compressed or none of them is, as any deviation from this scheme might point to an incomplete or broken data transaction. Lastly, we forbid any recursively compressed structures (such as archive within other archive, etc.). The recommended alternative is to increase compression level in already existing archives instead of creating new ones. This rule also applies for all data formats which use compression inherently, such as ROOT.
+
+
+\subsection{Expected Volume of Data}
 %  - Kapacitní nároky na systém.
 %  - Jednoduchá projekce do budoucnosti.
+With our definition in mind, we will now perform a simple extrapolation to obtain an upper bound on the size of our database.
+
+Assuming that one hour of footage stored in the MultiFrame format may take up to 4~gigabytes in size (depending on the frequency of acquisition), we have 96~gigabytes per sensor per day. Accounting for the longest possible time of operation, our database will store up to 2,437~days of footage simultaneously recorded by up to 30~detectors. That means that our database will have to hold about 7~petabytes worth of uncompressed information. If we use Collin's compression algorithm benchmark as a baseline, we can estimate that a common variant of GZIP algorithm will reduce the file size in average by 75.9\%. Applying this compression on our MultiFrame data files, our database would have to hold \textit{only} about 1.7 petabytes of archives.
+
+
+
+% CITACE: http://tukaani.org/lzma/benchmarks.html
 
 \section{Performance Optimizations}
 %  - Problém s adresací v souvislosti s výkonem systému.
