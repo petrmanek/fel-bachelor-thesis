@@ -94,7 +94,7 @@ In spite of being over 20 years in development, ROOT is not perfect. Using memor
 \section{Proposed Data Structure}
 
 \subsection{Formal Requirements}
-Having defined the essence of information we wish to store and several data formats as means to do it, we are now ready to focus on the definition of our database. Requirements on such a data structure are as common as database requirements can get. It should be a reliable permanent storage element, accessible for reading from multiple workstations at a same time and robust enough to withstand minor hardware failures. With 15 detectors already installed at ATLAS, and possible option of installing another 5, the database should be designed to hold frames from up to 30 Timepix devices for the entire expected time period of their operation at LHC (that from June 2015 to LS3 in 2021).
+Having defined the essence of information we wish to store and several data formats as means to do it, we are now ready to focus on the definition of our database. Requirements on such a data structure are as common as database requirements can get. It should be a reliable permanent storage element, accessible for reading from multiple workstations at a same time and robust enough to withstand minor hardware failures. With 15 detectors already installed at ATLAS, and possible option of installing another 5, the database should be designed to hold frames from up to 20 Timepix devices for the entire expected time period of their operation at LHC (that from June 2015 to LS3 in 2021).
 
 % ZKRATKA: LHC
 % CITACE: LHC schedule, LS2, LS3
@@ -156,7 +156,8 @@ To preserve storage space, we will allow usage of data compression in our databa
 %  - Jednoduchá projekce do budoucnosti.
 With our definition in mind, we will now perform a simple extrapolation to obtain an upper bound on the size of our database.
 
-Assuming that one hour of footage stored in the MultiFrame format may take up to 4~gigabytes in size (depending on the frequency of acquisition), we have 96~gigabytes per sensor per day. Accounting for the longest possible time of operation, our database will store up to 2,437~days of footage simultaneously recorded by up to 30~detectors. That means that our database will have to hold about 7~petabytes worth of uncompressed information. If we use Collin's compression algorithm benchmark as a baseline, we can estimate that a common variant of GZIP algorithm will reduce the file size in average by 75.9\%. Applying this compression on our MultiFrame data files, our database would have to hold \textit{only} about 1.7 petabytes of archives.
+% \cite{Serra93}
+Assuming that one hour of footage stored in the multi-frame format may take up to 4~gigabytes in size (depending on the frequency of acquisition), we have 96~gigabytes per sensor per day. Accounting for the longest possible time of operation, our database will store up to 2,437~days of footage simultaneously recorded by up to 20~detectors. That means that our database will have to hold about 4.7~petabytes worth of uncompressed information. If we use Collin's compression algorithm benchmark as a baseline, we can estimate that a common variant of GZIP algorithm will reduce the file size in average by 75.9\%. Applying this compression on our multi-frame data files, our database would have to hold \textit{only} about 1.1 petabyte of archives.
 
 
 
