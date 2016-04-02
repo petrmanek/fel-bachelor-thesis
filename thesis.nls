@@ -1,0 +1,44 @@
+\begin{thenomenclature} 
+
+ \nomgroup{A}
+
+  \item [{AFP}]\begingroup Apple Filing Protocol, a network protocol mainly used for providing shared access to files on clients and servers compatible with operating systems developed by Apple Computer, Inc.\nomeqref {0}
+		\nompageref{iii}
+  \item [{API}]\begingroup Application programming interface, a set of routines, protocols and tools for building software and applications.\nomeqref {0}
+		\nompageref{iii}
+  \item [{ATLAS}]\begingroup A Toroidal LHC Apparatus, one of particle detector experiments constructed at LHC.\nomeqref {0}
+		\nompageref{iii}
+  \item [{CERN}]\begingroup European Organization for Nuclear Research (French name: \textit{Conseil Européen pour la Recherche Nucléaire}), based in Geneva, Switzerland.\nomeqref {0}
+		\nompageref{iii}
+  \item [{CIFS}]\begingroup Common Internet File System. See SMB.\nomeqref {0}
+		\nompageref{iii}
+  \item [{DCS}]\begingroup Detector Control Systems, a system providing control of subdetectors and of common infrastructure of the experiment and communication with the services of CERN.\nomeqref {0}
+		\nompageref{iii}
+  \item [{EOS}]\begingroup A primary storage system at CERN for LHC experiments.\nomeqref {0}
+		\nompageref{iii}
+  \item [{FTP}]\begingroup File Transfer Protocol, a network protocol mainly used for providing shared access to files.\nomeqref {0}
+		\nompageref{iii}
+  \item [{HTTP}]\begingroup Hypertext Transfer Protocol.\nomeqref {0}
+		\nompageref{iii}
+  \item [{LHC}]\begingroup Large Hadron Collider, an experimental factility built by CERN.\nomeqref {0}
+		\nompageref{iii}
+  \item [{LS}]\begingroup Long Shutdown, a period in CERN time schedule characteristic by temporary cesation of operation of particle accelerators and increased maintenance.\nomeqref {0}
+		\nompageref{iii}
+  \item [{MPX}]\begingroup Medipix, a semiconductor pixel detection chip.\nomeqref {0}
+		\nompageref{iii}
+  \item [{ROOT}]\begingroup An object oriented data analysis framework. \cite{Brun199781}\nomeqref {0}
+		\nompageref{iii}
+  \item [{SLS}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{SMB}]\begingroup Server Message Block (also known as the Common Internet File System), a network protocol mainly used for providing shared access to files.\nomeqref {0}
+		\nompageref{iii}
+  \item [{SSH}]\begingroup Secure Shell, a cryptographic network protocol commonly used for remote command-line access and remote command execution.\nomeqref {0}
+		\nompageref{iii}
+  \item [{TOA}]\begingroup Time of Arrival acquisition mode. For more information, see section~\ref{tpx:toa}.\nomeqref {0}
+		\nompageref{iii}
+  \item [{TOT}]\begingroup Time of Threshold acquisition mode. For more information, see section~\ref{tpx:tot}.\nomeqref {0}
+		\nompageref{iii}
+  \item [{TPX}]\begingroup Timepix, a semiconductor pixel detection chip successing Medipix2.\nomeqref {0}
+		\nompageref{iii}
+  \item [{UNIX}]\begingroup \nomeqref {0}\nompageref{iii}
+
+\end{thenomenclature}

@@ -23,10 +23,10 @@ The following operation modes are available:
 	\item[Hit Counting Mode (also known as the Medipix Mode)]
 	In this mode, the counter is incremented upon every transition from a state below the threshold to a state above the threshold. The result is an integer value representing the number of particles which have interacted with the pixel.
 
-	\item[Time over Threshold Mode]
+	\item[Time over Threshold Mode]\label{tpx:tot}
 	In this mode, the counter is incremented by every clock cycle spent above the threshold. The result is an integer value corresponding to the energy of the interacting particle. Further calibration to convert counter value to energy is required, though.
 
-	\item[Time of Arrival Mode]
+	\item[Time of Arrival Mode]\label{tpx:toa}
 	In this mode, the counter is incremented by every clock cycle after the threshold is first exceeded. The result is an integer value corresponding to the time interval before the end of the measurement.
 \end{description}
 
@@ -154,7 +154,7 @@ To preserve storage space, we will allow usage of data compression in our databa
 \subsection{Expected Volume of Data}
 With our definition in mind, we will now perform a simple extrapolation to obtain an upper bound on the size of our database.
 
-Assuming that one hour of footage stored in the multi-frame format may take up to 4~gigabytes in size (depending on the frequency of acquisition), we have 96~gigabytes per sensor per day. Accounting for the longest possible time of operation, our database will store up to 2,437~days of footage simultaneously recorded by up to 20~detectors. That means that our database will have to hold about 4.7~petabytes worth of uncompressed information. If we use Collin's compression algorithm benchmark from \cite{GzipBenchmark} as baseline, it is possible estimate that a common variant of GZIP algorithm will reduce the file size in average by 75.9\%. Applying this compression on our multi-frame data files, our database would have to hold \textit{only} about 1.1 petabyte of archives.
+Assuming that one hour of footage stored in the multi-frame format may take up to 4~gigabytes in size (depending on the frequency of acquisition), we have 96~gigabytes per sensor per day. Accounting for the longest possible time of operation, our database will store up to 2,437~days of footage simultaneously recorded by up to 20~detectors. That means that our database will have to hold about 4.7~petabytes worth of uncompressed information. If we use Collin's compression algorithm benchmark from \cite{GzipBenchmark} as baseline, it is possible to estimate that a common variant of GZIP algorithm will reduce the file size in average by 75.9\%. Applying this compression on our multi-frame data files, our database would have to hold \textit{only} about 1.1 petabyte of archives.
 
 We will now perform analogous calculation for the ROOT file format. Since the file structure already utilizes its own proprietary compression algorithms, we expect the overall volume to decrease significantly in comparison with the raw uncompressed multi-frame data. From the data recorded by the ATLAS Timepix network in the fall of 2015, we observe that a single day of footage stored in the ROOT format may take up to 18~gigabytes in size. Using the same constants as before, we arrive at the conclusion that our database will have to hold about 877~terabytes of information. This result is in agreement with our expectations.
 
