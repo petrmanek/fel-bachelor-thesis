@@ -152,16 +152,14 @@ To preserve storage space, we will allow usage of data compression in our databa
 
 
 \subsection{Expected Volume of Data}
-%  - Kapacitní nároky na systém.
-%  - Jednoduchá projekce do budoucnosti.
 With our definition in mind, we will now perform a simple extrapolation to obtain an upper bound on the size of our database.
 
-% \cite{Serra93}
-Assuming that one hour of footage stored in the multi-frame format may take up to 4~gigabytes in size (depending on the frequency of acquisition), we have 96~gigabytes per sensor per day. Accounting for the longest possible time of operation, our database will store up to 2,437~days of footage simultaneously recorded by up to 20~detectors. That means that our database will have to hold about 4.7~petabytes worth of uncompressed information. If we use Collin's compression algorithm benchmark as a baseline, we can estimate that a common variant of GZIP algorithm will reduce the file size in average by 75.9\%. Applying this compression on our multi-frame data files, our database would have to hold \textit{only} about 1.1 petabyte of archives.
+Assuming that one hour of footage stored in the multi-frame format may take up to 4~gigabytes in size (depending on the frequency of acquisition), we have 96~gigabytes per sensor per day. Accounting for the longest possible time of operation, our database will store up to 2,437~days of footage simultaneously recorded by up to 20~detectors. That means that our database will have to hold about 4.7~petabytes worth of uncompressed information. If we use Collin's compression algorithm benchmark from \cite{GzipBenchmark} as baseline, it is possible estimate that a common variant of GZIP algorithm will reduce the file size in average by 75.9\%. Applying this compression on our multi-frame data files, our database would have to hold \textit{only} about 1.1 petabyte of archives.
 
+We will now perform analogous calculation for the ROOT file format. Since the file structure already utilizes its own proprietary compression algorithms, we expect the overall volume to decrease significantly in comparison with the raw uncompressed multi-frame data. From the data recorded by the ATLAS Timepix network in the fall of 2015, we observe that a single day of footage stored in the ROOT format may take up to 18~gigabytes in size. Using the same constants as before, we arrive at the conclusion that our database will have to hold about 877~terabytes of information. This result is in agreement with our expectations.
 
+Please note that neither of these upper bounds is by any means, since we intentionally over-estimated the number of detectors in our network and the length of the operation period in our assumptions. In addition, it is likely that some of our detectors will be configured to capture data with frequencies lower than the maximum possible frequency as every device is configured separately to observe particles at different speeds. For all these reasons, our estimation only gives us vague information about the orders of magnitude of storage space required to operate our database and its subsequent backups. In spite of this limitation, the estimation suffices to design and rate other components of our system. 
 
-% CITACE: http://tukaani.org/lzma/benchmarks.html
 
 \section{Performance Optimizations}
 %  - Problém s adresací v souvislosti s výkonem systému.
