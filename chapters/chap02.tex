@@ -126,28 +126,58 @@ If it is not possible to group data by the day of acquisition for some reason, w
 
 The directory structure we have described so far satisfies all requirements we have stated in the previous section. What's more, it optimizes access to data generated from specific devices at specific times, so that the majority of user requests is satisfied in timely manner.
 
-Let us now define the data files themselves. All data files will be stored at the lowest level of our directory structure and will have time-coded names according to our naming patterns. Should more files fall under the same time code (marginal scenario), they are to be grouped in a directory with a time-coded name. File structure in such a directory is undefined. We expect all files in the \texttt{processed} directory to be stored in the ROOT format, and all files in the \texttt{downloading} directory to be stored as multi-frames. All other files of different types will be tolerated as they may contain relevant information, but regarded as secondary.
+Let us now define the data files themselves. All data files will be stored at the lowest level of our directory structure and will have time-coded names according to our naming patterns. Should more files fall under the same time code (marginal scenario), they are to be grouped in a directory with a time-coded name. File structure in such a directory is undefined. We expect all files in the \texttt{processed} directory to be stored in the ROOT format, and all files in the \texttt{downloading} directory to be stored as multi-frames. All other files of different types will be tolerated as they may contain relevant information, but regarded as secondary. Further illustration of the file system can be found in Figure \ref{fig:db-structure}.
 
-% OBR: strom - ukázka adresářové struktury
-%  + db
-%  +-- downloading
-%  +-+ processed
-%  | +-- ATPX01
-%  | +-- ATPX02
-%  | +-- ATPX03
-%  | +-+ ATPX04
-%  | | +-- 2015_08_24_ATPX04.root
-%  | | +-+ 2015_08_25_ATPX04
-%  | | | +-- morning.root
-%  | | | +-- afternoon.root
-%  | | | +-- evening.root
-%  | | +-- 2015_08_26_ATPX04.root 
-%  | | +-- 2015_08_2ý_ATPX04.root 
-%  | | +-- README.txt
-%
+\begin{figure}[t]
+\begin{center}
+
+\tikzset{
+    every node/.style={
+        draw=black,
+        thick,
+        anchor=west,
+        inner sep=2pt,
+        minimum size=1pt,
+    }
+}
+\begin{tikzpicture}[
+    grow via three points={
+        one child at (0.8,-0.7) and two children at (0.8,-0.7) and (0.8,-1.4)
+    },
+    edge from parent path={
+        ($(\tikzparentnode\tikzparentanchor)+(.4cm,0pt)$) |- (\tikzchildnode\tikzchildanchor)
+    },
+    growth parent anchor=west,
+    parent anchor=south west,% = \tikzparentanchor
+%   child anchor=west,%        = \tikzchildanchor
+%   every child node/.style={anchor=west}% already in "every node"
+  ]
+  \node {\textbf{Timepix Database/}}
+    child { node {\texttt{downloading/}} }
+    child { node {\texttt{processed/}}
+    	child { node [draw=none] {\texttt{README.txt}} }
+    	child { node {\texttt{ATPX01/}} }
+    	child { node {\texttt{ATPX02/}}
+    		child { node [draw=none] {\ldots}}
+    		child { node [draw=none] {\texttt{2015\_08\_24\_ATPX02.root}} }
+    		child { node [draw=none] {\texttt{2015\_08\_25\_ATPX02.root}} }
+    		child { node {\texttt{2015\_08\_26\_ATPX02/}}
+    			child { node [draw=none] {\texttt{morning.root}} }
+    			child { node [draw=none] {\texttt{afternoon.root}} }
+    			child { node [draw=none] {\texttt{evening.root}} }
+    		}
+    	}
+    };
+\end{tikzpicture}
+
+\caption{Example listing of the database file system structure.}
+\label{fig:db-structure}
+\end{center}
+\end{figure}
 
 % ZKRATKA: zip
 % ZKRATKA: tar
+
 To preserve storage space, we will allow usage of data compression in our database. The supported compression formats are ZIP, GZIP and TAR, or any combination of them. As we expect the individual data files to grow quite large in size, we will utilize compression only at the lowest level of our directory structure, that is in the time-coded data files (or directories). Every archive can store at most one time-coded file (or directory), hence the archive can adopt the file's time-coded name, while remaining unique in the file listing. It is preferred, but not required, that all data files stored in a single directory are either all compressed or none of them is, as any deviation from this scheme might point to an incomplete or broken data transaction. Lastly, we forbid any recursively compressed structures (such as archive within other archive, etc.). The recommended alternative is to increase compression level in already existing archives instead of creating new ones. This rule also applies for all data formats which use compression inherently, such as ROOT.
 
 
@@ -161,7 +191,96 @@ We will now perform analogous calculation for the ROOT file format. Since the fi
 Please note that neither of these upper bounds is by any means, since we intentionally over-estimated the number of detectors in our network and the length of the operation period in our assumptions. In addition, it is likely that some of our detectors will be configured to capture data with frequencies lower than the maximum possible frequency as every device is configured separately to observe particles at different speeds. For all these reasons, our estimation only gives us vague information about the orders of magnitude of storage space required to operate our database and its subsequent backups. In spite of this limitation, the estimation suffices to design and rate other components of our system. 
 
 
-\section{Performance Optimizations}
-%  - Problém s adresací v souvislosti s výkonem systému.
-%  - Řešení problému: zavedení indexové databáze PostgreSQL.
-%  - Metaindexing: indexování indexové databáze pro optimalizaci výkonu.
+\section{Index Database}
+So far, we have established a set of rules for our file system, in order to quickly obtain data from a specific device captured at a specific time. These facilities are sufficient for navigating and accessing data in rudimentary manner, but are certainly not optimal. For instance, our rules do not define any conventions regarding retrieval of specific frames from files in the ROOT data format. Due to this limitation, users seeking individual frames would have to download bulks of data from longer time periods (their length can vary from an hour to a day), which may induce unnecessary processing overhead and memory shortages.
+
+There is also no guarantee that time-coded nodes in our directory structure will always be individual files. If such nodes are directories, then the file structure inside of them is undefined, and may require additional decisions on the user side. And what do we do when we want to retrieve frames based on different criteria than time and device of origin? At the moment, we have no option other than to directly enumerate frames stored in all files in our file system, which (considering their potential size) might not be a preferrable solution. To resolve all these issues, we will introduce one more element to our design - \textit{an index database}.
+
+This database will be contain information which can be recalculated at any instant from the primary data files, and will therefore be expendable. The information stored in our database will mostly include, as the name suggests, index of all files and frames on the record and addresses pointing to the them on our file system. In addition, the index database will also store some commonly requested aggregated values.
+
+
+
+\subsection{Definition}
+We will define only three entities in our database. The relationships between these entities are depicted in Figure \ref{db:index-uml}. Meaning of their properties is defined in this section.
+
+% OBR: UML diagram databáze
+
+\begin{description}
+	\item[Sensor]
+	Sensor represents a single Timepix device, from which data can be acquired.
+
+	\begin{description}
+		\item[Sensor Identifier (\texttt{sid})]
+		Identifier of the device, unique within the index database.
+
+		\item[Name (\texttt{name})]
+		Name of the sensor, consistent with the other literature.
+		% CITACE: označení TPX detektorů v ATLASu
+
+		\item[Calibration Constants (\texttt{calibration\_layer1}, \texttt{calibration\_layer2})]
+		Constants used for luminosity calculation, available only for some devices.
+	\end{description}
+
+	\item[ROOT File]
+	File represents a single file in the ROOT data format, containing data acquired from a single Timepix device in a determinate time period.
+
+	\begin{description}
+		\item[File Identifier (\texttt{fid})] 
+		Identifier of the file, unique within the index database.
+
+		\item[Device of Origin (\texttt{sid})]
+		Identifier of the Timepix device, which acquired all data stored within this file.
+
+		\item[File Path (\texttt{path})] 
+		Absolute path to the file in the server's file system.
+
+		\item[Date of Addition (\texttt{date\_added})]
+		Date and time, when the file was added to the database.
+
+		\item[Covered Time Interval (\texttt{start\_time}, \texttt{end\_time})]
+		Minimum and maximum start time of the Timepix frames stored within this file.
+
+		\item[Statistics (\texttt{count\_frames}, \texttt{count\_entries})]
+		The total number of frames and clusters stored in within this file.
+
+		\item[Validation Data (\texttt{checksum}, \texttt{date\_checked})]
+		SHA1 checksum of the file and the latest date and time, when the file was validated against it to prevent data corruption.
+	\end{description}
+
+	\item[Frame]
+	Frame represents a single event of data acquisition from a Timepix device. Every frame is stored in some file (and file can contain multiple frames).
+
+	\begin{description}
+		\item[Frame Identifier (\texttt{frid})] 
+		Identifier of the frame, unique within the index database.
+
+		\item[File Identifier (\texttt{fid})]
+		Identifier of the file, in which the frame is stored.
+
+		\item[Sensor Identifier (\texttt{sid})] 
+		Identifier of the device, which acquired this frame (must match \texttt{sid} of the file).
+
+		\item[Start Time (\texttt{start\_time})] 
+		Start time of the acquisition.
+
+		\item[Acquisition Time (\texttt{acquisition\_time})] 
+		Duration of the acquisition.
+
+		\item[Data Addresses (\texttt{dsc\_entry}, \texttt{clstr\_first\_entry})]
+		Index values pointing directly to entries within the ROOT file's internal structure.
+
+		\item[Statistics (\texttt{occupancy}, \texttt{clstr1\_count}, \dots, \texttt{clstr6\_count})]
+		Total number of non-zero pixels in the frame, and numbers of clusters of different types in the frame.
+	\end{description}
+\end{description}
+
+
+\subsection{Performance Optimization}
+
+
+\subsection{Data Aggregation}
+
+
+\subsection{Metaindexing}
+
+
