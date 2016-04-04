@@ -192,16 +192,17 @@ Please note that neither of these upper bounds is by any means, since we intenti
 
 
 \section{Index Database}
-So far, we have established a set of rules for our file system, in order to quickly obtain data from a specific device captured at a specific time. These facilities are sufficient for navigating and accessing data in rudimentary manner, but are certainly not optimal. For instance, our rules do not define any conventions regarding retrieval of specific frames from files in the ROOT data format. Due to this limitation, users seeking individual frames would have to download bulks of data from longer time periods (their length can vary from an hour to a day), which may induce unnecessary processing overhead and memory shortages.
+So far, we have established a set of rules for our file system, in order to quickly obtain data from a specific device captured at a specific time. These facilities are sufficient for navigating and accessing data in rudimentary manner, but are certainly not optimal. For instance, our rules do not define any conventions regarding retrieval of specific frames from files in the ROOT data format. Due to this limitation, users seeking individual frames will have to download bulks of data from longer time periods (their length can vary from an hour to a day in time and from hundreds of megabytes to several gigabytes in size), which may induce unnecessary processing overhead and memory shortages.
 
-There is also no guarantee that time-coded nodes in our directory structure will always be individual files. If such nodes are directories, then the file structure inside of them is undefined, and may require additional decisions on the user side. And what do we do when we want to retrieve frames based on different criteria than time and device of origin? At the moment, we have no option other than to directly enumerate frames stored in all files in our file system, which (considering their potential size) might not be a preferrable solution. To resolve all these issues, we will introduce one more element to our design - \textit{an index database}.
+There is also no guarantee that time-coded nodes in our directory structure will be individual files. If such nodes happen to be directories, the file structure inside of such directories is undefined, and may require additional decisions on the user side. And what do we do when we want to retrieve frames based on different criteria than time and device of origin? At the moment, we have no option other than to directly enumerate frames stored in all files in our file system, which (considering their potential size) might not be a preferrable solution. To resolve all these issues, we will introduce one more element to our design---an index database.
 
-This database will be contain information which can be recalculated at any instant from the primary data files, and will therefore be expendable. The information stored in our database will mostly include, as the name suggests, index of all files and frames on the record and addresses pointing to the them on our file system. In addition, the index database will also store some commonly requested aggregated values.
+This database will be contain information which can be recalculated at any instant from the primary data files, hence it will not need to be backed up. The information stored in our database will mostly include, as the name suggests, index of all files and frames on the record and addresses pointing to the them on our file system. In addition, the index database will also store some commonly requested aggregated values.
 
 
 
 \subsection{Definition}
-We will define only three entities in our database. The relationships between these entities are depicted in Figure \ref{db:index-uml}. Meaning of their properties is defined in this section.
+% ZKRATKA: SQL
+The index database will be compliant to the SQL standard, so that users may design their own queries. For the reasons of simplicity, we will define only three basic entities in our database. The relationships between these entities are depicted in Figure \ref{db:index-uml}. Meaning of their properties is defined in this section.
 
 % OBR: UML diagram databáze
 
@@ -276,6 +277,60 @@ We will define only three entities in our database. The relationships between th
 
 
 \subsection{Performance Optimization}
+By the definition, we have already established that our index database will help deterministically resolve all time-based queries, even in situations when frames are stored in an undefined directory structure. Apart from this optimization, the database will also provide file validation primitives to ensure that any corrupted files are discovered as soon as possible. But there is one more significant performance optimization we have so far neglected to mention.
+
+When retrieving frames by the time and device of origin, we can use the predefined naming patterns to obtain a path in the file system. In case the path points to a directory, we can consult the index database to quickly scan for a file containing the information we need. Still, we are left with an unoptimized task since in order to retrieve the specific frame (or frames) we are looking for, we will have to scan the entire file, which may be several gigabytes in size.
+
+This issue may be in part resolved by sorting all frames in our data files consistently by their start time, allowing us to use a binary search algorithm instead of regular one, thus reducing the complexity of the operation from linear to logarithmic. But we can still do better. Since we already perform lookups in the index database, we can us them to retrieve data addresses, which will point us to specific locations in the file. This way, no enumeration will be needed at all.
+
+Recall that ROOT files contain two trees of interest, the \texttt{dscData} tree with information about detector configuration, and the \texttt{clusterFile} tree, which contains concatenated lists of clusters from every frame. There is only one entry per frame in the \texttt{dscData} tree, whereas the \texttt{clusterFile} tree may contain anywhere from zero to hundreds of thousands of entries per frame. Entries belonging to the same frame can be identified by having equal value of the \texttt{Start\_time} leaf. If we agree to sort all entries in both trees by this leaf value, the \texttt{clusterFile} entries will consequently form continuous bulks of data corresponding to individual frames. This means that once we discover the bulk belonging to the frame we want, we need to only read the entries until the \texttt{Start\_time} changes value (or we reach the last entry). For every frame, we can then store the index of the corresponding \texttt{dscData} entry and the index of the first \texttt{clusterFile} entry in the bulk to achieve constant-time search operation, as illustrated in Figure \ref{fig:db-index-optimization}. This significant benefit comes at the price of increased complexity of the insert operation due to additional sorting of entries in our files, and slightly increased space occupied by the index database because of stored entry indicies.
+
+\begin{figure}[t]
+\begin{center}
+\begin{tikzpicture}[
+    >=stealth,
+    node distance=3cm,
+    database/.style={
+      cylinder,
+      shape border rotate=90,
+      aspect=0.25,
+      minimum width=2.5cm,
+      minimum height=1.5cm,
+      draw
+    },
+    mymat/.style={
+      matrix of math nodes,
+      text height=2.5ex,
+      text depth=0.75ex,
+      text width=3.25ex,
+      align=center,
+      column sep=-\pgflinewidth
+    }]
+    % The DB.
+    \node[database] (db1) at (0,0) {Index DB};
+
+    % The array.
+	\matrix[mymat,anchor=west,row 2/.style={nodes=draw},below of=db1,row 1 column 4/.style={nodes={draw,fill=gray!30}},row 2 column 4/.style={nodes={draw,fill=gray!30}},row 2 column 5/.style={nodes={draw,fill=gray!30}},row 2 column 6/.style={nodes={draw,fill=gray!30}},row 2 column 7/.style={nodes={draw,fill=gray!30}}] (rootfile)
+	{
+		0  &  1 &  2 &  \textbf{3} &  4 &  5 &  6 &  7 &  8 &  9 & 10 & \dots \\
+		29 & 29 & 31 & 32          & 32 & 32 & 32 & 33 & 37 & 40 & 40 & \dots \\
+	};
+
+	% Arrow connecting DB and the array.
+	\draw[-{Stealth[scale=2.0]},black!100] (db1) -| node[black,above,font=\scriptsize,anchor=east]{\texttt{clstr\_first\_entry=3}} (rootfile-1-4.north);
+
+	% Array labels on the left.
+	\node[black,font=\scriptsize,left of=rootfile-1-1,node distance=5mm,anchor=east]{Entry Index};
+	\node[black,font=\scriptsize,left of=rootfile-2-1,node distance=5mm,anchor=east]{Start Time [s]};
+
+	% Label in the bottom.
+	\node[black,font=\scriptsize,below of=rootfile,node distance=1cm,anchor=north]{\texttt{clusterFile} Tree};
+\end{tikzpicture}
+
+\caption{Illustration of the optimization mechanism provided by the index database.}
+\label{fig:db-index-optimization}
+\end{center}
+\end{figure}
 
 
 \subsection{Data Aggregation}

@@ -31,6 +31,8 @@
   \item [{SLS}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{SMB}]\begingroup Server Message Block (also known as the Common Internet File System), a network protocol mainly used for providing shared access to files.\nomeqref {0}
 		\nompageref{iii}
+  \item [{SQL}]\begingroup Structured Query Language, a language designed to define, manage and query data in a relational database system.\nomeqref {0}
+		\nompageref{iii}
   \item [{SSH}]\begingroup Secure Shell, a cryptographic network protocol commonly used for remote command-line access and remote command execution.\nomeqref {0}
 		\nompageref{iii}
   \item [{TOA}]\begingroup Time of Arrival acquisition mode. For more information, see section~\ref{tpx:toa}.\nomeqref {0}
@@ -39,6 +41,7 @@
 		\nompageref{iii}
   \item [{TPX}]\begingroup Timepix, a semiconductor pixel detection chip successing Medipix2.\nomeqref {0}
 		\nompageref{iii}
-  \item [{UNIX}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{UNIX}]\begingroup A family of computer operating systems.\nomeqref {0}
+		\nompageref{iii}
 
 \end{thenomenclature}
