@@ -7,8 +7,6 @@
 %\usepackage{indentfirst} 				% 1. odstavec jako v cestine, pro práci v aj možno zakomentovat
 \usepackage{fancyhdr}					% tisk hlaviček a patiček stránek
 \usepackage{nomencl} 					% umožňuje snadno definovat zkratky a jejich seznam
-\usepackage{tikz}						% TeX obrazky
-\usetikzlibrary{trees,calc,positioning,shapes.geometric,matrix,arrows,decorations.pathreplacing,arrows.meta,decorations.markings,math}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % informace o práci
@@ -42,6 +40,9 @@ unicode=true,
 \usepackage{listings} 			%slouží pro tisk zdrojových kódů se syntax higlighting
 \usepackage{algorithmicx} 		%slouží pro zápis algoritmů
 \usepackage{algpseudocode} 		%slouží pro výpis pseudokódu
+\usepackage{tikz}		        %TeX obrázky
+\usetikzlibrary{trees,calc,positioning,shapes.geometric,matrix,arrows,decorations.pathreplacing,arrows.meta,decorations.markings,math}
+\usepackage{courier}			%pro monospace font
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % příkazy šablony
@@ -56,6 +57,7 @@ unicode=true,
 \newcommand*{\nomExpl}[2]{#2 (#1)\nomenclature{#1}{#2}} 	% usnadňuje zápis zkratek : Slova ke Zkrácení (SZ)
 \newcommand*{\nom}[2]{#1\nomenclature{#1}{#2}} 			% usnadňuje zápis zkratek : SZ
 
+\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true,captionpos=b,frame=single}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -178,7 +180,9 @@ unicode=true,
 
 %%%%%%%%%%%%%%%%%%%%%%%%%% 
 % vše co následuje bude uvedeno v přílohách
-\appendix	
+\appendix
+
+\include{appendix_creation_scripts}
 
 \printnomenclature
 \label{apx:zkratky}

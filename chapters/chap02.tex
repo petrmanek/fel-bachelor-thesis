@@ -170,7 +170,7 @@ Let us now define the data files themselves. All data files will be stored at th
     };
 \end{tikzpicture}
 
-\caption{Example listing of the database file system structure.}
+\caption{Example of the database file system structure.}
 \label{fig:db-structure}
 \end{center}
 \end{figure}
@@ -208,7 +208,7 @@ The index database will be compliant to the SQL standard, so that users may desi
 
 \begin{description}
 	\item[Sensor]
-	Sensor represents a single Timepix device, from which data can be acquired.
+	Sensor represents a single Timepix device, from which data can be acquired. For full definition of the SQL table, see Listing \ref{lst:sql-sensors}.
 
 	\begin{description}
 		\item[Sensor Identifier (\texttt{sid})]
@@ -223,7 +223,7 @@ The index database will be compliant to the SQL standard, so that users may desi
 	\end{description}
 
 	\item[ROOT File]
-	File represents a single file in the ROOT data format, containing data acquired from a single Timepix device in a determinate time period.
+	File represents a single file in the ROOT data format, containing data acquired from a single Timepix device in a determinate time period. For full definition of the SQL table, see Listing \ref{lst:sql-rootfiles}.
 
 	\begin{description}
 		\item[File Identifier (\texttt{fid})] 
@@ -249,7 +249,7 @@ The index database will be compliant to the SQL standard, so that users may desi
 	\end{description}
 
 	\item[Frame]
-	Frame represents a single event of data acquisition from a Timepix device. Every frame is stored in some file (and file can contain multiple frames).
+	Frame represents a single event of data acquisition from a Timepix device. Every frame is stored in some file (and file can contain multiple frames). For full definition of the SQL table, see Listing \ref{lst:sql-frames}.
 
 	\begin{description}
 		\item[Frame Identifier (\texttt{frid})] 
@@ -283,7 +283,7 @@ When retrieving frames by the time and device of origin, we can use the predefin
 
 This issue may be in part resolved by sorting all frames in our data files consistently by their start time, allowing us to use a binary search algorithm instead of regular one, thus reducing the complexity of the operation from linear to logarithmic. But we can still do better. Since we already perform lookups in the index database, we can us them to retrieve data addresses, which will point us to specific locations in the file. This way, no enumeration will be needed at all.
 
-Recall that ROOT files contain two trees of interest, the \texttt{dscData} tree with information about detector configuration, and the \texttt{clusterFile} tree, which contains concatenated lists of clusters from every frame. There is only one entry per frame in the \texttt{dscData} tree, whereas the \texttt{clusterFile} tree may contain anywhere from zero to hundreds of thousands of entries per frame. Entries belonging to the same frame can be identified by having equal value of the \texttt{Start\_time} leaf. If we agree to sort all entries in both trees by this leaf value, the \texttt{clusterFile} entries will consequently form continuous bulks of data corresponding to individual frames. This means that once we discover the bulk belonging to the frame we want, we need to only read the entries until the \texttt{Start\_time} changes value (or we reach the last entry). For every frame, we can then store the index of the corresponding \texttt{dscData} entry and the index of the first \texttt{clusterFile} entry in the bulk to achieve constant-time search operation, as illustrated in Figure \ref{fig:db-index-optimization}. This significant benefit comes at the price of increased complexity of the insert operation due to additional sorting of entries in our files, and slightly increased space occupied by the index database because of stored entry indicies.
+Recall that ROOT files contain two trees of interest, the \texttt{dscData} tree with information about detector configuration, and the \texttt{clusterFile} tree, which contains concatenated lists of clusters from every frame. There is only one entry per frame in the \texttt{dscData} tree, whereas the \texttt{clusterFile} tree may contain anywhere from zero to hundreds of thousands of entries per frame. Entries belonging to the same frame can be identified by having equal value of the \texttt{Start\_time} leaf. If we agree to sort all entries in both trees by this leaf value, the \texttt{clusterFile} entries will consequently form continuous bulks of data corresponding to individual frames. This means that once we discover the bulk belonging to the frame we want, we need to only read the entries until the \texttt{Start\_time} changes value (or we reach the last entry). For every frame, we can then store the index of the corresponding \texttt{dscData} entry and the index of the first \texttt{clusterFile} entry in the bulk to achieve constant-time search operation, as illustrated in Figure \ref{fig:db-index-optimization}. This significant benefit comes at the price of increased complexity of the insert operation due to additional sorting of entries in our files, and slightly increased space occupied by the index database because of stored entry indices.
 
 \begin{figure}[t]
 \begin{center}
@@ -333,9 +333,6 @@ Recall that ROOT files contain two trees of interest, the \texttt{dscData} tree 
 \end{figure}
 
 
-\subsection{Data Aggregation}
-
-
-\subsection{Metaindexing}
-
+\subsection{Data Aggregation and Metaindexing}
+In some cases, users of our database may want to calculate aggregated statistics. Since these types of requests are hard to anticipate and do not constitute a significant portion of all user queries, it is not worth our effort to create new data structures to accelerate their processing. We can, however, make use of the data structures we already have in place. For instance, our index database makes a great candidate in particular since it already contains data associated with individual files and frames, and is easily accessible and queriable using SQL. We will therefore include several statistical values, such as count of clusters differentiated by individual cluster types and frame occupancy encoded as number of non-zero pixels. Users
 
