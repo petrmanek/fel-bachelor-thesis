@@ -1,17 +1,17 @@
 \chapter{Data Structure and Storage}
-In this chapter, we describe the data which will be subject to visualization later on. By chronologically following the process of data acquisition, we start at the Timepix detectors, pass FPGAs, other intermediate hardware and terminate at the sensor readout. We then give details on structure of measured results and mention various permanent storage formats, their particular advantages and disadvantages. Considering all these properties, we then propose a data scheme capable of archiving such data for longer time periods, while striving to offer almost instantaneous access based on the time of measurement.
+In this chapter, we describe data which will be subject to visualization later on. Chronologically following the process of data acquisition, we start out at the read-out interface, give details on the structure of measured results and mention various permanent storage formats, comparing their features. Considering all these properties, we then propose a data scheme capable of archiving such data for longer time periods, striving to offer nearly instantaneous access based on the time of measurement.
 
 
 \section{Output Produced by Timepix}
-Similarly to photodetectors found in common digital cameras, Timepix detectors generate measurements in the form of individual frames. A single captured frame consists of values recorded by all pixels over a given time period, length of which is referred to as \textit{the acquisition time}. Returning to our camera analogy, this figure resembles the time of exposition of a photograph. Prolonging it, we can expect more particles to interact with our detector's pixels, making the resulting frames more saturated.
+Let us first mention several fundamental properties of Timepix. Similarly to photodetectors found in common digital cameras, Timepix detectors generate measurements in the form of individual frames. A single captured frame consists of values recorded by all pixels over a given time period, length of which is referred to as \textit{the acquisition time}. Returning to our camera analogy, this figure resembles the time of exposition of a photograph. Prolonging it, we can expect more particles to interact with our detector's pixels, making the resulting frames more saturated.
 
-The technical principle behind the measurements is analogous to that of a Medipix sensor. Every pixel is equipped with an integer register called \textit{the counter}. When acquisition starts, this counter is set to zero. Throughout the set time period, the counter is possibly incremented multiple times, producing a value which is read out as measurement's result for the individual pixel. This process is synchronized across all of detector's pixels, producing an integer matrix which constitutes the captured frame.
+The technical principle behind measurements is analogous to that of a Medipix sensor. Every pixel is equipped with an integer register called \textit{the counter}. When acquisition starts, this counter is set to zero. Throughout a set time period, the counter is possibly incremented multiple times, producing a value which is read out as measurement's result for the individual pixel. This process is synchronized across all of detector's pixels, producing an integer matrix which constitutes a captured frame.
 
-Since the pixels may not be identical due to material irregularities and manufacturing errors, every pixel has a \textit{threshold} parameter, which is subject to calibration. If, during the measurement, the analog input measured from the pixel's semiconductor exceeds this threshold, the pixel is considered to be interacting with a particle.
+Since pixels may not be identical due to material irregularities and manufacturing errors, every pixel has adjustable \textit{threshold} parameter, which is subject to calibration. In a calibrated state, analog input measured from the pixel's semiconductor should exceed this threshold only when the pixel is interacting with a particle.
 
 
 \subsection{Raw Output}
-Provided that every Timepix detector installed in the ATLAS network has 2 layers of $256 \times 256$ pixel matrices, every captured frame consists of 131,072 integer values in total. The interpretation of these values depends on another parameter, \textit{the operation mode}. While it is technically possible to configure every pixel to operate in a different mode, we have so far preferred to configure all pixels identically, making this essentially not a parameter of a pixel, but that of a frame.
+Provided that every Timepix detector installed in the ATLAS network has 2 layers of $256 \times 256$ pixel matrices, every captured frame consists of 131,072 integer values in total. Interpretation of these values depends on another parameter, \textit{the operation mode}. While it is technically possible to configure every pixel to operate in a different mode, we have so far preferred to configure all pixels identically, making this essentially not a parameter of a pixel, but that of a frame.
 
 The following operation modes are available:
 
@@ -33,20 +33,39 @@ The following operation modes are available:
 If a captured frame contains data from pixels configured in multiple different modes, the frame is said to be measured in the \textbf{Mixed Mode} and should contain further details on the exact pixel configuration of the detector.
 
 
+\subsection{Read-out Interface}
+To quote \cite{TurecekThesis2011}, a read-out interface is \textit{a special dedicated hardware device that reads data and controls acquisition of the detector}. Given high demands on devices installed within the ATLAS machine, the ATLASPIX interface was used in ATLAS-TPX network.
+
+%% CITACE: ATLASPIX at CERN
+
+The interface has two parts connected by four cables. The detector itself is positioned and oriented within the ATLAS machine, whereas the rest of the interface is placed in a nearby server room, protected against ionizing radiation. The cables connect both parts, allowing protected hardware to control detectors remotely during operation of the machine. To manage multiple detectors simultaneously, a server is directly connected to all read-out interfaces. This server, also known as \textit{the control PC}, gathers all measured data and forwards commands from the system operator to the detectors through the ATLASPIX interface. This configuration is shown in Figure \ref{fig:ATLASPIX}.
+
+At the time of writing this work, the control PC is being operated manually from a remote location. All its tasks can be however easily automated.
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics[height=7cm]{figures/imported/atlaspix}
+\includegraphics[height=7cm]{figures/imported/atlaspix-installed}
+\caption{The ATLASPIX read-out interface installed at CERN.}
+\label{fig:ATLASPIX}
+\end{center}
+\end{figure}
+
+
 \subsection{Cluster Analysis}
 %% CITACE: flood-fill
 %% ZKRATKA: TOA, TOT
-In ATLAS measurements, we strive to configure our detectors to capture frames containing multiple disconnected components corresponding with individual interacting particles. Naively speaking, we don't want our frames to be neither fully saturated, nor empty, but \textit{just right}. The task of achieving this level of balance is fairly straightforward, as it consists only of fine-tuning the acquisition time parameter while monitoring the levels of saturation in recently captured frames.
+In ATLAS measurements, we strive to configure our detectors to capture frames containing multiple disconnected components corresponding with individual interacting particles. Naively speaking, we don't want our frames to be neither fully saturated, nor empty, but \textit{just right}. The task of achieving this level of balance is fairly straightforward, as it merely consists of fine-tuning the acquisition time parameter while monitoring levels of saturation in recently captured frames.
 
-In well-balanced frames, we can then observe components of various shapes and sizes, depending on the experiments which were being performed in the ATLAS machine at the time of acquisition. These components, referred to as \textit{clusters}, are discovered and evaluated in an automated process called \textit{the cluster analysis}. This procedure involves a connectivity-checking algorithm, such as \textit{flood-fill}, operating on the pixel matrices to distinguish individual clusters. In later stages, clusters are processed, measured and classified in various categories with regards to their shape. In addition, if the frame has been captured in TOT mode and calibration data are available, the automated processing script converts raw measured counter values to energy approximations.
+In well-balanced frames, we can then observe components of various shapes and sizes, depending on the experiments performed at the time of acquisition. These components, commonly known as \textit{clusters}, are discovered and evaluated in an automated process called \textit{the cluster analysis}. This procedure involves a connectivity-checking algorithm, such as \textit{flood-fill}, operating on pixel matrices to distinguish individual clusters. In later stages, clusters are processed, measured and classified in various categories with regards to their shape. In addition, if the frame has been captured in TOT mode and calibration data are available, the automated processing script can convert counter values to energy approximations.
 
-%% OBR: saturovaný snímek - špatně
-%% OBR: snímek s clustery - dobře
+%% OBR: saturovaný snímek - špatně (TPX01@1441600713.82345, 2015_09_07_TPX01.root, frame #16512)
+%% OBR: snímek s clustery - dobře (TPX01@1435930709.35062, 2015_07_03_TPX01.root, frame #34979)
 
 % CITACE: sparse matrix
-The output of the cluster analysis consists of two separate lists of clusters, one per every sensor layer. It follows from the definition of a cluster that any pixel contained in it has a non-zero counter value. Consequently, all pixels unreferenced by any cluster are assumed to be equal to zero. The utilized technique of data encoding is well-known as it offers efficient compression rate for sparse pixel matrices which we are expecting to encounter in our measured data. It is however worth noting at this point that in certain cases (represented most notably by saturated or nearly saturated frames), this approach produces voluminous data structures, which may take long time to enumerate, and in turn slow down other algorithms operating on them.
+The output of cluster analysis consists of two separate lists of clusters, one per every sensor layer. It follows from the definition of a cluster that any pixel contained in it has a non-zero counter value. Consequently, all pixels unreferenced by any cluster are assumed to be equal to zero. The utilized technique of data encoding is well-known as it offers efficient compression rate for sparse pixel matrices which we are expecting to encounter in our measured data. It is however worth noting at this point that in certain cases (represented most notably by saturated or nearly saturated frames), this approach produces voluminous data structures, which may take long time to enumerate, and in turn slow down other algorithms operating on them.
 
-In the cluster list, pixels are stored as tuples of their Carthessian coordinates and their respective counter values. From this information, the pixel matrix can be reconstructed at any time. The original pixel matrix is therefore discarded at the end of the cluster analysis, in order to minimize storage requirements. Please note that should there be any errors discovered in the future, the already processed data could be converted back into the form of pixel matrices by means of simple enumeration. Following that, the patched version of the cluster analysis process would analyze the pixel data once again, replacing any possibly erroneous output with correct one.
+In a cluster list, pixels are stored as tuples of their Carthessian coordinates and their respective counter values. From this information, the pixel matrix can be reconstructed at any time. The original pixel matrix is therefore discarded at the end of the cluster analysis, in order to minimize occupied space. Please note that should there be any errors discovered in the future, data processed in this way could be still converted back into the form of pixel matrices by means of simple enumeration. Following that, a patched version of the cluster analysis process would analyze the pixel data once again, simply replacing any erroneous output with a correct one.
 
 Let us now further inspect data generated by the process of cluster analysis. As we hinted at the beginning of this section, many other secondary values are calculated for every cluster during the automated processing, most notable of which are:
 
@@ -190,10 +209,12 @@ The most straight-forward way of storing data acquired by Timepix detectors is t
 	TODO
 \end{description}
 
-The text format has several advantages. Being encoded mostly in plain text files, data can be easily parsed without any software dependencies, and in case of possible corruption, files can be quickly checked in any text editor. Furthermore, since the format is directly produced by the Timepix readout software, no additional data conversions are required. With all these features in mind, this storage format is certainly not optimal on all fronts. Its nature brings about utterly wasteful storage strategies, particularly noticable in frequently repeated descriptive information. This inefficiency is even aggravated by not taking advantage of obvious benefits offered by binary serialization. Consequently, files stored in this format tend to be rather large in size, often forcing users to split them into smaller time periods.
+The text format has several advantages. Being encoded mostly in plain text files, data can be easily parsed without any software dependencies, and in case of possible corruption, files can be quickly checked in any text editor. Furthermore, since the format is directly produced by the Timepix read-out software, no additional data conversions are required.
+
+With all these features in mind, this storage format is certainly not optimal on all fronts. Its nature brings about utterly wasteful storage strategies, particularly noticable in frequently repeated descriptive information. This inefficiency is even aggravated by not taking advantage of obvious benefits offered by binary serialization. Consequently, files stored in the multi-frame format tend to be quite large in size, often forcing users to split them into smaller time periods.
 
 \subsection{The ROOT Format}
-Another storage option is the ROOT Data Analysis Framework. Originally concieved at CERN in 1995 by \cite{Brun199781}, the framework provides a set of powerful tools with various applications in data mining, manipulation and visualization. Unlike other similar toolkits, ROOT comes with its own machine-independent binary file format (identified by the \texttt{.root} extension). This format is designed to store enormous amounts of data within various types of data structures efficiently, while maintaining good overall performance by employing low-level memory optimization techniques and multi-tier content caching.
+Another storage option is the ROOT Data Analysis Framework \cite{Brun199781}. Originally concieved at CERN in 1995, the framework provides a set of powerful tools with various applications in data mining, manipulation and visualization. Unlike other similar toolkits, ROOT comes with its own machine-independent binary file format (identified by the \texttt{.root} extension). This format is designed to store enormous amounts of data within various types of data structures efficiently, while maintaining good overall performance by employing low-level memory optimization techniques and multi-tier content caching.
 
 %% ZKRATKA: API
 %% ZKRATKA: ROOT?
@@ -249,13 +270,14 @@ Should data be stored in ROOT, a basic relational database concept comes to mind
 \end{center}
 \end{figure}
 
-In spite of being over 20 years in development, ROOT is not perfect. Using memory monitoring tools such as \cite{nethercote2007valgrind}, we have confirmed that the C++ implementation of the ROOT framework is riddled with various memory leaks, making it unsuitable for time-extensive operations. Some might also argue, that a full tree data structure might be overly-complicated and too general for a simple output described in previous sections. Lastly, ROOT framework has quite a complex object structure, making it hard to learn for first-time users.
+In spite of being over 20 years in development, ROOT is not perfect. Using memory monitoring tools such as \cite{nethercote2007valgrind}, we have confirmed that the C++ implementation of the ROOT framework is riddled with various memory leaks, making it unsuitable for time-extensive operations. Some might also argue, that a full tree data structure might be overly-complicated and too generalized for a simple output described in previous sections. Lastly, ROOT framework has quite a complex object structure, making it hard to learn for first-time users.
 
 
 \section{Proposed Data Structure}
+Having defined the essence of information we wish to store and several data formats as means to do it, we are now ready to focus on the definition of our database. 
 
 \subsection{Formal Requirements}
-Having defined the essence of information we wish to store and several data formats as means to do it, we are now ready to focus on the definition of our database. Requirements on such a data structure are as common as database requirements can get. It should be a reliable permanent storage element, accessible for reading from multiple workstations at a same time and robust enough to withstand minor hardware failures. With 15 detectors already installed at ATLAS, and possible option of installing another 5, the database should be designed to hold frames from up to 20 Timepix devices for the entire expected time period of their operation at LHC (that from June 2015 to LS3 in 2021).
+Requirements on such a data structure are as common as database requirements can get. It should be a reliable permanent storage element, accessible for reading from multiple workstations at a same time and robust enough to withstand minor hardware failures. With 15 detectors already installed at ATLAS, and possible option of installing another 5, the database should be designed to hold frames from up to 20 Timepix devices for the entire expected time period of their operation at LHC (that from June 2015 to LS3 in 2021).
 
 % ZKRATKA: LHC
 % CITACE: LHC schedule, LS2, LS3
@@ -359,7 +381,7 @@ This database will be contain information which can be recalculated at any insta
 
 \subsection{Definition}
 % ZKRATKA: SQL
-The index database will be compliant to the SQL standard, so that users may design their own queries. For the reasons of simplicity, we will define only three basic entities in our database. The relationships between these entities are depicted in Figure \ref{db:index-uml}. Meaning of their properties is defined in this section.
+The index database will be compliant to the SQL standard, so that users may design their own queries. For the reasons of simplicity, we will define only three basic entities in our database. The relationships between these entities are depicted in Figure \ref{db:index-uml}, whereas the meaning of their members is defined in this section.
 
 % OBR: UML diagram databáze
 
@@ -372,7 +394,7 @@ The index database will be compliant to the SQL standard, so that users may desi
 		Identifier of the device, unique within the index database.
 
 		\item[Name (\texttt{name})]
-		Name of the sensor, consistent with the other literature.
+		Readable name of the sensor, consistent with the other literature.
 		% CITACE: označení TPX detektorů v ATLASu
 
 		\item[Calibration Constants (\texttt{calibration\_layer1}, \texttt{calibration\_layer2})]
@@ -406,7 +428,7 @@ The index database will be compliant to the SQL standard, so that users may desi
 	\end{description}
 
 	\item[Frame]
-	Frame represents a single event of data acquisition from a Timepix device. Every frame is stored in some file (and file can contain multiple frames). For full definition of the SQL table, see Listing \ref{lst:sql-frames}.
+	Frame represents a single event of data acquisition from a Timepix device. Every frame is stored in some file (and a file can contain multiple frames). For full definition of the SQL table, see Listing \ref{lst:sql-frames}.
 
 	\begin{description}
 		\item[Frame Identifier (\texttt{frid})] 
@@ -416,7 +438,7 @@ The index database will be compliant to the SQL standard, so that users may desi
 		Identifier of the file, in which the frame is stored.
 
 		\item[Sensor Identifier (\texttt{sid})] 
-		Identifier of the device, which acquired this frame (must match \texttt{sid} of the file).
+		Identifier of the device, which captured this frame (must match \texttt{sid} of the file).
 
 		\item[Start Time (\texttt{start\_time})] 
 		Start time of the acquisition.
@@ -425,7 +447,7 @@ The index database will be compliant to the SQL standard, so that users may desi
 		Duration of the acquisition.
 
 		\item[Data Addresses (\texttt{dsc\_entry}, \texttt{clstr\_first\_entry})]
-		Index values pointing directly to entries within the ROOT file's internal structure.
+		Index values pointing directly to entries within the ROOT file's internal structure, where the frame data is stored.
 
 		\item[Statistics (\texttt{occupancy}, \texttt{clstr1\_count}, \dots, \texttt{clstr6\_count})]
 		Total number of non-zero pixels in the frame, and numbers of clusters of different types in the frame.
@@ -434,13 +456,13 @@ The index database will be compliant to the SQL standard, so that users may desi
 
 
 \subsection{Performance Optimization}
-By the definition, we have already established that our index database will help deterministically resolve all time-based queries, even in situations when frames are stored in an undefined directory structure. Apart from this optimization, the database will also provide file validation primitives to ensure that any corrupted files are discovered as soon as possible. But there is one more significant performance optimization we have so far neglected to mention.
+By the definition, it follows that our index database will help deterministically resolve all time-based queries, even in situations when frames are stored in an undefined directory structure. Apart from this optimization, the database will also provide file validation primitives to ensure that any corrupted files are discovered as soon as possible. But there is one more significant performance optimization we have so far neglected to mention.
 
 When retrieving frames by the time and device of origin, we can use the predefined naming patterns to obtain a path in the file system. In case the path points to a directory, we can consult the index database to quickly scan for a file containing the information we need. Still, we are left with an unoptimized task since in order to retrieve the specific frame (or frames) we are looking for, we will have to scan the entire file, which may be several gigabytes in size.
 
-This issue may be in part resolved by sorting all frames in our data files consistently by their start time, allowing us to use a binary search algorithm instead of regular one, thus reducing the complexity of the operation from linear to logarithmic. But we can still do better. Since we already perform lookups in the index database, we can us them to retrieve data addresses, which will point us to specific locations in the file. This way, no enumeration will be needed at all.
+This issue may be in part resolved by sorting all frames in our data files consistently by their start time, allowing us to use a binary search algorithm instead of regular one, thus reducing the complexity of the operation from linear to logarithmic. But we can still do better. Since we already perform lookups in the index database, we can us them to retrieve data addresses, which will point us to specific locations in the file. This way, no search will be needed at all.
 
-Recall that ROOT files contain two trees of interest, the \texttt{dscData} tree with information about detector configuration, and the \texttt{clusterFile} tree, which contains concatenated lists of clusters from every frame. There is only one entry per frame in the \texttt{dscData} tree, whereas the \texttt{clusterFile} tree may contain anywhere from zero to hundreds of thousands of entries per frame. Entries belonging to the same frame can be identified by having equal value of the \texttt{Start\_time} leaf. If we agree to sort all entries in both trees by this leaf value, the \texttt{clusterFile} entries will consequently form continuous bulks of data corresponding to individual frames. This means that once we discover the bulk belonging to the frame we want, we need to only read the entries until the \texttt{Start\_time} changes value (or we reach the last entry). For every frame, we can then store the index of the corresponding \texttt{dscData} entry and the index of the first \texttt{clusterFile} entry in the bulk to achieve constant-time search operation, as illustrated in Figure \ref{fig:db-index-optimization}. This significant benefit comes at the price of increased complexity of the insert operation due to additional sorting of entries in our files, and slightly increased space occupied by the index database because of stored entry indices.
+Recall that ROOT files contain two trees of interest, the \texttt{dscData} tree with information about detector configuration, and the \texttt{clusterFile} tree, which contains concatenated lists of clusters from every frame. There is only one entry per frame in the \texttt{dscData} tree, whereas the \texttt{clusterFile} tree may contain anywhere from zero to hundreds of thousands of entries in a single frame. Entries belonging to the same frame can be identified by having equal value of the \texttt{Start\_time} leaf. If we agree to sort all entries in both trees by this leaf value, the \texttt{clusterFile} entries will consequently form continuous bulks of data corresponding to individual frames. This means that once we discover the bulk belonging to the frame we want, we only need to read entries as long as the start time remains the same (or we reach the last entry). For every frame, we can then store the index of the corresponding \texttt{dscData} entry and the index of the first \texttt{clusterFile} entry in the bulk to achieve constant-time search operation, as illustrated in Figure \ref{fig:db-index-optimization}. This significant benefit comes at the price of increased complexity of the insert operation due to additional sorting of entries in our files, and slightly increased space occupied by the index database because of stored entry indices.
 
 \begin{figure}[t]
 \begin{center}
@@ -492,5 +514,10 @@ Recall that ROOT files contain two trees of interest, the \texttt{dscData} tree 
 
 
 \subsection{Data Aggregation and Metaindexing}
-In some cases, users of our database may want to calculate aggregated statistics. Since these types of requests are hard to anticipate and do not constitute a significant portion of all user queries, it is not worth our effort to create new data structures to accelerate their processing. We can, however, make use of the data structures we already have in place. For instance, our index database makes a great candidate in particular since it already contains data associated with individual files and frames, and is easily accessible and queriable using SQL. We will therefore include several statistical values, such as count of clusters differentiated by individual cluster types and frame occupancy encoded as number of non-zero pixels. Users
+In some cases, users of our database may want to calculate aggregated statistics. Since these types of requests are hard to anticipate and do not constitute a significant portion of all user queries, it is not worth our effort to create separate data structures in order to accelerate their processing. We can, however, make use of data structures we already have in place. For instance, our index database makes a great candidate in particular since it already contains data associated with individual files and frames, and is easily accessible and queriable using SQL. We will therefore include several statistical values, such as count of clusters differentiated by individual cluster types and frame occupancy encoded as number of non-zero pixels.
+
+Users can utilize filtering and aggregation features of SQL to quickly find files and frames in the index database, and if required, analyze their contents more thoroughly.
+
+Lastly, SQL implementations include an analogy to the index mechanism we used to accelerate our access to individual frames within data files. Using their own tree indices built from various columns of data tables, servers can speed up certain queries containing predicates or orderings based on such columns. We can utilize this mechanism to make our data access procedure even faster, in a sense indexing the index database. To see how exactly we make use of this technique, examine Listings \ref{lst:sql-sensors}, \ref{lst:sql-rootfiles} and \ref{lst:sql-frames}.
+
 
