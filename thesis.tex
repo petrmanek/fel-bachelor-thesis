@@ -57,8 +57,11 @@ unicode=true,
 \newcommand*{\nomExpl}[2]{#2 (#1)\nomenclature{#1}{#2}} 	% usnadňuje zápis zkratek : Slova ke Zkrácení (SZ)
 \newcommand*{\nom}[2]{#1\nomenclature{#1}{#2}} 			% usnadňuje zápis zkratek : SZ
 
-\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true,captionpos=b,frame=single}
+\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true,captionpos=b,frame=single}             % zápis úrvyků kódu
 
+
+\pgfdeclarelayer{background}
+\pgfsetlayers{background,main}                          % pozadí+popředí tikz
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % vlastní dokument
