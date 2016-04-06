@@ -1,6 +1,17 @@
 \chapter{Communication Protocol}
 % 3. Komunikační protokol pro přenos dat
 
+In this chapter, we move our focus from data to the communication protocol used to transmit the data for the purposes of visualization. We describe the overall scheme of communication and define the protocol in a formal way.
+
+\section{Client-Server Model}
+Let us first state few assumptions about the system. We expect to have multiple users connecting to our servers over a local area network or the Internet. We assume that our users will want to see and possibly further examine some of the frames captured by the ATLAS-TPX network. In addition, we do not expect our users to request continuous footage at streaming speeds, as much as the overview of recent detector operation with emphasis on irregular or pattern-defying events. With regards to these assumptions, it makes sense to call our users clients and the main data storage unit a server. 
+
+\subsection{Considerations}
+It is worth noting that in designing our system, we would like to upheld a multilayered architecture. This way, there will be strict distinctions between individual layers of the system, making them easily extendable, substitutable and perhaps even portable to other applications. Moreover, users of our system will always have a choice of layer, with which they wish to interact. We may imagine this as follows. Users, who want a quick peek at the detector operation without any effort, may use the web visualization UI. Users, who want to retrieve data for experimentation or statistical aggregation, might utilize SQL or the communication protocol we define in this very chapter. Lastly, users in need of direct data enumeration or manipulation can connect to the database storage device and download data files using some of the supported network transfer protocols.
+
+% CITACE: konkurenční projekty
+We should also consider extensibility of our protocol. With multiple concurrent projects such as MoEDAL-TPX\footnote{Similarly to ATLAS-TPX, MoEDAL-TPX is a network of Timepix device installed within the MoEDAL experiment at CERN.}, SATRAM\footnote{SATRAM is a technology demonstration device carrying Timepix position-sensitive semiconductor pixel detector on board ESA’s Proba V satellite. \url{http://satram.utef.cvut.cz/}} and RISESat\footnote{RISESat is a microsatellite mission carrying several scientific instruments including a Timepix detector.}, it is likely that the same protocol will be used for compatibility reasons in other applications as well. Our protocol should therefore allow for limited variability, gracefully handling minor alterations in transmitted data structures.
+
 \section{Requirements}
 %  - Definice požadavků na datový server, možnosti pro trvalé úložiště dat.
 
