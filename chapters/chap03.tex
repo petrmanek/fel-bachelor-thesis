@@ -1,20 +1,28 @@
 \chapter{Communication Protocol}
 % 3. Komunikační protokol pro přenos dat
 
-In this chapter, we move our focus from the data itself to a communication protocol we use to transmit the data for the purposes of visualization. We describe the overall scheme of communication and define the protocol in a formal way.
+In this chapter, we move our focus from the data itself to the REST Timepix Access Protocol, a communication protocol we use to transmit the data for the purposes of visualization. We describe overall scheme of communication and define RTAP in a formal way.
 
 \section{Client-Server Model}
-Let us first state some assumptions about our system. We expect to have multiple users connecting to our data storage over a local area network or through the Internet. We assume that our users will want to see and possibly further examine some of the frames captured by the ATLAS-TPX network.
+In the previous chapter, we have defined a database capable of storing footage captured by the ATLAS-TPX network at CERN. Since this database is based on a file system, multiple users can access it simultaneously by either logging on to the computer which manages the file system, or by using some of supported\footnote{Recall that in section \ref{db:supported-protocols} we define that our database supports FTP, SMB, SSH, AFP and HTTP access.} network protocols. Since these protocols use a client-server communication model in their definition, it makes sense to do the same in RTAP as well.
 
-We do not expect to transmit all information from our data files, nor do we want to send continuous footage at streaming speeds. Instead, we define a protocol to enable simple access to detector data. The goal is to provide brief overview of recent detector operation with emphasis on any irregular or pattern-defying events.
+Before we continue, we need to ask ourselves an important question. Why would we define and implement a new communication protocol for a proprietary data format? Since our database already supports network access for multiple users, we will not be adding any new features, so what other benefits could there be? The primary motivation for the existence of RTAP is the web visualization UI. In it, our users will want to observe recorded footage frame by frame. If we do not define our own protocol to transmit individual frames, we are bound to use one of storage formats listed in section \ref{db:storage-formats}, none of which are particularly suitable for this task, and for network transfers in general. For instance, Multi-Frame stores data in multiple files, implying that several parallel downloads would be required to display even one frame, possibly putting a strain on user's network connection in the process. ROOT uses its own compression algorithms, making it non-trivial to deflate in a website context. Lastly, since both ROOT and Multi-Frame store data in bulks, the information overhead to transmit just one frame would be unbearable, especially considering that files in question may be several gigabytes in size.
+
+With this motivation in mind, let us now state few more assumptions about our web visualization. We expect to have multiple users connecting to our server over a local area network or through the Internet. We assume that our users will want to see and possibly further inspect some of the frames captured by the ATLAS-TPX network, transmitted one at a time.
+
+We do not design RTAP to transmit all information from our data files, nor do we want to send continuous footage at streaming speeds. Instead, we define RTAP to enable simple access to detector data, and to provide a brief overview of recent detector operation with emphasis on any irregular or pattern-defying events.
 
 \subsection{Considerations}
-It is worth noting that in designing our system, we would like to uphold a multi-layered architecture. This way, there will be strict distinctions between individual layers of the system (and the tasks they perform), making them in effect easily extendable, substitutable and perhaps even portable to other applications.
+It is worth noting that in designing our system, we would like to uphold a multi-layered architecture. This way, we will maintain strict distinctions between individual components of the system (and the tasks they perform), making them in effect easily extendable, substitutable and perhaps even portable to other applications. Other benefit of this approach is that users of our system will always have freedom to choose a component with which they wish to interact, in turn specifying the level of speed and complexity .
 
-Other benefit of this approach is that users of our system will always have freedom to choose a layer, with which they wish to interact. We may imagine this as follows. Users, who want a quick peek at the detector operation without any effort, may use the web visualization UI. Users, who want to retrieve data for experimentation or statistical aggregation, might utilize SQL or the communication protocol we define in this very chapter. Lastly, users in need of data enumeration or manipulation can connect to the database storage device and directly download data files using some of the supported network transfer protocols.
+We may imagine this as follows. Users, who want a quick peek at the detector operation without any effort, may use the web visualization UI. Users, who want to retrieve data for experimentation or statistical aggregation, might utilize SQL or the communication protocol we define in this very chapter. Lastly, users in need of data enumeration or manipulation can connect to the database storage device and directly download data files using some of the supported network transfer protocols.
 
 % CITACE: konkurenční projekty
-We should also consider extensibility of our protocol. With multiple concurrent projects such as MoEDAL-TPX\footnote{Similarly to ATLAS-TPX, MoEDAL-TPX is a network of Timepix device installed within the MoEDAL experiment at CERN.}, SATRAM\footnote{SATRAM is a technology demonstration device carrying Timepix position-sensitive semiconductor pixel detector on board ESA’s Proba V satellite. \url{http://satram.utef.cvut.cz/}} and RISESat\footnote{RISESat is a microsatellite mission carrying several scientific instruments including a Timepix detector.}, it is likely that the same protocol will be used for compatibility reasons in other applications as well. Our protocol should therefore allow for limited variability, gracefully handling minor alterations in transmitted data structures.
+We should also consider extensibility of the protocol we define. With multiple concurrent projects such as MoEDAL-TPX\footnote{Similarly to ATLAS-TPX, MoEDAL-TPX is a network of Timepix device installed within the MoEDAL experiment at CERN.}, SATRAM\footnote{SATRAM is a technology demonstration device carrying Timepix position-sensitive semiconductor pixel detector on board ESA’s Proba V satellite. \url{http://satram.utef.cvut.cz/}} and RISESat\footnote{RISESat is a microsatellite mission carrying several scientific instruments including a Timepix detector.}, it is likely that the same protocol will be used for compatibility reasons in other applications as well. Our protocol should therefore allow for limited variability, gracefully handling minor alterations in transmitted data structures.
+
+\subsection{Underlying Standards}
+W
+
 
 \begin{figure}[t]
 \begin{center}
@@ -49,8 +57,8 @@ We should also consider extensibility of our protocol. With multiple concurrent 
 
 	\node[layerb,below=of Protocols] (Servers) {\textbf{Servers}};
 	\node[proprietaryb,right=of Servers] (DataS) {Data RPC};
-	\node[blueb,right=of DataS] (WebS) {Static Web};
-	\node[blueb,right=of WebS] (FileS) {File Servers};
+	\node[blueb,right=of DataS] (WebS) {Static web};
+	\node[blueb,right=of WebS] (FileS) {File servers};
 	\node[blueb,right=of FileS] (SQLS) {SQL};
 
 	\node[layerb,below=of Servers] (Data) {\textbf{Data Store}};

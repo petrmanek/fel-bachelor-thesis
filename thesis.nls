@@ -26,8 +26,10 @@
 		\nompageref{iii}
   \item [{MPX}]\begingroup Medipix, a semiconductor pixel detection chip.\nomeqref {0}
 		\nompageref{iii}
+  \item [{REST}]\begingroup TODO\nomeqref {0}\nompageref{iii}
   \item [{ROOT}]\begingroup An object oriented data analysis framework. \cite{Brun199781}\nomeqref {0}
 		\nompageref{iii}
+  \item [{RTAP}]\begingroup TODO\nomeqref {0}\nompageref{iii}
   \item [{SLS}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{SMB}]\begingroup Server Message Block (also known as the Common Internet File System), a network protocol mainly used for providing shared access to files.\nomeqref {0}
 		\nompageref{iii}
