@@ -1,16 +1,16 @@
 \chapter{Communication Protocol}
 % 3. Komunikační protokol pro přenos dat
 
-In this chapter, we move our focus from the data itself to the REST Timepix Access Protocol, a communication protocol we use to transmit the data for the purposes of visualization. We describe overall scheme of communication and define RTAP in a formal way.
+In this chapter, we move our focus from the data itself to the JSON Timepix Protocol, a communication protocol we use to transmit the data for the purposes of visualization. We describe overall scheme of communication and define JSTP in a formal way.
 
 \section{Client-Server Model}
-In the previous chapter, we have defined a database capable of storing footage captured by the ATLAS-TPX network at CERN. Since this database is based on a file system, multiple users can access it simultaneously by either logging on to the computer which manages the file system, or by using some of supported\footnote{Recall that in section \ref{db:supported-protocols} we define that our database supports FTP, SMB, SSH, AFP and HTTP access.} network protocols. Since these protocols use a client-server communication model in their definition, it makes sense to do the same in RTAP as well.
+In the previous chapter, we have defined a database capable of storing footage captured by the ATLAS-TPX network at CERN. Since this database is based on a file system, multiple users can access it simultaneously by either logging on to the computer which manages the file system, or by using some of supported\footnote{Recall that in section \ref{db:supported-protocols} we define that our database supports FTP, SMB, SSH, AFP and HTTP access.} network protocols. Since these protocols use a client-server communication model in their definition, it makes sense to do the same in JSTP as well.
 
-Before we continue, we need to ask ourselves an important question. Why would we define and implement a new communication protocol for a proprietary data format? Since our database already supports network access for multiple users, we will not be adding any new features, so what other benefits could there be? The primary motivation for the existence of RTAP is the web visualization UI. In it, our users will want to observe recorded footage frame by frame. If we do not define our own protocol to transmit individual frames, we are bound to use one of storage formats listed in section \ref{db:storage-formats}, none of which are particularly suitable for this task, and for network transfers in general. For instance, Multi-Frame stores data in multiple files, implying that several parallel downloads would be required to display even one frame, possibly putting a strain on user's network connection in the process. ROOT uses its own compression algorithms, making it non-trivial to deflate in a website context. Lastly, since both ROOT and Multi-Frame store data in bulks, the information overhead to transmit just one frame would be unbearable, especially considering that files in question may be several gigabytes in size.
+Before we continue, we need to ask ourselves an important question. Why would we define and implement a new communication protocol for a proprietary data format? Since our database already supports network access for multiple users, we would not gain any new features, so what other benefits could there be? The primary motivation for the existence of JSTP is the web visualization UI. In it, our users want to observe recorded footage frame by frame. If we do not define our own protocol to transmit individual frames, we are bound to use one of storage formats listed in section \ref{db:storage-formats}, none of which are particularly suitable for this task, and for network transfers in general. For instance, Multi-Frame stores data in multiple files, implying that several parallel downloads would be required to display even one frame, possibly putting a strain on user's network connection in the process. ROOT uses its own compression algorithms, making it non-trivial to deflate in a website context. Lastly, since both ROOT and Multi-Frame store data in bulks, the information overhead to transmit just one frame would be unbearable, especially considering that files in question may be several gigabytes in size.
 
-With this motivation in mind, let us now state few more assumptions about our web visualization. We expect to have multiple users connecting to our server over a local area network or through the Internet. We assume that our users will want to see and possibly further inspect some of the frames captured by the ATLAS-TPX network, transmitted one at a time.
+With this motivation in mind, let us now state few more assumptions about our web visualization. We expect to have multiple users connecting to our server over a local area network or through the Internet. We assume that our users want to see and possibly further inspect some of the frames captured by the ATLAS-TPX network, transmitted one at a time.
 
-We do not design RTAP to transmit all information from our data files, nor do we want to send continuous footage at streaming speeds. Instead, we define RTAP to enable simple access to detector data, and to provide a brief overview of recent detector operation with emphasis on any irregular or pattern-defying events.
+We do not design JSTP to transmit all information from our data files, nor do we want to send continuous footage at streaming speeds. Instead, we define JSTP to enable simple access to detector data, and to provide a brief overview of recent detector operation with emphasis on any irregular or pattern-defying events.
 
 \subsection{Considerations}
 It is worth noting that in designing our system, we would like to uphold a multi-layered architecture. This way, we will maintain strict distinctions between individual components of the system (and the tasks they perform), making them in effect easily extendable, substitutable and perhaps even portable to other applications. Other benefit of this approach is that users of our system will always have freedom to choose a component with which they wish to interact, in turn specifying the level of offered services, speed and complexity.
@@ -42,8 +42,8 @@ It is worth noting that in designing our system, we would like to uphold a multi
 	\node[blueb,right=of VizUI,text width=5cm+10pt] (Apps) {Others \dots};
 
 	\node[layerb,below=of Clients] (Protocols) {\textbf{Protocols}};
-	\node[proprietaryb,right=of Protocols] (RTAP) {RTAP};
-	\node[blueb,right=of RTAP] (HTTP) {HTTP};
+	\node[proprietaryb,right=of Protocols] (JSTP) {JSTP};
+	\node[blueb,right=of JSTP] (HTTP) {HTTP};
 	\node[blueb,right=of HTTP] (FileP) {FTP, SMB};
 	\node[blueb,right=of FileP] (SQLP) {SQL queries};
 
@@ -75,22 +75,24 @@ It is worth noting that in designing our system, we would like to uphold a multi
 We may imagine this as follows. Users, who want a quick peek at the detector operation without any effort, may use the web visualization UI. Users, who want to retrieve data for experimentation or statistical aggregation, might utilize SQL or the communication protocol we define in this very chapter. Lastly, users in need of data enumeration or manipulation can connect to the database storage device and directly download data files using some of the supported network transfer protocols. This concept is illustrated in Figure \ref{fig:multilayered-diagram}.
 
 % CITACE: konkurenční projekty
-We should also consider extensibility of RTAP in the future. With multiple concurrent projects such as MoEDAL-TPX\footnote{Similarly to ATLAS-TPX, MoEDAL-TPX is a network of Timepix devices installed within the MoEDAL experiment at CERN.}, SATRAM\footnote{SATRAM is a technology demonstration device carrying Timepix position-sensitive semiconductor pixel detector on board ESA’s Proba V satellite. \url{http://satram.utef.cvut.cz/}} and RISESat\footnote{RISESat is a microsatellite mission carrying several scientific instruments including a Timepix detector.}, it is likely that RTAP will be used for compatibility reasons in other applications as well. It should therefore allow for limited variability, gracefully handling minor alterations in transmitted data structures.
+We should also consider extensibility of JSTP in the future. With multiple concurrent projects such as MoEDAL-TPX\footnote{Similarly to ATLAS-TPX, MoEDAL-TPX is a network of Timepix devices installed within the MoEDAL experiment at CERN.}, SATRAM\footnote{SATRAM is a technology demonstration device carrying Timepix position-sensitive semiconductor pixel detector on board ESA’s Proba V satellite. \url{http://satram.utef.cvut.cz/}} and RISESat\footnote{RISESat is a microsatellite mission carrying several scientific instruments including a Timepix detector.}, it is likely that JSTP will be used for compatibility reasons in other applications as well. It should therefore allow for limited variability, gracefully handling minor alterations in transmitted data structures.
 
 \subsection{Requirements}
-The most basic requirement on RTAP is that it allows us to retrieve frames captured by the ATLAS-TPX network by the time and the device of origin. This might remind us of a similar requirement in the database definition (see section \ref{db:definition}), as it is the most likely user request. But unlike the database, RTAP should be able to transmit only those frames, which conform to request's predicate, minimizing information overhead in responses.
+The most basic requirement on JSTP is that it allows us to retrieve frames captured by the ATLAS-TPX network by the time and the device of origin. This might remind us of a similar requirement in the database definition (see section \ref{db:definition}), as it is the most likely user request. But unlike the database, JSTP should be able to transmit only those frames, which conform to request's predicate, minimizing information overhead in responses.
 
-Moreover, we require RTAP to transmit results of cluster analysis, possibly leaving the door open for pixel matrix transmissions in the future. This means that every frame transmitted through RTAP will have to consist of two parts: a header (containing detector configuration, position, etc.) and a body (cluster list, possibly a pixel matrix).
+Moreover, we require JSTP to transmit results of cluster analysis, possibly leaving the door open for pixel matrix transmissions in the future. This means that every frame transmitted through JSTP will have to consist of two parts: a header (containing detector configuration, position, etc.) and a body (cluster list, possibly a pixel matrix). In order to specify from which network device the data must originate, we require that JSTP provides a list of devices in the network. This might seem redundant at first, but consider that we need to be ready for situations when devices malfunction, are replaced, or new elements of the network are installed. Lastly, since JSTP will provide us with a list of sensors and frames from any of them at any time of operation, we require that it offers us a simple overview of sensor operation in a given time interval, expressed in average frame occupancy and cluster counts (possibly differentiated by cluster types).
 
-In order to specify from which network device the data must originate, we require that RTAP provides a list of devices in the network. This might seem redundant at first, but consider that we need to be ready for situations when devices malfunction, are replaced, or new elements of the network are installed. Lastly, since RTAP will provide us with a list of sensors and frames from any of them at any time of operation, we require that it offers us a simple overview of sensor operation in a given time interval, expressed in average frame occupancy and cluster counts (possibly differentiated by cluster types).
-
-Apart from the file management network protocols we listed earlier, we do not place any data manipulation requirements on RTAP, implying that the protocol will be used merely for read-only access.
+Apart from the file management network protocols we listed earlier, we do not place any data manipulation requirements on JSTP, implying that the protocol cannot be used for other than read-only access.
 
 \section{Definition}
-In this section, we define the REST Timepix Access Protocol.
+In this section, we define the JSON Timepix Protocol.
 
 \subsection{Underlying Standards}
-As the name suggests, we have decided to base RTAP in part on REST.
+JSTP is web protocol and as such, it utilizes HTTP as its underlying standard. In its architecture, the protocol can be considered a web service providing API for remote procedure calls (RPC). Any client will therefore need knowledge of JSTP's capabilities and conventions prior to initiating communication.
+
+For data serialization, JSTP utilizes JavaScript Object Notation (also known by its MIME designation: \texttt{application/json}). This format was chosen for several reasons. It is simple to parse, offers an extensible tree structure and is very common among web services of this kind, as it is directly supported by JavaScript client-side runtime, which is used in the web visualization UI. In compliance with the common expectation, JSTP methods may sometimes require additional arguments. Should such situation arise, all parameters need to be provided in a JSON object, serialized and transmitted in a body of an HTTP POST request.
+
+Observant readers may ask whether JSTP conforms to standards of a RESTful web services. While it is true that the protocol shows many traits often attributed to RESTful services (client-server model, stateless protocol, cacheability, layered system), it certainly does not satisfy all of them. For instance, JSTP does not uniquely identify resources by their URI because it uses identifiers established by the database (recall members \texttt{fid}, \texttt{frid} and \texttt{sid} of entities defined in section \ref{db:definition}). Moreover, JSTP does not offer a uniform interface, where clients could negotiate the response format according to their own limitations. Instead, it forces clients to communicate strictly in JSON, adhering to its own request and response data structure.
 
 \subsection{Web Methods}
 %  - Stanovení metod, které bude server obsluhovat.
@@ -99,7 +101,11 @@ As the name suggests, we have decided to base RTAP in part on REST.
 \subsection{Calling Scheme}
 %  - Návrh technického formátu protokolu.
 
-\subsection{Caching}
+\subsection{Miscellaneous}
+%  - cache
+%  - rozšiřitelnost
+%  - zabezpečení
+%  - přesnost čísel
 
-\subsection{Extensibility}
+\section{Documentation}
 
