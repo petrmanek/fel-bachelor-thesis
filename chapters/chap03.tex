@@ -13,15 +13,7 @@ With this motivation in mind, let us now state few more assumptions about our we
 We do not design RTAP to transmit all information from our data files, nor do we want to send continuous footage at streaming speeds. Instead, we define RTAP to enable simple access to detector data, and to provide a brief overview of recent detector operation with emphasis on any irregular or pattern-defying events.
 
 \subsection{Considerations}
-It is worth noting that in designing our system, we would like to uphold a multi-layered architecture. This way, we will maintain strict distinctions between individual components of the system (and the tasks they perform), making them in effect easily extendable, substitutable and perhaps even portable to other applications. Other benefit of this approach is that users of our system will always have freedom to choose a component with which they wish to interact, in turn specifying the level of speed and complexity .
-
-We may imagine this as follows. Users, who want a quick peek at the detector operation without any effort, may use the web visualization UI. Users, who want to retrieve data for experimentation or statistical aggregation, might utilize SQL or the communication protocol we define in this very chapter. Lastly, users in need of data enumeration or manipulation can connect to the database storage device and directly download data files using some of the supported network transfer protocols.
-
-% CITACE: konkurenční projekty
-We should also consider extensibility of the protocol we define. With multiple concurrent projects such as MoEDAL-TPX\footnote{Similarly to ATLAS-TPX, MoEDAL-TPX is a network of Timepix device installed within the MoEDAL experiment at CERN.}, SATRAM\footnote{SATRAM is a technology demonstration device carrying Timepix position-sensitive semiconductor pixel detector on board ESA’s Proba V satellite. \url{http://satram.utef.cvut.cz/}} and RISESat\footnote{RISESat is a microsatellite mission carrying several scientific instruments including a Timepix detector.}, it is likely that the same protocol will be used for compatibility reasons in other applications as well. Our protocol should therefore allow for limited variability, gracefully handling minor alterations in transmitted data structures.
-
-\subsection{Underlying Standards}
-W
+It is worth noting that in designing our system, we would like to uphold a multi-layered architecture. This way, we will maintain strict distinctions between individual components of the system (and the tasks they perform), making them in effect easily extendable, substitutable and perhaps even portable to other applications. Other benefit of this approach is that users of our system will always have freedom to choose a component with which they wish to interact, in turn specifying the level of offered services, speed and complexity.
 
 
 \begin{figure}[t]
@@ -59,7 +51,7 @@ W
 	\node[proprietaryb,right=of Servers] (DataS) {Data RPC};
 	\node[blueb,right=of DataS] (WebS) {Static web};
 	\node[blueb,right=of WebS] (FileS) {File servers};
-	\node[blueb,right=of FileS] (SQLS) {SQL};
+	\node[blueb,right=of FileS] (SQLS) {PostgreSQL};
 
 	\node[layerb,below=of Servers] (Data) {\textbf{Data Store}};
 	\node[blueb,right=of Data] (ROOT) {ROOT};
@@ -80,12 +72,34 @@ W
 \end{center}
 \end{figure}
 
-\section{Requirements}
-%  - Definice požadavků na datový server, možnosti pro trvalé úložiště dat.
+We may imagine this as follows. Users, who want a quick peek at the detector operation without any effort, may use the web visualization UI. Users, who want to retrieve data for experimentation or statistical aggregation, might utilize SQL or the communication protocol we define in this very chapter. Lastly, users in need of data enumeration or manipulation can connect to the database storage device and directly download data files using some of the supported network transfer protocols. This concept is illustrated in Figure \ref{fig:multilayered-diagram}.
 
-\section{Underlying Standards}
-%  - Návrh technického formátu protokolu.
+% CITACE: konkurenční projekty
+We should also consider extensibility of RTAP in the future. With multiple concurrent projects such as MoEDAL-TPX\footnote{Similarly to ATLAS-TPX, MoEDAL-TPX is a network of Timepix devices installed within the MoEDAL experiment at CERN.}, SATRAM\footnote{SATRAM is a technology demonstration device carrying Timepix position-sensitive semiconductor pixel detector on board ESA’s Proba V satellite. \url{http://satram.utef.cvut.cz/}} and RISESat\footnote{RISESat is a microsatellite mission carrying several scientific instruments including a Timepix detector.}, it is likely that RTAP will be used for compatibility reasons in other applications as well. It should therefore allow for limited variability, gracefully handling minor alterations in transmitted data structures.
 
-\section{Web Methods}
+\subsection{Requirements}
+The most basic requirement on RTAP is that it allows us to retrieve frames captured by the ATLAS-TPX network by the time and the device of origin. This might remind us of a similar requirement in the database definition (see section \ref{db:definition}), as it is the most likely user request. But unlike the database, RTAP should be able to transmit only those frames, which conform to request's predicate, minimizing information overhead in responses.
+
+Moreover, we require RTAP to transmit results of cluster analysis, possibly leaving the door open for pixel matrix transmissions in the future. This means that every frame transmitted through RTAP will have to consist of two parts: a header (containing detector configuration, position, etc.) and a body (cluster list, possibly a pixel matrix).
+
+In order to specify from which network device the data must originate, we require that RTAP provides a list of devices in the network. This might seem redundant at first, but consider that we need to be ready for situations when devices malfunction, are replaced, or new elements of the network are installed. Lastly, since RTAP will provide us with a list of sensors and frames from any of them at any time of operation, we require that it offers us a simple overview of sensor operation in a given time interval, expressed in average frame occupancy and cluster counts (possibly differentiated by cluster types).
+
+Apart from the file management network protocols we listed earlier, we do not place any data manipulation requirements on RTAP, implying that the protocol will be used merely for read-only access.
+
+\section{Definition}
+In this section, we define the REST Timepix Access Protocol.
+
+\subsection{Underlying Standards}
+As the name suggests, we have decided to base RTAP in part on REST.
+
+\subsection{Web Methods}
 %  - Stanovení metod, které bude server obsluhovat.
 %  - Stručná technická dokumentace navrženého protokolu.
+
+\subsection{Calling Scheme}
+%  - Návrh technického formátu protokolu.
+
+\subsection{Caching}
+
+\subsection{Extensibility}
+
