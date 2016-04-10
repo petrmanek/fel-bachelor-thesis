@@ -1,0 +1,7 @@
+{
+  "startTime": 1438041600,
+  "endTime": 1438128000,
+  "groupPeriod": 3600,
+  "sensors": [1, 2],
+  "normalize": true
+}

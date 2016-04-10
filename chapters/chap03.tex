@@ -100,9 +100,9 @@ JSTP has multiple components, one of which is a web service, which can be descri
 	\item[Device List]
 	\texttt{GET http://<endpoint>/sensors}
 
-	The purpose of this method is to provide an updated list of operational devices in the ATLAS-TPX network. As we mentioned earlier, we need to be ready for situations when detectors malfunction, are replaced or new ones are added. For this reason, any client intending to retrieve frames from a specific device must first consult the list provided by this method to verify, whether the device is still connected and operational. In addition, other clients unaware of network architecture may use this method to obtain an exhaustive listing of all available data sources.
+	Purpose of this method is to provide an updated list of operational devices in the ATLAS-TPX network. As we mentioned earlier, we need to be ready for situations when detectors malfunction, are replaced or new ones are added. For this reason, any client intending to retrieve frames from a specific device must first consult the list provided by this method to verify, whether the device is still connected and operational. In addition, other clients unaware of network architecture may use this method to obtain an exhaustive listing of all available data sources.
 
-	To execute this method, a client must initiate an HTTP GET request to the method URL. When successful, the server responds by returning an array of objects, each of which corresponds to a single device in the network. Example of such response is provided in Listing \ref{lst:jstp-sensors}.
+	To execute this method, a client must initiate HTTP GET request to the method URL without any parameters. When successful, the server responds by returning an array of objects, each of which corresponds to a single device in the network. Example of such response is provided in Listing \ref{lst:jstp-sensors}.
 
 	\begin{listing}
 		\inputjson{code/jstp-sensors.json}
@@ -114,6 +114,19 @@ JSTP has multiple components, one of which is a web service, which can be descri
 
 	\item[Operation Overview]
 	\texttt{POST http://<endpoint>/timeline}
+
+	Purpose of this method is to inform user about operation of a device (or a set of devices) in a time period, possibly indicating frames of interest. The server achieves that effect by aggregating all relevant frames into subgroups based on their start time, and calculating statistics for every group.
+
+	Clients calling this method are required to specify five parameters. The time period, bounded by \texttt{startTime} and \texttt{endTime}, is divided into finitely many intervals, length of which is controlled by \texttt{groupPeriod}. Source devices are referenced by values of their \texttt{sid} in the \texttt{sensors} array. In every time interval, frames captured by the referenced devices are considered if their start time falls into time bounds of the interval. Since some of the calculated statistics are dependent on acquisition time, which may vary between individual frames, it is possible to compensate by setting the \texttt{normalize} parameter, obtaining flux instead of aggregated values.
+
+	To execute this method, a client must initiate HTTP POST request to the method URL. The request body must contain a JSON object with \textit{all} parameter values. You can examine an example request in Listing \ref{lst:jstp-timeline-request}.
+
+	\begin{listing}
+		\inputjson{code/jstp-timeline-request.json}
+	    \caption{Example request with time period starting at the midnight of July 28, 2015 and ending at the midnight of July 29, 2015. Data from two detectors is requested to be normalized and grouped by every hour.}
+	    \label{lst:jstp-timeline-request}
+	\end{listing}
+
 
 
 	\item[Frame Search]
