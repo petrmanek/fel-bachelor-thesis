@@ -83,55 +83,55 @@ Moreover, we require JSTP to transmit results of cluster analysis, possibly leav
 
 Apart from the file management network protocols we listed earlier, we do not place any data manipulation requirements on JSTP, implying that the protocol cannot be used for other than read-only access.
 
-\section{Definition}
-In this section, we define the JSON Timepix Protocol.
-
-\subsection{Underlying Standards}
+\section{Underlying Standards}
 JSTP is web protocol and as such, it utilizes HTTP as its underlying standard. In its architecture, the protocol can be considered a web service providing API for remote procedure calls (RPC). Since JSTP is does not include any universal service description like WSDL, any client will need to know its capabilities and calling conventions prior to initiating communication.
 
 For data serialization, JSTP utilizes JavaScript Object Notation (also known by its MIME designation: \texttt{application/json}). This format was chosen for several reasons. It is simple to parse, offers an extensible tree structure and is very common among web services of this kind, as it is directly supported by JavaScript client-side runtime, which is used in the web visualization UI. In compliance with the common expectation, JSTP methods may sometimes require additional arguments. Should such situation arise, all parameters need to be provided in a JSON object, serialized and transmitted in a body of an HTTP POST request.
 
 Observant readers may ask whether JSTP conforms to standards of a RESTful web services. While it is true that the protocol shows many traits often attributed to RESTful services (client-server model, stateless protocol, cacheability, layered system), it certainly does not satisfy all of them. For instance, JSTP does not uniquely identify resources by their URI because it uses identifiers established by the database (recall members \texttt{fid}, \texttt{frid} and \texttt{sid} of entities defined in section \ref{db:definition}). Moreover, JSTP does not offer uniform interface, capable of negotiating data format according to client limitations. Instead, it forces clients to communicate strictly in JSON, adhering to its own data structures and calling conventions.
 
-\subsection{Web Methods}
+\section{Web Methods}
 JSTP has multiple components, one of which is a web service, which can be described as a set of dedicated web methods. In this section, we provide such a description. Note that when referring to the service endpoint in method URLs, we use \texttt{<endpoint>} as a stand-in string.
 
-\begin{description}
-	\item[Device List]
-	\texttt{GET http://<endpoint>/sensors}
+\subsection{Device List}
+% TODO
+\hfill\texttt{GET http://<endpoint>/sensors}
 
-	Purpose of this method is to provide an updated list of operational devices in the ATLAS-TPX network. As we mentioned earlier, we need to be ready for situations when detectors malfunction, are replaced or new ones are added. For this reason, any client intending to retrieve frames from a specific device must first consult the list provided by this method to verify, whether the device is still connected and operational. In addition, other clients unaware of network architecture may use this method to obtain an exhaustive listing of all available data sources.
+Purpose of this method is to provide an updated list of operational devices in the ATLAS-TPX network. As we mentioned earlier, we need to be ready for situations when detectors malfunction, are replaced or new ones are added. For this reason, any client intending to retrieve frames from a specific device must first consult the list provided by this method to verify, whether the device is still connected and operational. In addition, other clients unaware of network architecture may use this method to obtain an exhaustive listing of all available data sources.
 
-	To execute this method, a client must initiate HTTP GET request to the method URL without any parameters. When successful, the server responds by returning an array of objects, each of which corresponds to a single device in the network. Example of such response is provided in Listing \ref{lst:jstp-sensors}.
+To execute this method, a client must initiate HTTP GET request to the method URL without any parameters. When successful, the server responds by returning an array of objects, each of which corresponds to a single device in the network. Example of such response is provided in Listing \ref{lst:jstp-sensors}.
 
-	\begin{listing}
-		\inputjson{code/jstp-sensors.json}
-	    \caption{Example response containing a list of two devices.}
-	    \label{lst:jstp-sensors}
-	\end{listing}
+\begin{listing}
+	\inputjson{code/jstp-sensors.json}
+    \caption{Example response containing a list of two devices.}
+    \label{lst:jstp-sensors}
+\end{listing}
 
-	Every object in the array is guaranteed to contain \texttt{sid}, a unique numeric identifier of the device retrieved from the index database, and \texttt{name}, a readable name of the sensor.
+Every object in the array is guaranteed to contain \texttt{sid}, a unique numeric identifier of the device retrieved from the index database, and \texttt{name}, a readable name of the sensor.
 
-	\item[Operation Overview]
-	\texttt{POST http://<endpoint>/timeline}
+\subsection{Operation Overview}
+% TODO
+\hfill
+\texttt{POST http://<endpoint>/timeline}
 
-	Purpose of this method is to inform user about operation of a device (or a set of devices) in a time period, possibly indicating frames of interest. The server achieves that effect by aggregating all relevant frames into subgroups based on their start time, and calculating statistics for every group.
+Purpose of this method is to inform user about operation of a device (or a set of devices) in a time period, possibly indicating frames of interest. The server achieves that effect by aggregating all relevant frames into subgroups based on their start time, and calculating statistics for every group.
 
-	Clients calling this method are required to specify five parameters. The time period, bounded by \texttt{startTime} and \texttt{endTime}, is divided into finitely many intervals, length of which is controlled by \texttt{groupPeriod}. Source devices are referenced by values of their \texttt{sid} in the \texttt{sensors} array. In every time interval, frames captured by the referenced devices are considered if their start time falls into time bounds of the interval. Since some of the calculated statistics are dependent on acquisition time, which may vary between individual frames, it is possible to compensate by setting the \texttt{normalize} parameter, obtaining flux instead of aggregated values.
+Clients calling this method are required to specify five parameters. The time period, bounded by \texttt{startTime} and \texttt{endTime}, is divided into finitely many intervals, length of which is controlled by \texttt{groupPeriod}. Source devices are referenced by values of their \texttt{sid} in the \texttt{sensors} array. In every time interval, frames captured by the referenced devices are considered if their start time falls into time bounds of the interval. Since some of the calculated statistics are dependent on acquisition time, which may vary between individual frames, it is possible to compensate by setting the \texttt{normalize} parameter, obtaining flux instead of aggregated values.
 
-	To execute this method, a client must initiate HTTP POST request to the method URL. The request body must contain a JSON object with \textit{all} parameter values. You can examine an example request in Listing \ref{lst:jstp-timeline-request}.
+To execute this method, a client must initiate HTTP POST request to the method URL. The request body must contain a JSON object with \textit{all} parameter values. You can examine an example request in Listing \ref{lst:jstp-timeline-request}.
 
-	\begin{listing}
-		\inputjson{code/jstp-timeline-request.json}
-	    \caption{Example request with time period starting at the midnight of July 28, 2015 and ending at the midnight of July 29, 2015. Data from two detectors is requested to be normalized and grouped by every hour.}
-	    \label{lst:jstp-timeline-request}
-	\end{listing}
+\begin{listing}
+	\inputjson{code/jstp-timeline-request.json}
+    \caption{Example request with time period starting at the midnight of July 28, 2015 and ending at the midnight of July 29, 2015. Data from two detectors is requested to be normalized and grouped by every hour.}
+    \label{lst:jstp-timeline-request}
+\end{listing}
 
 
 
-	\item[Frame Search]
-	\texttt{POST http://<endpoint>/frame}
-\end{description}
+\subsection{Frame Search}
+% TODO
+\hfill
+\texttt{POST http://<endpoint>/frame}
 
 \subsection{Calling Scheme}
 %  - Návrh technického formátu protokolu.
