@@ -38,3 +38,6 @@
 *.xdy
 *.tdo
 
+### Minted Package ###
+_minted-thesis/
+

@@ -1,6 +1,6 @@
 DVIPS = dvips
 LATEX = latex
-PDFLATEX = pdflatex
+PDFLATEX = pdflatex -shell-escape
 BIBTEX = bibtex
 PROJECT = thesis
 EDITOR = vim # nebo jiny oblibeny editor
@@ -44,4 +44,4 @@ $(PROJECT).ps: *.tex
 
 	
 clean:
-	rm -f *.log *.aux *.bbl *.blg *.lof *.lot *.dvi *.toc *.out *~ *.ps *.ilg *.nlo
+	rm -rf _minted-$(PROJECT) *.log *.aux *.bbl *.blg *.lof *.lot *.dvi *.toc *.out *~ *.ps *.ilg *.nlo

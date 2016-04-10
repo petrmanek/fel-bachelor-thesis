@@ -1,5 +1,5 @@
 \chapter{Communication Protocol}
-% 3. Komunikační protokol pro přenos dat
+\label{protocol:introduction}
 
 In this chapter, we move our focus from the data itself to the JSON Timepix Protocol, a communication protocol we use to transmit the data for the purposes of visualization. We describe overall scheme of communication and define JSTP in a formal way.
 
@@ -14,7 +14,6 @@ We do not design JSTP to transmit all information from our data files, nor do we
 
 \subsection{Considerations}
 It is worth noting that in designing our system, we would like to uphold a multi-layered architecture. This way, we will maintain strict distinctions between individual components of the system (and the tasks they perform), making them in effect easily extendable, substitutable and perhaps even portable to other applications. Other benefit of this approach is that users of our system will always have freedom to choose a component with which they wish to interact, in turn specifying the level of offered services, speed and complexity.
-
 
 \begin{figure}[t]
 \begin{center}
@@ -88,15 +87,38 @@ Apart from the file management network protocols we listed earlier, we do not pl
 In this section, we define the JSON Timepix Protocol.
 
 \subsection{Underlying Standards}
-JSTP is web protocol and as such, it utilizes HTTP as its underlying standard. In its architecture, the protocol can be considered a web service providing API for remote procedure calls (RPC). Any client will therefore need knowledge of JSTP's capabilities and conventions prior to initiating communication.
+JSTP is web protocol and as such, it utilizes HTTP as its underlying standard. In its architecture, the protocol can be considered a web service providing API for remote procedure calls (RPC). Since JSTP is does not include any universal service description like WSDL, any client will need to know its capabilities and calling conventions prior to initiating communication.
 
 For data serialization, JSTP utilizes JavaScript Object Notation (also known by its MIME designation: \texttt{application/json}). This format was chosen for several reasons. It is simple to parse, offers an extensible tree structure and is very common among web services of this kind, as it is directly supported by JavaScript client-side runtime, which is used in the web visualization UI. In compliance with the common expectation, JSTP methods may sometimes require additional arguments. Should such situation arise, all parameters need to be provided in a JSON object, serialized and transmitted in a body of an HTTP POST request.
 
-Observant readers may ask whether JSTP conforms to standards of a RESTful web services. While it is true that the protocol shows many traits often attributed to RESTful services (client-server model, stateless protocol, cacheability, layered system), it certainly does not satisfy all of them. For instance, JSTP does not uniquely identify resources by their URI because it uses identifiers established by the database (recall members \texttt{fid}, \texttt{frid} and \texttt{sid} of entities defined in section \ref{db:definition}). Moreover, JSTP does not offer a uniform interface, where clients could negotiate the response format according to their own limitations. Instead, it forces clients to communicate strictly in JSON, adhering to its own request and response data structure.
+Observant readers may ask whether JSTP conforms to standards of a RESTful web services. While it is true that the protocol shows many traits often attributed to RESTful services (client-server model, stateless protocol, cacheability, layered system), it certainly does not satisfy all of them. For instance, JSTP does not uniquely identify resources by their URI because it uses identifiers established by the database (recall members \texttt{fid}, \texttt{frid} and \texttt{sid} of entities defined in section \ref{db:definition}). Moreover, JSTP does not offer uniform interface, capable of negotiating data format according to client limitations. Instead, it forces clients to communicate strictly in JSON, adhering to its own data structures and calling conventions.
 
 \subsection{Web Methods}
-%  - Stanovení metod, které bude server obsluhovat.
-%  - Stručná technická dokumentace navrženého protokolu.
+JSTP has multiple components, one of which is a web service, which can be described as a set of dedicated web methods. In this section, we provide such a description. Note that when referring to the service endpoint in method URLs, we use \texttt{<endpoint>} as a stand-in string.
+
+\begin{description}
+	\item[Device List]
+	\texttt{GET http://<endpoint>/sensors}
+
+	The purpose of this method is to provide an updated list of operational devices in the ATLAS-TPX network. As we mentioned earlier, we need to be ready for situations when detectors malfunction, are replaced or new ones are added. For this reason, any client intending to retrieve frames from a specific device must first consult the list provided by this method to verify, whether the device is still connected and operational. In addition, other clients unaware of network architecture may use this method to obtain an exhaustive listing of all available data sources.
+
+	To execute this method, a client must initiate an HTTP GET request to the method URL. When successful, the server responds by returning an array of objects, each of which corresponds to a single device in the network. Example of such response is provided in Listing \ref{lst:jstp-sensors}.
+
+	\begin{listing}
+		\inputjson{code/jstp-sensors.json}
+	    \caption{Example response containing a device list.}
+	    \label{lst:jstp-sensors}
+	\end{listing}
+
+	Every object in the array is guaranteed to contain \texttt{sid}, a unique numeric identifier of the device retrieved from the index database, and \texttt{name}, a readable name of the sensor.
+
+	\item[Operation Overview]
+	\texttt{POST http://<endpoint>/timeline}
+
+
+	\item[Frame Search]
+	\texttt{POST http://<endpoint>/frame}
+\end{description}
 
 \subsection{Calling Scheme}
 %  - Návrh technického formátu protokolu.

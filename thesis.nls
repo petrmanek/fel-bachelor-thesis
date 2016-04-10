@@ -20,16 +20,19 @@
 		\nompageref{iii}
   \item [{HTTP}]\begingroup Hypertext Transfer Protocol.\nomeqref {0}
 		\nompageref{iii}
+  \item [{JSON}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{JSTP}]\begingroup JSON Timepix Protocol, a protocol used to transmit captured frames to the web visualization UI. For its description, see section \ref{protocol:introduction}.\nomeqref {0}
+		\nompageref{iii}
   \item [{LHC}]\begingroup Large Hadron Collider, an experimental factility built by CERN.\nomeqref {0}
 		\nompageref{iii}
   \item [{LS}]\begingroup Long Shutdown, a period in CERN time schedule characteristic by temporary cesation of operation of particle accelerators and increased maintenance.\nomeqref {0}
 		\nompageref{iii}
+  \item [{MIME}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{MPX}]\begingroup Medipix, a semiconductor pixel detection chip.\nomeqref {0}
 		\nompageref{iii}
-  \item [{REST}]\begingroup TODO\nomeqref {0}\nompageref{iii}
   \item [{ROOT}]\begingroup An object oriented data analysis framework. \cite{Brun199781}\nomeqref {0}
 		\nompageref{iii}
-  \item [{RTAP}]\begingroup TODO\nomeqref {0}\nompageref{iii}
+  \item [{RPC}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{SLS}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{SMB}]\begingroup Server Message Block (also known as the Common Internet File System), a network protocol mainly used for providing shared access to files.\nomeqref {0}
 		\nompageref{iii}
@@ -45,5 +48,7 @@
 		\nompageref{iii}
   \item [{UNIX}]\begingroup A family of computer operating systems.\nomeqref {0}
 		\nompageref{iii}
+  \item [{URI}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{URL}]\begingroup \nomeqref {0}\nompageref{iii}
 
 \end{thenomenclature}

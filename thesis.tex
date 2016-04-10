@@ -37,12 +37,14 @@ unicode=true,
 {hyperref}								% pro zobrazování "prokliknutelných" linků 
 
 % rozšiřující importy
-\usepackage{listings} 			%slouží pro tisk zdrojových kódů se syntax higlighting
+\usepackage{caption}			%popisy
+\usepackage[newfloat]{minted}             %lepší zdrojové kódy
 \usepackage{algorithmicx} 		%slouží pro zápis algoritmů
 \usepackage{algpseudocode} 		%slouží pro výpis pseudokódu
 \usepackage{tikz}		        %TeX obrázky
 \usetikzlibrary{trees,calc,positioning,shapes.geometric,matrix,arrows,decorations.pathreplacing,arrows.meta,decorations.markings,math}
-\usepackage{courier}			%pro monospace font
+\usepackage{inconsolata}			%pro monospace font
+\usepackage{xcolor}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % příkazy šablony
@@ -57,11 +59,27 @@ unicode=true,
 \newcommand*{\nomExpl}[2]{#2 (#1)\nomenclature{#1}{#2}} 	% usnadňuje zápis zkratek : Slova ke Zkrácení (SZ)
 \newcommand*{\nom}[2]{#1\nomenclature{#1}{#2}} 			% usnadňuje zápis zkratek : SZ
 
-\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true,captionpos=b,frame=single}             % zápis úrvyků kódu
+% barvičky
+\definecolor{LightGray}{HTML}{EEEEEE}
 
+% výchozí nastavení pro kód
+\def\args{linenos,										% číslování řádek
+          breaklines,									% lámání dlouhých řádek
+          bgcolor=LightGray,							% šedé pozadí
+          style=tango,									% barevné schéma
+          fontsize=\footnotesize						% velikost písma
+          }
 
+\newcommand{\makenewmintedfiles}[1]{
+  \newmintedfile[inputjson]{json}{#1}					% používáme ukázky JSON
+  \newmintedfile[inputsql]{postgresql}{#1}				% používáme ukázky PostgreSQL
+}
+
+\expandafter\makenewmintedfiles\expandafter{\args}
+
+% více vrstev pro tikz
 \pgfdeclarelayer{background}
-\pgfsetlayers{background,main}                          % pozadí+popředí tikz
+\pgfsetlayers{background,main}                          % pozadí+popředí
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % vlastní dokument
