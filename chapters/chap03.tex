@@ -94,12 +94,17 @@ Observant readers may ask whether JSTP conforms to standards of a RESTful web se
 JSTP has multiple components, one of which is a web service, which can be described as a set of dedicated web methods. In this section, we provide such a description. Note that when referring to the service endpoint in method URLs, we use \texttt{<endpoint>} as a stand-in string.
 
 \subsection{Device List}
-% TODO
-\hfill\texttt{GET http://<endpoint>/sensors}
-
 Purpose of this method is to provide an updated list of operational devices in the ATLAS-TPX network. As we mentioned earlier, we need to be ready for situations when detectors malfunction, are replaced or new ones are added. For this reason, any client intending to retrieve frames from a specific device must first consult the list provided by this method to verify, whether the device is still connected and operational. In addition, other clients unaware of network architecture may use this method to obtain an exhaustive listing of all available data sources.
 
-To execute this method, a client must initiate HTTP GET request to the method URL without any parameters. When successful, the server responds by returning an array of objects, each of which corresponds to a single device in the network. Example of such response is provided in Listing \ref{lst:jstp-sensors}.
+To execute this method, a client must initiate GET request to \texttt{<endpoint>/sensors} without any parameters. When successful, the server responds by returning an array of objects, each of which corresponds to a single device in the network. Example of such response is provided in Listing \ref{lst:jstp-sensors}. Every object in the array is guaranteed to contain:
+
+\begin{description}
+	\item[\texttt{sid}]
+	Unique numeric identifier of the device retrieved from the index database.
+
+	\item[\texttt{name}]
+	Readable name of the device.
+\end{description}
 
 \begin{listing}
 	\inputjson{code/jstp-sensors.json}
@@ -107,26 +112,42 @@ To execute this method, a client must initiate HTTP GET request to the method UR
     \label{lst:jstp-sensors}
 \end{listing}
 
-Every object in the array is guaranteed to contain \texttt{sid}, a unique numeric identifier of the device retrieved from the index database, and \texttt{name}, a readable name of the sensor.
-
 \subsection{Operation Overview}
-% TODO
-\hfill
-\texttt{POST http://<endpoint>/timeline}
+Purpose of this method is to inform user about operation of a device (or a set of devices) in a time period, possibly indicating frames of interest. The server achieves that effect by aggregating all relevant frames into intervals based on their start time, and calculating statistics for every interval. Significant spikes in these statistics might indicate a time point of interest to users.
 
-Purpose of this method is to inform user about operation of a device (or a set of devices) in a time period, possibly indicating frames of interest. The server achieves that effect by aggregating all relevant frames into subgroups based on their start time, and calculating statistics for every group.
+Clients calling this method are required to specify five parameters. The time period, bounded by \texttt{startTime} and \texttt{endTime} (both values are UNIX timestamps\footnote{By UNIX timestamp we mean number of seconds since January 1, 1970.} in UTC), is divided into finitely many intervals, length of which is controlled by \texttt{groupPeriod} (in seconds). Source devices are referenced by values of their \texttt{sid} in the \texttt{sensors} array. In every time interval, frames captured by the referenced devices are considered if their start time falls into time bounds of the interval. Since some of the calculated statistics are dependent on acquisition time, which may vary between individual frames, it is possible to compensate this effect by setting the \texttt{normalize} parameter. Obviously, the \texttt{sensors} array must contain at least one element. The value of \texttt{endTime} must be strictly greater than that of \texttt{startTime}. The number of intervals in the response depends on the length of \texttt{groupPeriod}. Should an imperfect partitioning occur, the number of intervals is always rounded up to the nearest integer. For stability reasons, the length of \texttt{groupPeriod} must result in at least 1 and at most 1024 intervals.
 
-Clients calling this method are required to specify five parameters. The time period, bounded by \texttt{startTime} and \texttt{endTime}, is divided into finitely many intervals, length of which is controlled by \texttt{groupPeriod}. Source devices are referenced by values of their \texttt{sid} in the \texttt{sensors} array. In every time interval, frames captured by the referenced devices are considered if their start time falls into time bounds of the interval. Since some of the calculated statistics are dependent on acquisition time, which may vary between individual frames, it is possible to compensate by setting the \texttt{normalize} parameter, obtaining flux instead of aggregated values.
-
-To execute this method, a client must initiate HTTP POST request to the method URL. The request body must contain a JSON object with \textit{all} parameter values. You can examine an example request in Listing \ref{lst:jstp-timeline-request}.
+To execute this method, a client must initiate POST request to \texttt{<endpoint>/timeline}. The request body must contain a JSON object with \textit{all} parameter values. You can examine an example request in Listing \ref{lst:jstp-timeline-request}.
 
 \begin{listing}
 	\inputjson{code/jstp-timeline-request.json}
-    \caption{Example request with time period starting at the midnight of July 28, 2015 and ending at the midnight of July 29, 2015. Data from two detectors is requested to be normalized and grouped by every hour.}
+    \caption{Example request body with time period starting at July 28, 2015 at 3:00 AM and ending at 6:00 AM. Data from 2 detectors is requested to be normalized and grouped by every hour. Response is expected to contain exactly 3 intervals.}
     \label{lst:jstp-timeline-request}
 \end{listing}
 
+When successful, the server responds by returning an array of objects, each of which responds to a single interval in the time period. For example response, see Listing \ref{lst:jstp-timeline-response}. Every object in the array is guaranteed to contain:
 
+\begin{description}
+	\item[\texttt{time}]
+	UNIX timestamp in UTC of the start time of the interval. End time of the interval can be calculated at by adding \texttt{groupPeriod} to this value.
+
+	\item[\texttt{frames}]
+	Number of frames aggregated in the time interval.
+	
+	\item[\texttt{occupancy}]
+	Count of non-zero pixels in all aggregated frames, indicating the levels of saturation. The maximum possible occupancy is equal to the product of pixels in a single sensor layers, the number of sensor layers and the number of aggregated frames in the interval.
+	
+	\item[\texttt{counts}]
+	Array of counts of clusters in all aggregated frames, differentiated by their type classification. Counts are provided in the order: dots, small blobs, heavy blobs, heavy tracks, straight tracks, curly tracks.
+
+	If the calculations are normalized, individual contributions to these counts from every frame are divided by frame's acquisition time, yielding overall flux instead of counts.
+\end{description}
+
+\begin{listing}
+	\inputjson{code/jstp-timeline-response.json}
+    \caption{Response to the example request from Listing \ref{lst:jstp-timeline-request}.}
+    \label{lst:jstp-timeline-response}
+\end{listing}
 
 \subsection{Frame Search}
 % TODO
