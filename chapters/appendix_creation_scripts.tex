@@ -1,0 +1,30 @@
+\chapter{Database Creation Scripts}
+In this appendix, we include several PostgreSQL scripts used to create the index database.
+
+\newpage
+\begin{listing}[H]
+	\inputsql{code/security.sql}
+    \caption{Definition of user access roles necessary to read and modify the database.}
+    \label{lst:sql-security}
+\end{listing}
+
+\newpage
+\begin{listing}[H]
+	\inputsql{code/sensors.sql}
+    \caption{Definition of the \textit{sensors} table.}
+    \label{lst:sql-sensors}
+\end{listing}
+
+\newpage
+\begin{listing}[H]
+	\inputsql{code/rootfiles.sql}
+    \caption{Definition of the \textit{rootfiles} table.}
+    \label{lst:sql-rootfiles}
+\end{listing}
+
+\newpage
+\begin{listing}[H]
+	\inputsql{code/frames.sql}
+    \caption{Definition of the \textit{frames} table.}
+    \label{lst:sql-frames}
+\end{listing}

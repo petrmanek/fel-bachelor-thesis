@@ -12,6 +12,7 @@
 		\nompageref{iii}
   \item [{CIFS}]\begingroup Common Internet File System. See SMB.\nomeqref {0}
 		\nompageref{iii}
+  \item [{CRUD}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{DCS}]\begingroup Detector Control Systems, a system providing control of subdetectors and of common infrastructure of the experiment and communication with the services of CERN.\nomeqref {0}
 		\nompageref{iii}
   \item [{EOS}]\begingroup A primary storage system at CERN for LHC experiments.\nomeqref {0}
@@ -46,6 +47,7 @@
 		\nompageref{iii}
   \item [{TPX}]\begingroup Timepix, a semiconductor pixel detection chip successing Medipix2.\nomeqref {0}
 		\nompageref{iii}
+  \item [{UI}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{UNIX}]\begingroup A family of computer operating systems.\nomeqref {0}
 		\nompageref{iii}
   \item [{URI}]\begingroup \nomeqref {0}\nompageref{iii}
