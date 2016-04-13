@@ -156,19 +156,37 @@ Let us demonstrate operation of these modes on a real world example. Suppose tha
 
 \begin{figure}[t]
 \begin{center}
-\textbf{TODO}
+	\begin{subfigure}[b]{0.4\textwidth}
+	\Large
+	\begin{tikztimingtable}
+		\textnormal{D1}   & zz D{1}zzzz D{2}zzzz D{3}zzzz ;[fill=yellow!50]D{4};[fill=none] zzzz D{}         \\
+		\textnormal{D2}   & zz 5D{1}z ;[fill=gray!30]5D{2};[fill=none]z 2D{}  \\
+		\textnormal{D3}   & zz 2D{1}z   2D{2}z   2D{3}z   ;[fill=gray!30]2D{4};[fill=none] z    2D{5}z 0.5D{}   \\
+		\extracode
+	\begin{pgfonlayer}{background}
+	\vertlines[help  lines]{1,9,10,13}
+	\end{pgfonlayer}
+	\end{tikztimingtable}
+	\caption{Forward search.}
+	\label{fig:frame-search-forward}
+	\end{subfigure}
+	~ %spacing
+	\begin{subfigure}[b]{0.4\textwidth}\Large
+	\begin{tikztimingtable}
+		\textnormal{D1}   & zz D{1}zzzz D{2}zzzz D{3}zzzz D{4}zzzz D{}         \\
+		\textnormal{D2}   & zz 5D{1}z ;[fill=gray!30]5D{2};[fill=none]z 2D{}  \\
+		\textnormal{D3}   & zz 2D{1}z   2D{2}z   2D{3}z   ;[fill=yellow!50]2D{4};[fill=none] z    2D{5}z 0.5D{}   \\
+		\extracode
+	\begin{pgfonlayer}{background}
+	\vertlines[help  lines]{1,8.5,9,13}
+	\end{pgfonlayer}
+	\end{tikztimingtable}
+	\caption{Backward search.}
+	\label{fig:frame-search-backward}
+	\end{subfigure}
 
-\caption{Time diagram of an example forward search starting at 0.4 seconds. The master frame is emphasized by gray color. All found frames have thick borders.}
-\label{fig:frame-search-forward}
-\end{center}
-\end{figure}
-
-\begin{figure}[t]
-\begin{center}
-\textbf{TODO}
-
-\caption{Time diagram of an example backward search starting at 0.4 seconds. The master frame is emphasized by gray color. All found frames have thick borders.}
-\label{fig:frame-search-backward}
+\caption{Time diagram of frame search illustrating behavioral differences between search modes. Individual blocks correspond with periods of detector acquisition. Emphasized blocks are returned as the search result (yellow marks the master frame).}
+\label{fig:frame-search}
 \end{center}
 \end{figure}
 
