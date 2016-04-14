@@ -48,6 +48,7 @@ unicode=true,
 \usepackage{xcolor}				%barvičky
 \usepackage{pgf-umlsd}			%UML sekvence
 \usepackage{tikz-timing}		%časové grafy
+\usepackage{soul}				%zvýrazňovač
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % příkazy šablony
@@ -79,6 +80,9 @@ unicode=true,
 }
 
 \expandafter\makenewmintedfiles\expandafter{\args}
+
+% pro poznámky
+\newcommand*{\todo}{\hl{\textbf{TODO}}}
 
 % více vrstev pro tikz
 \pgfdeclarelayer{background}

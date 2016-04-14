@@ -79,7 +79,8 @@ In a cluster list, pixels are stored as tuples of their Carthessian coordinates 
 	\label{db:shape-classification}
 	By measuring geometric properties of a cluster (such as radius or size), it is possible to estimate whether the cluster resembles more a line segment or a circular blob. Similarly, an algorithm can ascertain if the cluster looks thin or thick. From that information, type of interacting particle can be determined, along with direction of its movement relative to the plane of incidence. 
 
-	TODO%To formally define cluster categories, we use terminology consistent with the ATLAS Medipix research (see Figure \ref{fig:cluster-types}).
+	\todo
+	%To formally define cluster categories, we use terminology consistent with the ATLAS Medipix research (see Figure \ref{fig:cluster-types}).
 
     %% CITACE: Medipix cluster types
 
@@ -277,4 +278,3 @@ Should data be stored in ROOT, a basic relational database concept comes to mind
 \end{figure}
 
 In spite of being over 20 years in development, ROOT is not perfect. Using memory monitoring tools such as \cite{nethercote2007valgrind}, we have confirmed that the C++ implementation of the ROOT framework is riddled with various memory leaks, making it unsuitable for time-extensive operations. Some might also argue, that a full tree data structure might be overly-complicated and too generalized for a simple output described in previous sections. Lastly, ROOT framework has quite a complex object structure, making it hard to learn for first-time users.
-
