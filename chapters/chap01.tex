@@ -200,7 +200,7 @@ In a cluster list, pixels are stored as tuples of their Carthessian coordinates 
 \section{Common Storage Formats}
 \label{db:storage-formats}
 
-\subsection{The Single-Frame and Multi-Frame Formats}
+\subsection{Plain Text}
 %  - Multi-frame formáty, jejich výhody a nevýhody.
 The most straight-forward way of storing data acquired by Timepix detectors is to use plain text files. Such output, referred to as the single-frame or the multi-frame format, commonly stores data in three files per unit of acquisition.
 
@@ -214,20 +214,18 @@ The most straight-forward way of storing data acquired by Timepix detectors is t
 	To store a configuration parameter, three lines of text are required. The display name of the parameter (along with the unit or any other notes) is written on the first line. The second line describes the data type of the value and its range. The third line contains the actual value.
 
 	\item[Index File]
-	Index files contain information, which binds data files and description files together. In the index file, every frame is represented by a tuple of data addresses pointing to the first entry in the data file and the first entry in the description file.
+	Index files contain information, which binds data files and description files together. In an index file, every frame is represented by a tuple of data addresses pointing to the first entry of the frame in the data file and the first entry in the description file.
 \end{description}
 
-The text format has several advantages. Being encoded mostly in plain text files, data can be easily parsed without any software dependencies, and in case of possible corruption, files can be quickly checked in any text editor. Furthermore, since the format is directly produced by the Timepix read-out software, no additional data conversions are required.
+Even though the plain text format has the advantage of being easily accessible with any text editor, it is disk-inefficient in terms of access speed and disk space.
 
-With all these features in mind, this storage format is certainly not optimal on all fronts. Its nature brings about utterly wasteful storage strategies, particularly noticable in frequently repeated descriptive information. This inefficiency is even aggravated by not taking advantage of obvious benefits offered by binary serialization. Consequently, files stored in the multi-frame format tend to be quite large in size, often forcing users to split them into smaller time periods.
-
-\subsection{The ROOT Format}
+\subsection{ROOT Framework}
 Another storage option is the ROOT Data Analysis Framework \cite{Brun199781}. Originally concieved at CERN in 1995, the framework provides a set of powerful tools with various applications in data mining, manipulation and visualization. Unlike other similar toolkits, ROOT comes with its own machine-independent binary file format (identified by the \texttt{.root} extension). This format is designed to store enormous amounts of data within various types of data structures efficiently, while maintaining good overall performance by employing low-level memory optimization techniques and multi-tier content caching.
 
 %% ZKRATKA: API
 %% ZKRATKA: ROOT?
 
-Used by many physicists at CERN for several years now, ROOT seems like a good choice of a data archivation format as many researchers have already learned its caveats and know well how to operate it despite often lacking deeper background in Computer Science. For the purposes of programmatic access, ROOT also does well with documented APIs in Python, R and C++.
+Used by many physicists at CERN for several years now, ROOT was chosen as the data archivation format as many researchers have already learned its caveats and know well how to operate it despite often lacking deeper background in Computer Science. For the purposes of programmatic access, ROOT also does well with documented APIs in Python, R and C++.
 
 Should data be stored in ROOT, a basic relational database concept comes to mind. ROOT however offers even more abstract data structures with standard tables generalized in the form of \textit{trees} and their columns in the form of \textit{leaves}. One such tree would suffice for information about captured frames (such as acquisition time, operation mode, etc.) and other for a list of clusters for every frame. This schema (showcased in Figure \ref{fig:root-trees}) would efficiently abstract the entire storage structure, allowing for multiple frames to be stored in a single file, grouped for instance by a common time interval, similarly to the text file format.
 
@@ -273,7 +271,7 @@ Should data be stored in ROOT, a basic relational database concept comes to mind
     };
 \end{tikzpicture}
 
-\caption{Structure of a ROOT file containing Timepix data.}
+\caption{Structure of a ROOT file containing Timepix footage.}
 \label{fig:root-trees}
 \end{center}
 \end{figure}
