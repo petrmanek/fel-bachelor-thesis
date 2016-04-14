@@ -20,78 +20,66 @@
 
 
 
-\section{Output Produced by Timepix}
-Let us first mention several fundamental properties of Timepix. Similarly to photodetectors found in common digital cameras, Timepix detectors generate measurements in the form of individual frames. A single captured frame consists of values recorded by all pixels over a given time period, length of which is referred to as \textit{the acquisition time}. Returning to our camera analogy, this figure resembles the time of exposition of a photograph. Prolonging it, we can expect more particles to interact with our detector's pixels, making the resulting frames more saturated.
+\section{Raw Timepix Output}
+%% zde je trošku Benediktovo
+Timepix detectors are hybrid active pixel detectors, developed within the MPX collaboration at CERN. They consist of an active sensor layer bump-bonded to a readout ASIC. The ASIC divides the active sensor area into a square matrix of $256 \times 256$ pixels with a pixel-to-pixel distance of 55 µm. Each pixel has its own readout chain and can be controlled indenpendently. While the sensor layer material in the presented work was silicon, other sensor materials are available, most notably CdTe and GaAs, which are used e.g. for imaging applications.
 
-The technical principle behind measurements is analogous to that of a Medipix sensor. Every pixel is equipped with an integer register called \textit{the counter}. When acquisition starts, this counter is set to zero. Throughout a set time period, the counter is possibly incremented multiple times, producing a value which is read out as measurement's result for the individual pixel. This process is synchronized across all of detector's pixels, producing an integer matrix which constitutes a captured frame.
+Timepix detectors are operated in a way that is similar to commercially available cameras. What would be a picture in photography, is referred to as \textit{a frame}. Every pixel is equipped with a 14-bit integer register called \textit{the counter}. When acquisition starts, registers is set to zero, and then possibly incremented upon every interaction. A frame thus represents the status of each pixel after the set \textit{acqusition time}. Returning to the camera analogy, the acquisition time resembles the exposure time of a photograph---when increased, more particles are to be expected interacting with detector's pixels.
 
 Since pixels may not be identical due to material irregularities and manufacturing errors, every pixel has adjustable \textit{threshold} parameter, which is subject to calibration. In a calibrated state, analog input measured from the pixel's semiconductor should exceed this threshold only when the pixel is interacting with a particle.
 
-
-\subsection{Raw Output}
-Provided that every Timepix detector installed in the ATLAS network has 2 layers of $256 \times 256$ pixel matrices, every captured frame consists of 131,072 integer values in total. Interpretation of these values depends on another parameter, \textit{the operation mode}. While it is technically possible to configure every pixel to operate in a different mode, we have so far preferred to configure all pixels identically, making this essentially not a parameter of a pixel, but that of a frame.
-
-The following operation modes are available:
+Provided that every Timepix detector installed in the ATLAS-TPX network has 2 layers of $256 \times 256$ pixel matrices, every captured frame consists of 131,072 integer values in total. Interpretation of these values depends on another parameter, \textit{the operation mode}. While it is technically possible to configure every pixel to operate in a different mode, for the desired application all pixels are set to the same mode of operation, making this essentially not a parameter of a pixel, but that of a frame. The following operation modes are available:
 
 \begin{description}
 %% CITACE: Holík 1.2.5.1 pp. 27
-	\item[Hit Detection Mode (also known as the One-Hit Mode)]
-	In this mode, the counter is set to one when the theshold is exceeded. Upon multiple interactions, the counter is not further incremented. The result is a Boolean value, indicating whether the pixel has interacted with a particle.
-
 	\item[Hit Counting Mode (also known as the Medipix Mode)]
 	In this mode, the counter is incremented upon every transition from a state below the threshold to a state above the threshold. The result is an integer value representing the number of particles which have interacted with the pixel.
 
 	\item[Time over Threshold Mode (TOT)]\label{tpx:tot}
-	In this mode, the counter is incremented by every clock cycle spent above the threshold. The result is an integer value corresponding to the energy of the interacting particle. Further calibration to convert counter value to energy is required, though.
+	In this mode, the counter is incremented by every clock cycle spent above the threshold. The result is an integer value corresponding to the energy of the interacting particle. Energy calibration methods are described in \cite{Jakubek2011S262}.
 
 	\item[Time of Arrival Mode (TOA)]\label{tpx:toa}
 	In this mode, the counter is incremented by every clock cycle after the threshold is first exceeded. The result is an integer value corresponding to the time interval before the end of the measurement.
 \end{description}
 
-If a captured frame contains data from pixels configured in multiple different modes, the frame is said to be measured in the \textbf{Mixed Mode} and should contain further details on the exact pixel configuration of the detector.
-
-
 \subsection{Read-out Interface}
-To quote \cite{TurecekThesis2011}, a read-out interface is \textit{a special dedicated hardware device that reads data and controls acquisition of the detector}. Given harsh radiation environment within the ATLAS machine, the ATLASPix interface was developed by modifying a regular FITPix interface.
+A read-out interface is a special dedicated hardware device that reads data and controls acquisition of the detector. \cite{TurecekThesis2011} Given the harsh radiation environment within the ATLAS machine, the ATLASPIX interface was developed by modifying a regular FITPix interface.
 
 %% CITACE: ATLASPIX at CERN
 
-The interface has two parts connected by four cables. The detector itself is positioned and oriented within the ATLAS machine, whereas the rest of the interface is placed in a nearby server room, protected against ionizing radiation. Cables connect both parts, allowing protected hardware to control detectors remotely during operation of the machine. To manage multiple detectors simultaneously, a computer is directly connected to all read-out interfaces. This computer, also known as \textit{the control PC}, gathers all measured data and forwards commands from the system operator to the detectors through the ATLASPix interface. This configuration is shown in Figure \ref{fig:ATLASPIX}.
+The interface has two parts connected by four cables. The detector itself is positioned and oriented within the ATLAS machine, whereas the rest of the interface is placed in a nearby server room, protected against ionizing radiation. Cables connect both parts, allowing protected hardware to control detectors remotely during operation of the machine. To manage multiple detectors simultaneously, a computer is directly connected to all read-out interfaces. This computer, also known as \textit{the control PC}, gathers all measured data and forwards commands from the system operator to the detectors through the ATLASPIX interface. This configuration is shown in Figure \ref{fig:ATLASPIX}.
 
-At the time of writing this work, the control PC is being operated manually from a remote location. All its tasks can be however easily automated.
+At the time of writing this work, the control PC is being operated manually from a remote location. The automation of the operation is under investigation.
 
 \begin{figure}[t]
 \begin{center}
 \includegraphics[height=7cm]{figures/imported/atlaspix}
 \includegraphics[height=7cm]{figures/imported/atlaspix-installed}
-\caption{The ATLASPix read-out interface installed at CERN.}
+\caption{The ATLASPIX read-out interface installed at CERN.}
 \label{fig:ATLASPIX}
 \end{center}
 \end{figure}
 
-
 \subsection{Cluster Analysis}
 %% CITACE: flood-fill
 %% ZKRATKA: TOA, TOT
-In ATLAS measurements, we strive to configure our detectors to capture frames containing multiple disconnected components corresponding with individual interacting particles. Naively speaking, we don't want our frames to be neither fully saturated, nor empty, but \textit{just right}. The task of achieving this level of balance is fairly straightforward, as it merely consists of fine-tuning the acquisition time parameter while monitoring levels of saturation in recently captured frames.
-
-In well-balanced frames, we can then observe components of various shapes and sizes, depending on the experiments performed at the time of acquisition. These components, commonly known as \textit{clusters}, are discovered and evaluated in an automated process called \textit{the cluster analysis}. This procedure involves a connectivity-checking algorithm, such as \textit{flood-fill}, operating on pixel matrices to distinguish individual clusters. In later stages, clusters are processed, measured and classified in various categories with regards to their shape. In addition, if the frame has been captured in TOT mode and calibration data are available, the automated processing script can convert counter values to energy approximations.
+In ATLAS-TPX detector footage, components of various shapes and sizes can be observed, depending on the experiments performed at the time of acquisition. These components, commonly known as \textit{clusters}, are discovered and evaluated in an automated process called \textit{the cluster analysis}. This procedure involves a connectivity-checking algorithm, such as \textit{flood-fill}, operating on pixel matrices to distinguish individual clusters. In later stages, clusters are processed, measured and classified in various categories with regards to their shape. In addition, if the frame has been captured in TOT mode and calibration data are available, the automated processing script can convert counter values to energy approximations.
 
 %% OBR: saturovaný snímek - špatně (TPX01@1441600713.82345, 2015_09_07_TPX01.root, frame #16512)
 %% OBR: snímek s clustery - dobře (TPX01@1435930709.35062, 2015_07_03_TPX01.root, frame #34979)
 
 % CITACE: sparse matrix
-The output of cluster analysis consists of two separate lists of clusters, one per every sensor layer. It follows from the definition of a cluster that any pixel contained in it has a non-zero counter value. Consequently, all pixels unreferenced by any cluster are assumed to be equal to zero. The utilized technique of data encoding is well-known as it offers efficient compression rate for sparse pixel matrices which we are expecting to encounter in our measured data. It is however worth noting at this point that in certain cases (represented most notably by saturated or nearly saturated frames), this approach produces voluminous data structures, which may take long time to enumerate, and in turn slow down other algorithms operating on them.
+The output of cluster analysis consists of two separate lists of clusters, one per every sensor layer. It follows from the definition of a cluster that any pixel contained in it has a non-zero counter value. Consequently, all pixels unreferenced by any cluster are assumed to be equal to zero. The utilized technique of data encoding is well-known as it offers efficient compression rate for sparse pixel matrices. It is however worth noting at this point that in certain cases (represented most notably by saturated or nearly saturated frames), this approach produces voluminous data structures, which may take long time to enumerate, and in turn slow down other algorithms operating on them.
 
-In a cluster list, pixels are stored as tuples of their Carthessian coordinates and their respective counter values. From this information, the pixel matrix can be reconstructed at any time. The original pixel matrix is therefore discarded at the end of the cluster analysis, in order to minimize occupied space. Please note that should there be any errors discovered in the future, data processed in this way could be still converted back into the form of pixel matrices by means of simple enumeration. Following that, a patched version of the cluster analysis process would analyze the pixel data once again, simply replacing any erroneous output with a correct one.
-
-Let us now further inspect data generated by the process of cluster analysis. As we hinted at the beginning of this section, many other secondary values are calculated for every cluster during the automated processing, most notable of which are:
+In a cluster list, pixels are stored as tuples of their Carthessian coordinates and their respective counter values. From this information, the pixel matrix can be reconstructed at any time. The original pixel matrix is therefore discarded without data lost at the end of the cluster analysis, in order to minimize occupied space. For every cluster, several properties are calculated in the automated processing, most notable of which are:
 
 \label{db:cluster-properties}
 \begin{description}
 	\item[Shape Classification]
 	\label{db:shape-classification}
-	By measuring geometric properties of a cluster (such as radius or size), we are able to estimate whether the cluster resembles more a line segment or a circular blob. Similarly, we can also estimate if the cluster looks thin or thick. From that information, we can infer the type of interacting particle and direction of its movement relative to the plane of incidence. To formally define cluster categories, we use terminology consistent with the ATLAS Medipix research (see Figure \ref{fig:cluster-types}).
+	By measuring geometric properties of a cluster (such as radius or size), it is possible to estimate whether the cluster resembles more a line segment or a circular blob. Similarly, an algorithm can ascertain if the cluster looks thin or thick. From that information, type of interacting particle can be determined, along with direction of its movement relative to the plane of incidence. 
+
+	TODO%To formally define cluster categories, we use terminology consistent with the ATLAS Medipix research (see Figure \ref{fig:cluster-types}).
 
     %% CITACE: Medipix cluster types
 
