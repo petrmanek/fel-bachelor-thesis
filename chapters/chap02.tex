@@ -1,28 +1,21 @@
 \chapter{Data Structure and Storage}
-In this chapter, we describe data which will be subject to visualization later on. Chronologically following the process of data acquisition, we start out at the read-out interface, give details on the structure of measured results and mention various permanent storage formats, comparing their features. Considering all these properties, we then propose a data scheme capable of archiving such data for longer time periods, striving to offer nearly instantaneous access based on the time of measurement.
+In this chapter, a data scheme capable of archiving Timepix footage for longer time periods is proposed. The primary concern is to minimize access latency in queries based on the time of measurement and the device of origin. For that reason, several auxiliary data structures, such as the index database, are introduced.
 
-
-
-
-
-
-\section{Proposed Data Structure}
-Having defined the essence of information we wish to store and several data formats as means to do it, we are now ready to focus on the definition of our database. 
-
-\subsection{Formal Requirements}
+\section{Formal Requirements}
 Requirements on such a data structure are as common as database requirements can get. It should be a reliable permanent storage element, accessible for reading from multiple workstations at a same time and robust enough to withstand minor hardware failures. With 15 detectors already installed at ATLAS, and possible option of installing another 5, the database should be designed to hold frames from up to 20 Timepix devices for the entire expected time period of their operation at LHC (that from June 2015 to LS3 in 2021).
-
 % ZKRATKA: LHC
+% ZKRATKA: LS
+
+\todo
 % CITACE: LHC schedule, LS2, LS3
 
 As more and more frames arrive from the detector network, our database should allow to be periodically extended with new data, possibly processing and converting pixel matrices into cluster lists, as described in the previous sections. Since the database will be primary storage site for all research data, there should be multiple independent copies of it as backups and the database structure should be designed with logic to enable timely synchronization of these copies.
 
-Apart from all the requirements already listed, we have the advantage of knowing how the majority of user queries will look like. With regards to this information, we may then optimize data storage and retrieval procedures to accelerate such queries. After discussing all use cases with the researchers who are going to operate the database, we have determined that most queries is going to filter data by time or by device. This is indeed a very natural method, provided that every device in the network is positioned and oriented in way allowing only for a certain type of particles to be observed. Researchers looking for signs of specific particles might often request data based on other experiments, which were conducted in a determinate time period and involved only a specific group of detectors in the network.
+Apart from all the requirements already listed, it is important mention that the anticipated structure of the majority of user queries is known. With regards to this information, data storage and retrieval procedures may be optimized to accelerate such queries. It was determined that the most queries are going to filter data by time or by device. This is indeed a very natural approach, provided that every device in the network is positioned and oriented in way allowing only for a certain type of particles to be observed. Researchers looking for signs of specific particles might often request data based on other experiments, which were conducted in a determinate time period and involved only a specific group of detectors in the network.
 
-
-\subsection{Definition}
+\section{Database}
 \label{db:definition}
-With all requirements in mind, we will now formally define the database. Accounting for the ever-growing nature of our data, we will separate the database into two parts. The first part is to contain data which has already been processed by the cluster analysis, and is ready to be accessed by users. The second part will contain data which has arrived from CERN in its raw form but hasn't been processed yet. As one might note, this separation of data serves a fundamental purpose, that is to distinguish the intermediate products from the finished ones.
+In this section, the Timepix footage database is defined. Accounting for the ever-growing nature of our data, the database is separated into two parts. The first part is to contain data which has already been processed by the cluster analysis, and is ready to be accessed by users. The second part is to contain data which has arrived from CERN in its raw form but hasn't been processed yet. As one might observe, this separation of data serves a fundamental purpose, that is to distinguish intermediate products from finished ones.
 
 % ZKRATKA: UNIX
 % ZKRATKA: HTTP
@@ -33,17 +26,19 @@ With all requirements in mind, we will now formally define the database. Account
 % ZKRATKA: EOS
 % CITACE: UNIX file system
 
-For simplicity, the database will be represented by a UNIX file system. This will enable many users, not necessarily only those using UNIX-based operating systems, to access it directly by means of widely-used and standardized protocols, such as FTP, SMB, SSH, AFP or HTTP\label{db:supported-protocols}. Utilization of these protocols contributes not only to the universality of our database, it also takes care of shared resource access and other data concurrency issues for us. Some of these features may prove to be useful later on when synchronizing various storage sites in order to back up or restore data. UNIX file systems also offer fundamental security features, allowing us to grant read-write privileges to a certain group of users, while limiting others to mere read-only access.
+\subsection{Definition}
+For the sake of compatibility, database is based on a UNIX file system. This approach enables many users, not necessarily only those using UNIX-based operating systems, to access it directly by means of widely-used and standardized protocols, such as FTP, SMB, SSH, AFP or HTTP\label{db:supported-protocols}. Utilization of these protocols contributes not only to the universality of the database, it also resolves shared resource access and other data concurrency issues. Some of these features may prove to be useful later on when synchronizing various storage sites in order to back up or restore data. In addition, UNIX file systems also offer fundamental security features, allowing administrators to grant read-write privileges to a certain group of users, while limiting others to a mere read-only access.
 
+\todo
 % CITACE: Označení TPX detektorů v ATLASu.
 
-The file system will have two directories named \texttt{processed} and \texttt{downloading}, corresponding to the respective sections of the database. In these directories, data will be further grouped in subdirectories by the device of origin. To make navigation easier, device directory names will use numeric identifiers in compliance with already published literature. For instance, all data originating from the sensor no. 7 will be stored in a directory named \texttt{ATPX07}. In such directory, data will be stored in time-coded files (or directories, should multiple files be grouped under single time code) according to the naming pattern: \texttt{[yyyy]\_[mm]\_[dd]\_ATPX[id]} (where \texttt{[id]} is substituted for the device identifier and \texttt{[yyyy]}, \texttt{[mm]}, \texttt{[dd]} are substituted for year, month and day of the acquisition time respectively).
+The file system has two directories named \texttt{processed} and \texttt{downloading}, corresponding to the respective sections of the database. In these directories, data is further grouped in subdirectories by the device of origin. To make navigation easier, device directory names use numeric identifiers in compliance with already published literature. For instance, all data originating from the detector no. 7 would be stored in a directory named \texttt{ATPX07}. In such directory, footage would be stored in time-coded files (or directories, should multiple files be grouped under single time code) according to the naming pattern: \texttt{[yyyy]\_[mm]\_[dd]\_ATPX[id]} (where \texttt{[id]} represents the device identifier and \texttt{[yyyy]}, \texttt{[mm]}, \texttt{[dd]} represent year, month and day of acquisition respectively).
 
-If it is not possible to group data by the day of acquisition for some reason, we define an alternative naming pattern with hourly granularity: \texttt{[yyyy]\_[mm]\_[dd]\_ATPX[id]\_[hh]} (where \texttt{[hh]} is substituted for the hour of acquisition and other entities are substituted in the same way as in the previous pattern). Note that in spite of grouping data files in separate subdirectories by the device of origin, we still include the device identifier in the naming pattern for reasons of redundancy.
+If it is not practical to group files by the day of acquisition, footage can be grouped by an alternative naming pattern with hourly granularity: \texttt{[yyyy]\_[mm]\_[dd]\_ATPX[id]\_[hh]} (where \texttt{[hh]} represents the hour of acquisition and other entities are treated as in the previous pattern). Note that in spite of grouping data files in separate subdirectories by the device of origin, the device identifier is intentionally included in the naming pattern for reasons of redundancy.
 
-The directory structure we have described so far satisfies all requirements we have stated in the previous section. What's more, it optimizes access to data generated from specific devices at specific times, so that the majority of user requests is satisfied in timely manner.
+The directory structure described so far satisfies all requirements from the previous section. What's more, it optimizes access to data generated from specific devices at specific times, so that the majority of user requests is handled in timely manner.
 
-Let us now define the data files themselves. All data files will be stored at the lowest level of our directory structure and will have time-coded names according to our naming patterns. Should more files fall under the same time code (marginal scenario), they are to be grouped in a directory with a time-coded name. File structure in such a directory is undefined. We expect all files in the \texttt{processed} directory to be stored in the ROOT format, and all files in the \texttt{downloading} directory to be stored as multi-frames. All other files of different types will be tolerated as they may contain relevant information, but regarded as secondary. Further illustration of the file system can be found in Figure \ref{fig:db-structure}.
+All data files are stored at the lowest level of the directory structure under time-coded names according to our naming patterns (see Figure \ref{fig:db-structure}). Should more files fall under the same time code (marginal scenario), they are to be grouped in a directory with a time-coded name. File structure in such a directory is undefined. Although it is not required, it is expected that files in the \texttt{processed} directory are encoded in the ROOT format, whereas file in the \texttt{downloading} directory are encoded in plain text, as that is the initial format of all unprocessed footage. Apart from these two formats, files of different types will be tolerated, but regarded as secondary.
 
 \begin{figure}[t]
 \begin{center}
@@ -91,8 +86,12 @@ Let us now define the data files themselves. All data files will be stored at th
 % ZKRATKA: zip
 % ZKRATKA: tar
 
-To preserve storage space, we will allow usage of data compression in our database. The supported compression formats are ZIP, GZIP and TAR, or any combination of them. As we expect the individual data files to grow quite large in size, we will utilize compression only at the lowest level of our directory structure, that is in the time-coded data files (or directories). Every archive can store at most one time-coded file (or directory), hence the archive can adopt the file's time-coded name, while remaining unique in the file listing. It is preferred, but not required, that all data files stored in a single directory are either all compressed or none of them is, as any deviation from this scheme might point to an incomplete or broken data transaction. Lastly, we forbid any recursively compressed structures (such as archive within other archive, etc.). The recommended alternative is to increase compression level in already existing archives instead of creating new ones. This rule also applies for all data formats which use compression inherently, such as ROOT.
+To preserve storage space, various compression methods. Supported compression formats are ZIP, GZIP and TAR, or any combination of them. As individual data files are expected to grow quite large in size, compression is to be utilized only at the lowest level of the directory structure, that is in the time-coded data files and directories. Individual archives are allowed to store at most one time-coded file (or directory), thus being able to overtake file's time-coded name while remaining unique in the file listing. It is preferred but not required that all data files stored in a single directory are either all compressed, or none of them is, as any deviation from this scheme might point to an incomplete or broken data transaction.
 
+Lastly, it is forbidden to store any recursively compressed structures (such as archive within other archive, etc.). The recommended alternative is to increase compression level in already existing archives instead of constructing new ones. Note that this rule also applies for all data formats which use compression inherently, such as ROOT.
+
+\todo
+%%% Benedikt recommendation modifications finished up to this point
 
 \subsection{Expected Volume of Data}
 With our definition in mind, we will now perform a simple extrapolation to obtain an upper bound on the size of our database.
