@@ -17,6 +17,7 @@
   \item [{CRUD}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{DCS}]\begingroup Detector Control Systems, a system providing control of subdetectors and of common infrastructure of the experiment and communication with the services of CERN.\nomeqref {0}
 		\nompageref{iii}
+  \item [{DOM}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{EOS}]\begingroup A primary storage system at CERN for LHC experiments.\nomeqref {0}
 		\nompageref{iii}
   \item [{FTP}]\begingroup File Transfer Protocol, a network protocol mainly used for providing shared access to files.\nomeqref {0}
@@ -37,6 +38,7 @@
   \item [{ROOT}]\begingroup An object oriented data analysis framework. \cite{Brun199781}\nomeqref {0}
 		\nompageref{iii}
   \item [{RPC}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{SAX}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{SLS}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{SMB}]\begingroup Server Message Block (also known as the Common Internet File System), a network protocol mainly used for providing shared access to files.\nomeqref {0}
 		\nompageref{iii}

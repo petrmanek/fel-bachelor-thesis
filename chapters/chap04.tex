@@ -1,5 +1,4 @@
 \chapter{Data Server}
-% 4. Datový server
 This chapter describes implementation of a JSTP server in C++. While sections in the beginning focus on the role of the server in the entire visualization system and its connection to other components of the application, the sections in the end give details on its operation and propose performance optimizations.
 
 \section{Role of the Application}
@@ -12,7 +11,6 @@ To achieve this goal, the server is expected to interact with not only with its 
 % DOPLNIT
 
 \section{Decomposition}
-%  - Dekompozice úloh serveru do jednotlivých komponent.
 The server consists of two major components, an HTTP thread pool and a ROOT transcoder. As the name suggests, the thread pool is responsible mainly for handling outbound HTTP connections, whereas the transcoder ensures fast consumption of data stored in the ROOT file format.
 
 \subsection{HTTP Thread Pool}
@@ -43,8 +41,29 @@ Recall from section \ref{storage:ROOT} that the ROOT format stores information i
 	In many instances of JSTP messages, it is requested that only a part of the stored data is read. ROOT allows applications to specify this information prior to initiating sequential reading, and in turn accelerate some procedures.
 \end{description}
 
-\section{Dependencies}
-%  - Volba knihoven a závislostí, požadavky na kompatibilitu s cílovým systémem.
+\subsection{Auxiliary Components}
+Apart from the thread pool and the transcoder, the server has multiple auxiliary components:
+
+\begin{description}
+	\item[JSON Serialization]
+	% CITACE: RapidJSON
+	In order to produce valid JSTP messages, the server utilizes JSON parser to read method parameters and JSON writer to construct response bodies. Both components are provided by the RapidJSON open source library.
+
+	Since the number of request parameters is defined to be constant, the parser operates in a stateless DOM mode, which is memory-inefficient but easy to use. And because produced responses are expected to be large, the writer is configured to operate in more efficient SAX mode, which is harder to work with.
+
+	\item[Logging]
+	% CITACE: GLog
+	The server produces status messages with multiple levels of severity. To persist these messages, the Google Logging library is used. The library is capable of managing multiple open files, differentiated by the minimal severity of log messages and the date of logging.
+
+	\item[Configuration]
+	% CITACE: GFlags
+	Configuration of the server is provided by the Google Flags library. It allows various configuration settings (most notably server IP, port and behavior) to be customized by passing command-line arguments to the process at startup.
+
+	\item[Index Database Connection]
+	% CITACE: PQXX
+	The server interacts with the index database using the official PostgreSQL connector library for C++. This library essentially provides the ability to execute arbitrary SQL commands. It also conveniently abstracts all type conversions and low-level data transmissions between both server applications, and enables operation in transaction mode.
+
+\end{description}
 
 \section{Object-Oriented Design}
 %  - Abstrakce technické vrstvy pomocí polymorfismu, další použité návrhové vzory.
