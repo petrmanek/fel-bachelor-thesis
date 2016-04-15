@@ -1,11 +1,47 @@
 \chapter{Data Server}
 % 4. Datový server
+This chapter describes implementation of a JSTP server in C++. While sections in the beginning focus on the role of the server in the entire visualization system and its connection to other components of the application, the sections in the end give details on its operation and propose performance optimizations.
 
 \section{Role of the Application}
 %  - Volba povahy serverové aplikace s ohledem na zbylé části systému.
+It has been already mentioned in the definition of JSTP that the primary purpose of the protocol is to facilitate connection between the web visualization UI and the ATLAS-TPX footage database. Since the database is located at the server side, the main responsibility of the JSTP server is to decode stored TPX frames from data files and encode them in JSTP messages as efficiently as possible.
+
+To achieve this goal, the server is expected to interact with not only with its underlying file system (which may be replaced by EOS in the future), but also with the index database. Using the index, the server can accelerate time-based queries, as described in section \ref{db:performance-optimization}.
+
+\todo
+% DOPLNIT
 
 \section{Decomposition}
 %  - Dekompozice úloh serveru do jednotlivých komponent.
+The server consists of two major components, an HTTP thread pool and a ROOT transcoder. As the name suggests, the thread pool is responsible mainly for handling outbound HTTP connections, whereas the transcoder ensures fast consumption of data stored in the ROOT file format.
+
+\subsection{HTTP Thread Pool}
+The thread pool is a standard component in many other server applications. It allows simultaneous communication with multiple clients, provided that server's hardware offers parallel processing support.
+
+At the startup, multiple \textit{worker threads} are created. These threads are immediately suspended to conserve server's resources. When a new request arrives, one of the suspended threads is awakened and notified to process the request, compose and send a response. During this operation, the thread is said to be \textit{busy} and cannot receive new requests. Should such a request arrive at that time, the server would opt to awaken another of the suspended threads, gradually exhausting its pool. After the response is sent, the thread returns to suspended state, awaiting further instructions. This way, threads are recycled within the pool throughout server operation.
+
+Each worker thread manages its own separate set of resources, allowing it process requests autonomously. Since such processing occupies a single core of server's CPU, it follows that the total number of threads corresponds\footnote{The correspondence need not be exact. For instance, when testing the application on machines with 2, 4 or 8 cores, the most effective number of threads was equal to the number of cores multiplied by 4.} with the number of cores in the CPU.
+
+Apart from reading and writing to the HTTP socket, worker threads are responsible for choosing the correct behavior in order to respond to requests in compliance with the JSTP specification. For instance, every web method listed in section \ref{jstp:web-methods} is represented by a separate \textit{request handler}. Upon request, a worker thread decides which method is being called, creates a corresponding handler, and gives it abstracted control over the HTTP socket. After the handler is finished processing the request, the worker thread sends the response to the client and destroys the handler, freeing up resources related to the communication session.
+
+\subsection{ROOT Transcoder}
+The primary purpose of the transcoder is to access detector footage stored within ROOT data files and convert it to JSTP messages. Unlike the thread pool, the transcoder is not a single object but rather a dedicated set of tools and objects designed to efficiently handle large amounts of data.
+
+Recall from section \ref{storage:ROOT} that the ROOT format stores information in tree structures, separating detector configuration from cluster lists. Due to possibly overwhelming sizes of data files, it is nontrivial to devise logic to minimize access time with respect to memory paging and L1 cache. Some of the most significant factors to consider are:
+
+\begin{description}
+	\item[ROOT Compression]
+	The ROOT data format utilizes its own compression algorithm, roughly equivalent to the ZIP format in its efficiency. There are multiple levels of compression ranging from the best compression ratio to the fastest reading time. Choice of the compression level affects all subsequent processing required to encode and decode data.
+
+	\item[ROOT Cache]
+	In sequential reading, the ROOT data format implicitly uses a file cache to prefetch all buffers for the selected data in the memory.
+
+	\item[Tree Switching]
+	When retrieving frame data, switching from the \texttt{dscData} tree to the \texttt{clusterFile} tree and back might cause OS to swap memory every time a single frame is read, producing unnecessary overhead and slowing down the process.
+
+	\item[Data Demand]
+	In many instances of JSTP messages, it is requested that only a part of the stored data is read. ROOT allows applications to specify this information prior to initiating sequential reading, and in turn accelerate some procedures.
+\end{description}
 
 \section{Dependencies}
 %  - Volba knihoven a závislostí, požadavky na kompatibilitu s cílovým systémem.

@@ -13,6 +13,7 @@
 		\nompageref{iii}
   \item [{CIFS}]\begingroup Common Internet File System. See SMB.\nomeqref {0}
 		\nompageref{iii}
+  \item [{CPU}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{CRUD}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{DCS}]\begingroup Detector Control Systems, a system providing control of subdetectors and of common infrastructure of the experiment and communication with the services of CERN.\nomeqref {0}
 		\nompageref{iii}
@@ -32,6 +33,7 @@
   \item [{MIME}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{MPX}]\begingroup Medipix, a semiconductor pixel detection chip.\nomeqref {0}
 		\nompageref{iii}
+  \item [{OS}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{ROOT}]\begingroup An object oriented data analysis framework. \cite{Brun199781}\nomeqref {0}
 		\nompageref{iii}
   \item [{RPC}]\begingroup \nomeqref {0}\nompageref{iii}
