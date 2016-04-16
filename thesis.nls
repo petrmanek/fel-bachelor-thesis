@@ -15,6 +15,7 @@
 		\nompageref{iii}
   \item [{CPU}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{CRUD}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{CSS}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{DCS}]\begingroup Detector Control Systems, a system providing control of subdetectors and of common infrastructure of the experiment and communication with the services of CERN.\nomeqref {0}
 		\nompageref{iii}
   \item [{DOM}]\begingroup \nomeqref {0}\nompageref{iii}
@@ -22,11 +23,13 @@
 		\nompageref{iii}
   \item [{FTP}]\begingroup File Transfer Protocol, a network protocol mainly used for providing shared access to files.\nomeqref {0}
 		\nompageref{iii}
+  \item [{HTML}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{HTTP}]\begingroup Hypertext Transfer Protocol.\nomeqref {0}
 		\nompageref{iii}
   \item [{JSON}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{JSTP}]\begingroup JSON Timepix Protocol, a protocol used to transmit captured frames to the web visualization UI. For its description, see section \ref{protocol:introduction}.\nomeqref {0}
 		\nompageref{iii}
+  \item [{LESS}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{LHC}]\begingroup Large Hadron Collider, an experimental factility built by CERN.\nomeqref {0}
 		\nompageref{iii}
   \item [{LS}]\begingroup Long Shutdown, a period in CERN time schedule characteristic by temporary cesation of operation of particle accelerators and increased maintenance.\nomeqref {0}

@@ -1,72 +1,42 @@
-\chapter{Data Server}
-This chapter describes implementation of a JSTP server in C++. While sections in the beginning focus on the role of the server in the entire visualization system and its connection to other components of the application, the sections in the end give details on its operation and propose performance optimizations.
-
-\section{Role of the Application}
-%  - Volba povahy serverové aplikace s ohledem na zbylé části systému.
-It has been already mentioned in the definition of JSTP that the primary purpose of the protocol is to facilitate connection between the web visualization UI and the ATLAS-TPX footage database. Since the database is located at the server side, the main responsibility of the JSTP server is to decode stored TPX frames from data files and encode them in JSTP messages as efficiently as possible.
-
-To achieve this goal, the server is expected to interact with not only with its underlying file system (which may be replaced by EOS in the future), but also with the index database. Using the index, the server can accelerate time-based queries, as described in section \ref{db:performance-optimization}.
-
-\todo
-% DOPLNIT
+\chapter{Server Implementation}
+This chapter describes implementation of a JSTP server with a web visualization UI. While sections in the beginning focus on caveats of efficient data transcoding and give details on some backend performance optimizations, the sections in the end describe the user interface composition and chart rendering.
 
 \section{Decomposition}
-The server consists of two major components, an HTTP thread pool and a ROOT transcoder. As the name suggests, the thread pool is responsible mainly for handling outbound HTTP connections, whereas the transcoder ensures fast consumption of data stored in the ROOT file format.
+The server application consists of two major components, a static web server and a JSTP data server. As their names suggest, the web server provides the visualization UI in the form of static-hosted files, whereas the data server asynchronously delivers data to visualize in the form of JSTP messages.
 
-\subsection{HTTP Thread Pool}
-The thread pool is a standard component in many other server applications. It allows simultaneous communication with multiple clients, provided that server's hardware offers parallel processing support.
+Both applications are operated simultaneously and independently of each other as Linux daemons or services in the systemd initialization system. Each application listens and responds to client requests on its own dedicated port.
 
-At the startup, multiple \textit{worker threads} are created. These threads are immediately suspended to conserve server's resources. When a new request arrives, one of the suspended threads is awakened and notified to process the request, compose and send a response. During this operation, the thread is said to be \textit{busy} and cannot receive new requests. Should such a request arrive at that time, the server would opt to awaken another of the suspended threads, gradually exhausting its pool. After the response is sent, the thread returns to suspended state, awaiting further instructions. This way, threads are recycled within the pool throughout server operation.
+\subsection{Static Web Server}
+The web server is a standard server application implemented in Node.js. It stores all files and dependencies of the web visualization, such as HTML files with UI definition, style sheets written in CSS and client-side scripts written in JavaScript. Since these files are quite static in their essence, the web server uses standard HTTP caching mechanisms to speed up its operation.
 
-Each worker thread manages its own separate set of resources, allowing it process requests autonomously. Since such processing occupies a single core of server's CPU, it follows that the total number of threads corresponds\footnote{The correspondence need not be exact. For instance, when testing the application on machines with 2, 4 or 8 cores, the most effective number of threads was equal to the number of cores multiplied by 4.} with the number of cores in the CPU.
+For security reasons, the HTTP socket managed by the web server is the only socket accessible from the Internet. All JSTP traffic is routed through the this socket and then redirected to a private socket owned by the data server, thus eliminating the need to expose more than one port to the Internet.
 
-Apart from reading and writing to the HTTP socket, worker threads are responsible for choosing the correct behavior in order to respond to requests in compliance with the JSTP specification. For instance, every web method listed in section \ref{jstp:web-methods} is represented by a separate \textit{request handler}. Upon request, a worker thread decides which method is being called, creates a corresponding handler, and gives it abstracted control over the HTTP socket. After the handler is finished processing the request, the worker thread sends the response to the client and destroys the handler, freeing up resources related to the communication session.
+\subsection{JSTP Data Server}
+The JSTP data server is a C++ application built using the Facebook Proxygen open source library. It interacts with the ATLAS-TPX footage database and the index database and transcodes TPX data to the JSTP format.
 
-\subsection{ROOT Transcoder}
-The primary purpose of the transcoder is to access detector footage stored within ROOT data files and convert it to JSTP messages. Unlike the thread pool, the transcoder is not a single object but rather a dedicated set of tools and objects designed to efficiently handle large amounts of data.
-
-Recall from section \ref{storage:ROOT} that the ROOT format stores information in tree structures, separating detector configuration from cluster lists. Due to possibly overwhelming sizes of data files, it is nontrivial to devise logic to minimize access time with respect to memory paging and L1 cache. Some of the most significant factors to consider are:
-
-\begin{description}
-	\item[ROOT Compression]
-	The ROOT data format utilizes its own compression algorithm, roughly equivalent to the ZIP format in its efficiency. There are multiple levels of compression ranging from the best compression ratio to the fastest reading time. Choice of the compression level affects all subsequent processing required to encode and decode data.
-
-	\item[ROOT Cache]
-	In sequential reading, the ROOT data format implicitly uses a file cache to prefetch all buffers for the selected data in the memory.
-
-	\item[Tree Switching]
-	When retrieving frame data, switching from the \texttt{dscData} tree to the \texttt{clusterFile} tree and back might cause OS to swap memory every time a single frame is read, producing unnecessary overhead and slowing down the process.
-
-	\item[Data Demand]
-	In many instances of JSTP messages, it is requested that only a part of the stored data is read. ROOT allows applications to specify this information prior to initiating sequential reading, and in turn accelerate some procedures.
-\end{description}
-
-\subsection{Auxiliary Components}
-Apart from the thread pool and the transcoder, the server has multiple auxiliary components:
-
-\begin{description}
-	\item[JSON Serialization]
-	% CITACE: RapidJSON
-	In order to produce valid JSTP messages, the server utilizes JSON parser to read method parameters and JSON writer to construct response bodies. Both components are provided by the RapidJSON open source library.
-
-	Since the number of request parameters is defined to be constant, the parser operates in a stateless DOM mode, which is memory-inefficient but easy to use. And because produced responses are expected to be large, the writer is configured to operate in more efficient SAX mode, which is harder to work with.
-
-	\item[Logging]
-	% CITACE: GLog
-	The server produces status messages with multiple levels of severity. To persist these messages, the Google Logging library is used. The library is capable of managing multiple open files, differentiated by the minimal severity of log messages and the date of logging.
-
-	\item[Configuration]
-	% CITACE: GFlags
-	Configuration of the server is provided by the Google Flags library. It allows various configuration settings (most notably server IP, port and behavior) to be customized by passing command-line arguments to the process at startup.
-
-	\item[Index Database Connection]
-	% CITACE: PQXX
-	The server interacts with the index database using the official PostgreSQL connector library for C++. This library essentially provides the ability to execute arbitrary SQL commands. It also conveniently abstracts all type conversions and low-level data transmissions between both server applications, and enables operation in transaction mode.
-
-\end{description}
+The core component of the server is a thread pool. It allows simultaneous communication with multiple clients, provided that server's hardware offers parallel processing support. At the startup, multiple \textit{worker threads} are created. These threads are immediately suspended to conserve server's resources. When a new request arrives, one of the suspended threads is awakened and notified to process the request, compose and send a response. During this operation, the thread is said to be \textit{busy} and cannot receive new requests. Should such a request arrive at that time, the server would opt to awaken another of the suspended threads, gradually exhausting its pool. After the response is sent, the busy thread returns to a suspended state, awaiting further instructions. This way, threads are recycled within the pool throughout server operation.
 
 \section{Object-Oriented Design}
-%  - Abstrakce technické vrstvy pomocí polymorfismu, další použité návrhové vzory.
+In the JSTP data server, much emphasis was put on the object design and the use of standard design patterns. In this section, few examples are listed.
+
+\subsection{Request Handling}
+When a request arrives, a worker thread is assigned to process it and respond accordingly. To avoid keeping server logic within the implementation of worker threads, the process of producing a response to a single instance of request is generalized into \textit{a request handler} object.
+
+Upon request, the worker thread decides which method is being called, creates a corresponding handler, and gives it abstracted control over the HTTP socket. After the handler is finished processing the request, the worker thread sends the response to the client and destroys the handler, freeing up resources related to the communication session.
+
+Using object polymorphism, multiple types of request handlers are implemented to service requests corresponding with various JSTP web methods listed in section \ref{jstp:web-methods}.
+
+\subsection{Behavior Selection}
+% factory method při výběru requestu
+% factory -> regex factory
+Apart from producing server responses, worker threads are also responsible for choosing an appropriate behavior based on received requests. This logic is made autonomous by the application of the factory method design pattern.
+
+When started, every worker thread creates \textit{a factory} object. This object is later called when requests arrive and based on their parameters, determines which request handler should be used to produce a response.
+
+Since in the JSTP data server, URL is used to determine called web methoda (and by extension the request handler), a factory subclass was implemented to utilize regular expressions when performing decisions about requests. At the creation time of the factory, all possible request handlers along with their respective regular expressions are registered using the standard builder pattern. One more request handler is designated as \textit{the default handler}. Upon request, all of the registered expressions are matched on its URL in the order of registration. Should one of the expressions succeed, its corresponding request handler is selected. Otherwise, the default handler is used.
+
+\subsection{Content Abstraction}
+% handler -> json handler
 
 \section{A Note on Parallelism}
 %  - Poznámka o vícevláknovém provozu serveru.
@@ -74,3 +44,44 @@ Apart from the thread pool and the transcoder, the server has multiple auxiliary
 \section{Performance Optimizations}
 %  - Akcelerace výkonu pomocí sjednoceného přístupu k souborům. Dopady této techniky na alokaci paměti.
 %  - Analýza efektivity aplikace: výkonový test, rozbor úniků paměti a řešení některých z nich.
+
+The ROOT transcoder detector footage stored within ROOT data files and convert it to JSTP messages. Unlike the thread pool, the transcoder is not a single object but rather a dedicated set of tools and objects designed to efficiently handle large amounts of data.
+
+Recall from section \ref{storage:ROOT} that the ROOT format stores information in tree structures, separating detector configuration from cluster lists corresponding to individual frames. Due to possibly overwhelming sizes of data files, it is nontrivial to devise logic to minimize access time with respect to memory paging and L1 cache. Some of the most significant factors to consider are:
+
+\begin{description}
+	\item[ROOT Compression]
+	The ROOT data format utilizes its own compression algorithm, roughly equivalent to the ZIP format in its efficiency. There are multiple levels of compression ranging from the best compression ratio to the fastest reading time. Choice of the compression level affects all subsequent processing required to encode and decode data.
+
+	\item[ROOT Cache]
+	The ROOT data format implicitly uses a file cache to prefetch information in memory with assumption that the data will be read sequentially. For that reason, linear enumeration of data structures tends to be faster than a random access.
+
+	\item[Tree Locality]
+	When retrieving frame data, switching from the \texttt{dscData} tree to the \texttt{clusterFile} tree and back might cause OS to swap memory every time a single frame is read, producing unnecessary overhead and slowing down the process.
+
+	\item[Data Demand]
+	In many instances of JSTP messages, it is requested that only a portion of the stored data is read. ROOT allows applications to specify this information prior to initiating sequential reading, and in turn accelerate some procedures.
+\end{description}
+
+\section{Web Visualization}
+\label{chapter:web-visualization}
+% 5. Webová vizualizace
+
+\section{Naive Decomposition}
+%  - Původní schéma dekompozice úlohy, problémy s propustností meziprocesové komunikace a parsing overhead.
+
+\section{Final Decomposition}
+%  - Finální schéma dekompozice, přesměrování paketů na úrovni socketu.
+%  - Zrychlení statické části pomocí cache, protokoly a robustnost aplikace.
+
+\section{Underlying Standards}
+%  - Zapojení jazyků LESS a TypeScript pro usnadnění vývoje webu.
+
+\section{Dependencies}
+%  - Použití systému pro modulární sestavení Grunt a systému pro závislosti Bower.
+%  - Integrace komponent do webového rozhraní pomocí projektu Bootstrap.
+
+\section{Website Structure}
+%  - Tvorba vykreslovacích komponent pro grafové části pomocí HTML 5.
+%  - Stručná uživatelská dokumentace webové vizualizace.
+
