@@ -336,16 +336,30 @@ This calculation is fairly straightforward, but since it utilizes floating-point
 To resolve this issue, the auxiliary canvas responsible for data plots is automatically scaled to size, which is slightly greater than the actual amount of pixels available for rendering, but is a multiple of the number of detector pixels to plot. Consequently, the calculated pixel rectangle dimensions are integer values, and thus allow the usage of \textit{the ImageData API}\footnote{The ImageData API is a part of HTML Canvas API, which allows its users to render pictures by setting values of color components of individual pixels in the bitmap. This approach is faster than the conventional API and guaranteed to not use antialiasing. For more information, see section 4.12.4.2.16 of \cite{HtmlStandard}.}. After the pixels are rendered in the canvas, it is scaled back down to the exact size of the plot area. At this point, antialiasing is performed. However, since the canvas has already been filled with colored rectangles, there are no transparent pixels from which a grid-like structure could be formed. For that reason, a conventional antialiasing algorithm will produce a satisfying picture.
 
 \subsection{Subpixel Rendering}
-To render all charts sharply, a subpixel rendering method is supported. Screens with standard pixel resolutions map logical pixels (referenced by the software) to physical pixels (present in the hardware) bijectively. In comparison, high resolution screens divide their logical pixels uniformly in a way, such that a single logical pixel is displayed by multiple physical pixels. The ratio between these two values is defined in the HTML 5 standard \cite{HtmlStandard} as \texttt{devicePixelRatio}\footnote{For instance, Retina display of Apple iPhone 4 has physical resolution $960\times 640$ and logical resolution $480\times 320$. Its pixel ratio is therefore 2.}.
+To render all charts sharply, subpixel rendering is supported. Screens with standard pixel resolutions map logical pixels (referenced by the software) to physical pixels (present in the hardware) bijectively. In comparison, high resolution screens divide their logical pixels uniformly in a way, such that a single logical pixel is displayed by multiple physical pixels. The ratio between these two values is defined in the HTML 5 standard \cite{HtmlStandard} as \texttt{devicePixelRatio}\footnote{For instance, Retina display of Apple iPhone 4 has physical resolution $960\times 640$ and logical resolution $480\times 320$. Its pixel ratio is therefore 2.}.
 
-When determining chart sizes prior to rendering, the application reads the value of the pixel ratio and uses it as a coefficient to upscale all canvases. Contents of the charts are then drawn, utilizing the enhanced resolution of the screen.
+When determining chart sizes prior to rendering, the visualization UI reads the value of the pixel ratio of the current screen and uses it as a coefficient to upscale all canvases accordingly. Contents of charts are then drawn on the canvases, utilizing the enhanced resolution of the screen.
 
 \section{Deployment}
+Because the server application consists of two independent daemons, each operating on a diferent platform, a dedicated deployment method is used. In this section, such method is described in detail.
 
-\subsection{TypeScript}
+\subsection{Extension Script Translation}
+For coding comfort, the website source makes use of extension languages such as LESS or TypeScript. These languages are respective extensions of the standard CSS and JavaScript, implementing somewhat useful features, which are missing or are not supported by their base counterparts. However, since ordinary web browsers are not capable of parsing their advanced syntax, all LESS and TypeScript source files need to be first translated by a third-party tool before the web application can be deployed.
 
-\subsection{LESS}
+The products of the translation process are further optimized for deployment by the process of minification, which removes source code comments, white spaces and obfuscates variable and method names in order to compress file size. Since the code is separated into multiple files, such files are concatenated to minimize the amount of HTTP requests needed to fully load the visualization UI. At the end of this procedure, two compressed files in CSS and JavaScript are generated.
 
-\subsection{Bower}
+\subsection{Bower Dependencies}
+The web application utilizes various open source libraries, most notably jQuery and the Bootstrap Framework. To manage all such dependencies in a well arranged way, the Bower dependency management system is used. The web visualization specifies a \textit{Bower manifest file} in the JSON format. This file lists all dependencies as well as their minimum compatible versions.
 
-\subsection{Grunt}
+When the visualization is deployed, the Bower tool is executed to fetch the latest versions of the required libraries and add their redistributable resources to website contents. This process is deeply integrated with the extension script translation, as the redistributable resources are concatenated with other stylesheets and scripts and minified together. Some dependencies even support strongly-typed bindings in TypeScript. These bindings are downloaded along with the redistributable resources and are used to validate client-side scripts during the translation phase.
+
+\subsection{Grunt Build System}
+The Grunt system links all deployment phases together. In a way similar to Makefile, it allows target-driven execution of tasks with possible dependencies and variable arguments. This system is also integrated with the standard Node.js package manager application. To deploy the web visualization UI on the server, two main targets are defined in the application's \textit{Gruntfile}:
+
+\begin{description}
+	\item[Production Target]
+	The primary purpose of this target is to deploy the web visualization UI with maximum emphasis on speed optimization. All possible files including dependencies are concatenated and minified to minimize loading time of the website in the production environment.
+
+	\item[Debug Target]
+	This target is not intended for production use. Its purpose is to maximize readability of the code for the purposes of debugging and development. To achieve this effect, several build phases such as minification and obfuscation are skipped.
+\end{description}
