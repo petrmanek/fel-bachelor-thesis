@@ -317,7 +317,7 @@ As in most UI applications, the status bar is located at the very bottom of the 
 To display more information, the user can activate \textit{the time profiling mode}, in which every procedure is measured and the time is displayed in the status bar.
 
 \section{Plotting Optimizations}
-Since rendering of all charts in the application occurs on the client side where hardware performance is not guaranteed, the web visualization UI attempts to accelerate the rendering process as much as possible. This section lists few notable examples of methods used to minimize rendering latency.
+Since rendering of all charts in the application occurs on the client side where hardware performance is not guaranteed, the web visualization UI attempts to improve the rendering process as much as possible. This section lists few notable examples of methods used to minimize rendering latency and improve the overall appearance of the plotted output.
 
 \subsection{Prerendering}
 Both frame charts and the overview chart offer interactive features. For that reason, they often require to be redrawn upon various user-generated events, such as mouse cursor movements or mouse clicks. Since re-rendering of an entire chart could represent a time-consuming operation, especially on computers with weak hardware, optimization of this procedure is required.
@@ -326,11 +326,19 @@ Observant users of the visualization could have noticed that often enough, only 
 
 The auxiliary canvases are transparent, have the same size as the original chart and are laid on top of each other like layers in a photo editor. In addition, every auxiliary canvas maintains an additional bit value signifying whether its state is \textit{valid}. The validity of a canvas can be defined in this context as the state of synchronization between the information drawn on the canvas and the data, which is used to generate such information. Upon different events, some of the auxiliary canvases are invalidated (meaning that their validity bit is set to the \textit{invalid} value). Later on, when the chart is requested to be re-rendered, only those auxiliary canvases, which are invalid, are actually redrawn, saving the processor time, which would be otherwise spent drawing the remaining canvases.
 
-This technique speeds up rendering significantly, as only portions of charts are redrawn due to UI events. It also implies that every event that affects rendering of UI elements has to come with additional information specifying, which auxiliary canvases need to be invalidated. However, with a semantical division of the chart (such as partitioning into data area, scale labels and the mouse cross), this does not seem as a complicated task.
+This technique speeds up chart rendering significantly, as only portions of charts are redrawn due to UI events. It also implies that every event that affects rendering of UI elements has to come with additional information specifying, which auxiliary canvases need to be invalidated. However, with semantical division of the chart (such as partitioning into data area, scale labels and the mouse cross), this does not seem a complicated task.
 
-\subsection{Resizable Data Layer}
+\subsection{Pixel Drawing}
+One of the UI bugs which proved quite tedious to resolve involved colored rectangles drawn to represent individual pixels of a TPX detector. Given the possibility of zooming, every frame chart has to be able to plot at least $2\times 2$ and at most $256\times 256$ of such pixel rectangles. Since dimensions of the charts adapt to the dimensions of the browser window, every time the window is resized, new dimensions of pixel rectangles need to be calculated.
 
-\subsection{High Resolution Screens}
+This calculation is fairly straightforward, but since it utilizes floating-point arithmetic, its results may happen to be imprecise in some cases. And due to this imprecision, pixel rectangles in frame charts used to suffer from periodical fractional offsets, which manifested themselves in the form of a thin grid.
+
+To resolve this issue, the auxiliary canvas responsible for data plots is automatically scaled to size, which is slightly greater than the actual amount of pixels available for rendering, but is a multiple of the number of detector pixels to plot. Consequently, the calculated pixel rectangle dimensions are integer values, and thus allow the usage of \textit{the ImageData API}\footnote{The ImageData API is a part of HTML Canvas API, which allows its users to render pictures by setting values of color components of individual pixels in the bitmap. This approach is faster than the conventional API and guaranteed to not use antialiasing. For more information, see section 4.12.4.2.16 of \cite{HtmlStandard}.}. After the pixels are rendered in the canvas, it is scaled back down to the exact size of the plot area. At this point, antialiasing is performed. However, since the canvas has already been filled with colored rectangles, there are no transparent pixels from which a grid-like structure could be formed. For that reason, a conventional antialiasing algorithm will produce a satisfying picture.
+
+\subsection{Subpixel Rendering}
+To render all charts sharply, a subpixel rendering method is supported. Screens with standard pixel resolutions map logical pixels (referenced by the software) to physical pixels (present in the hardware) bijectively. In comparison, high resolution screens divide their logical pixels uniformly in a way, such that a single logical pixel is displayed by multiple physical pixels. The ratio between these two values is defined in the HTML 5 standard \cite{HtmlStandard} as \texttt{devicePixelRatio}\footnote{For instance, Retina display of Apple iPhone 4 has physical resolution $960\times 640$ and logical resolution $480\times 320$. Its pixel ratio is therefore 2.}.
+
+When determining chart sizes prior to rendering, the application reads the value of the pixel ratio and uses it as a coefficient to upscale all canvases. Contents of the charts are then drawn, utilizing the enhanced resolution of the screen.
 
 \section{Deployment}
 

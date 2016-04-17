@@ -19,6 +19,7 @@
   \item [{DCS}]\begingroup Detector Control Systems, a system providing control of subdetectors and of common infrastructure of the experiment and communication with the services of CERN.\nomeqref {0}
 		\nompageref{iii}
   \item [{DOM}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{DPI}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{EOS}]\begingroup A primary storage system at CERN for LHC experiments.\nomeqref {0}
 		\nompageref{iii}
   \item [{FTP}]\begingroup File Transfer Protocol, a network protocol mainly used for providing shared access to files.\nomeqref {0}
