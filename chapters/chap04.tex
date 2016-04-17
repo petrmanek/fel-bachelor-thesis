@@ -2,22 +2,22 @@
 This chapter describes implementation of a JSTP server with a web visualization UI. While sections in the beginning focus on caveats of efficient data transcoding and give details on some backend performance optimizations, the sections in the end describe the user interface composition and chart rendering.
 
 \section{Decomposition}
-The server application consists of two major components, a static web server and a JSTP data server. As their names suggest, the web server provides the visualization UI in the form of static-hosted files, whereas the data server asynchronously delivers data to visualize in the form of JSTP messages.
+The server application consists of two major components, a JSTP data server and a static web server. As their names suggest, the data server asynchronously delivers data to visualize in the form of JSTP messages, whereas the web server provides the visualization UI in the form of static-hosted files.
 
 Both applications are operated simultaneously and independently of each other as Linux daemons or services in the systemd initialization system. Each application listens and responds to client requests on its own dedicated port.
-
-\subsection{Static Web Server}
-The web server is a standard server application implemented in Node.js. It stores all files and dependencies of the web visualization, such as HTML files with UI definition, style sheets written in CSS and client-side scripts written in JavaScript. Since these files are quite static in their essence, the web server uses standard HTTP caching mechanisms to speed up its operation.
-
-For security reasons, the HTTP socket managed by the web server is the only socket accessible from the Internet. All JSTP traffic is routed through the this socket and then redirected to a private socket owned by the data server, thus eliminating the need to expose more than one port to the Internet.
 
 \subsection{JSTP Data Server}
 The JSTP data server is a C++ application built using the Facebook Proxygen open source library. It interacts with the ATLAS-TPX footage database and the index database and transcodes TPX data to the JSTP format.
 
 The core component of the server is a thread pool. It allows simultaneous communication with multiple clients, provided that server's hardware offers parallel processing support. At the startup, multiple \textit{worker threads} are created. These threads are immediately suspended to conserve server's resources. When a new request arrives, one of the suspended threads is awakened and notified to process the request, compose and send a response. During this operation, the thread is said to be \textit{busy} and cannot receive new requests. Should such a request arrive at that time, the server would opt to awaken another of the suspended threads, gradually exhausting its pool. After the response is sent, the busy thread returns to a suspended state, awaiting further instructions. This way, threads are recycled within the pool throughout server operation.
 
+\subsection{Static Web Server}
+The web server is a standard server application implemented in Node.js. It stores all files and dependencies of the web visualization, such as HTML files with UI definition, style sheets written in CSS and client-side scripts written in JavaScript. Since these files are quite static in their essence, the web server uses standard HTTP caching mechanisms to speed up its operation.
+
+For security reasons, the HTTP socket managed by the web server is the only socket accessible from the Internet. All JSTP traffic is routed through the this socket and then redirected to a private socket owned by the data server, thus eliminating the need to expose more than one port to the Internet.
+
 \section{Object-Oriented Design}
-In the JSTP data server, much emphasis was put on the object design and the use of standard design patterns. In this section, few examples are listed.
+In the JSTP data server, much emphasis was put on the object design and the use of standard design patterns. This section contains the most notable instances.
 
 \subsection{Request Handling}
 When a request arrives, a worker thread is assigned to process it and respond accordingly. To avoid keeping server logic within the implementation of worker threads, the process of producing a response to a single instance of request is generalized into \textit{a request handler} object.
@@ -27,27 +27,91 @@ Upon request, the worker thread decides which method is being called, creates a 
 Using object polymorphism, multiple types of request handlers are implemented to service requests corresponding with various JSTP web methods listed in section \ref{jstp:web-methods}.
 
 \subsection{Behavior Selection}
-% factory method při výběru requestu
-% factory -> regex factory
-Apart from producing server responses, worker threads are also responsible for choosing an appropriate behavior based on received requests. This logic is made autonomous by the application of the factory method design pattern.
+Apart from producing server responses, worker threads are also responsible for choosing an appropriate behavior for every client request. In comparison to processing requests themselves, this logic consists mostly of picking the correct request handler for every request. It is made autonomous through application of the factory method design pattern (see Figure \ref{fig:handler-factory}).
 
-When started, every worker thread creates \textit{a factory} object. This object is later called when requests arrive and based on their parameters, determines which request handler should be used to produce a response.
+When started, every worker thread creates \textit{a factory} object. This object is later called when requests arrive, and based on their parameters, determines which request handler is to be used to produce a response.
 
-Since in the JSTP data server, URL is used to determine called web methoda (and by extension the request handler), a factory subclass was implemented to utilize regular expressions when performing decisions about requests. At the creation time of the factory, all possible request handlers along with their respective regular expressions are registered using the standard builder pattern. One more request handler is designated as \textit{the default handler}. Upon request, all of the registered expressions are matched on its URL in the order of registration. Should one of the expressions succeed, its corresponding request handler is selected. Otherwise, the default handler is used.
+Since the JSTP specification uses URL to determine called web methods (and by extension request handlers), a factory subclass has been implemented to utilize regular expressions to perform decisions about requests. At the creation time of the subclass, all supported request handlers along with their respective regular expressions are registered using the standard builder design pattern. One more request handler is designated as \textit{the default handler}. Upon request, all of the registered expressions are sequentially matched on its URL. Should one of them succeed, its corresponding request handler is selected. Otherwise, the default handler is used.
+
+\begin{figure}[t]
+\begin{center}
+	\begin{tikzpicture}
+		\begin{abstractclass}[text width=7cm]{HandlerFactory}{0,0}
+			\operation[0]{+ createHandler ( req : HTTPRequest )}
+		\end{abstractclass}
+
+		\begin{abstractclass}[text width=7cm]{RegexHandlerFactory}{0,-3}
+			\inherit{HandlerFactory}
+			\attribute{- handlers : RequestHandler[0..*]}
+			\attribute{- expressions : RegularExpression[0..*]}
+			\attribute{- defaultHandler : RequestHandler}
+			\operation{+ createHandler ( req : HTTPRequest )}
+			\operation[0]{\# registerHandlers ( )}
+		\end{abstractclass}
+
+		\begin{class}[text width=5cm]{JSTPHandlerFactory}{8,-5}
+			\inherit{RegexHandlerFactory}
+			\operation{\# registerHandlers ( )}
+		\end{class}
+
+		\begin{class}[text width=3cm]{HandlerA}{6,0}
+			\operation{+ process ( )}
+		\end{class}
+
+		\begin{class}[text width=3cm]{HandlerB}{10,0}
+			\operation{+ process ( )}
+		\end{class}
+
+		 \draw[umlcd style dashed line,->] (JSTPHandlerFactory) --node[above,sloped, black]{$<<$instantiate$>>$} (HandlerA);
+		 \draw[umlcd style dashed line,->] (JSTPHandlerFactory) --node[above,sloped, black]{$<<$instantiate$>>$} (HandlerB);
+	\end{tikzpicture}
+
+\caption{UML diagram illustrating the abstract factory design pattern applied in the context of request handler instantiation.}
+\label{fig:handler-factory}
+\end{center}
+\end{figure}
 
 \subsection{Content Abstraction}
-% handler -> json handler
+In order to produce valid JSTP messages, a JSON serialization component is required. All web methods are expected to read their parameters and compose their responses in the desired format. Since this behavior is shared amongst all request handlers, it is encapsulated in a separate subclass of a conventional request handler. To access properties of this subclass, all request handlers corresponding to JSTP web methods inherit from it.
 
-\section{A Note on Parallelism}
-%  - Poznámka o vícevláknovém provozu serveru.
+The subclass interacts directly with the HTTP socket and uses a parser and a writer to retrieve and produce JSON strings. Its descendants can thus only call the parser and the writer to access and produce content, instead of reading and writing to the socket directly, as illustrated in Figure \ref{fig:request-handlers}. This prevents bad object design by centralizing serialization logic in a single object. In addition, it allows for a limited degree of variability, since the subclass itself is the sole object responsible for communicating information to the socket. For instance, if the XML format was to be used instead of JSON, only internals of this subclass would have to be reimplemented, while its descendants could remain the same.
+
+\begin{figure}[t]
+\begin{center}
+	\begin{tikzpicture}
+		\begin{abstractclass}[text width=5cm]{RequestHandler}{0,0}
+			\attribute{\# socket : HTTPSocket}
+			\operation[0]{+ process ( )}
+		\end{abstractclass}
+
+		\begin{abstractclass}[text width=5cm]{JSONRequestHandler}{0,-3}
+			\inherit{RequestHandler}
+			\attribute{\# writer : JSONWriter}
+			\attribute{\# parser : JSONParser}
+			\operation[0]{+ process ( )}
+		\end{abstractclass}
+
+		\begin{class}[text width=3cm]{HandlerA}{6,-2}
+			\inherit{JSONRequestHandler}
+			\operation{+ process ( )}
+		\end{class}
+
+		\begin{class}[text width=3cm]{HandlerB}{6,-4}
+			\inherit{JSONRequestHandler}
+			\operation{+ process ( )}
+		\end{class}
+	\end{tikzpicture}
+
+\caption{UML diagram illustrating the inheritance of request handler objects.}
+\label{fig:request-handlers}
+\end{center}
+\end{figure}
 
 \section{Performance Optimizations}
-%  - Akcelerace výkonu pomocí sjednoceného přístupu k souborům. Dopady této techniky na alokaci paměti.
-%  - Analýza efektivity aplikace: výkonový test, rozbor úniků paměti a řešení některých z nich.
+In the JSTP server, various performance optimizations are used to minimize response latency. This section lists some of such optimizations.
 
-The ROOT transcoder detector footage stored within ROOT data files and convert it to JSTP messages. Unlike the thread pool, the transcoder is not a single object but rather a dedicated set of tools and objects designed to efficiently handle large amounts of data.
-
-Recall from section \ref{storage:ROOT} that the ROOT format stores information in tree structures, separating detector configuration from cluster lists corresponding to individual frames. Due to possibly overwhelming sizes of data files, it is nontrivial to devise logic to minimize access time with respect to memory paging and L1 cache. Some of the most significant factors to consider are:
+\subsection{ROOT Reading Optimization}
+Recall from section \ref{storage:ROOT} that the ROOT format stores information in tree structures, separating detector configuration from cluster lists corresponding to individual frames. Due to possibly overwhelming sizes of data files, it is nontrivial to devise a logic to minimize access time with respect to memory paging and L1 cache. Some of the most significant factors to consider are:
 
 \begin{description}
 	\item[ROOT Compression]
@@ -62,6 +126,17 @@ Recall from section \ref{storage:ROOT} that the ROOT format stores information i
 	\item[Data Demand]
 	In many instances of JSTP messages, it is requested that only a portion of the stored data is read. ROOT allows applications to specify this information prior to initiating sequential reading, and in turn accelerate some procedures.
 \end{description}
+
+With respect to the these factors, all instances of objects requiring to read data from the ROOT file format, do so sequentially in strides. The application producing ROOT data files is configured to use the medium compression level, offering acceptable access speed while maintaining good compression ratio.
+
+When reading frame data, the configuration information is first read from the \texttt{dscData} tree for all frames. After the information is processed, the server moves on to the \texttt{clusterFile} tree and repeats the procedure without returning to the \texttt{dscData} tree in the process. Lastly, all components of the server interacting with the ROOT file format exhaustively declare tree branches, which are subject to processing later on.
+
+\subsection{Centralized File Management}
+In the web visualization UI, users may often browse frames in the order of acquisition. On the server-side, this would imply that the same ROOT data file is opened, read from and closed multiple times over. Such behavior introduces unnecessary overhead, as the procedure of opening and closing file pointers to possibly large files may become somewhat inefficient, and in turn slow down server operation significantly. Note that it would be much better solution to only open the data file once, use it to extract multiple requested frames and then close it for good.
+
+To resolve this problem, a centralized data structure is introduced into the server application. This structure is accessible to other components (such as request handlers) in compliance with the singleton design pattern. Its main responsibility lies in opening and closing ROOT files. Its implementation however does not forward these calls directly to the file system. Instead, the structure contains internal time-driven caching mechanism, which recycles open files between multiple consumers and closes their file pointers only when their contents are not requested for a greater period of time.
+
+Please note that such a central structure shared amongst multiple components operating on different threads does not induce a race condition, because it allows multiple instances of the same file to be open at the same time.
 
 \section{Web Visualization}
 \label{chapter:web-visualization}

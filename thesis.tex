@@ -47,6 +47,7 @@ unicode=true,
 \usepackage{inconsolata}		%hezký monospace font
 \usepackage{xcolor}				%barvičky
 \usepackage{pgf-umlsd}			%UML sekvence
+\usepackage{pgf-umlcd}			%UML třídy
 \usepackage{tikz-timing}		%časové grafy
 \usepackage{soul}				%zvýrazňovač
 
@@ -86,7 +87,7 @@ unicode=true,
 
 % více vrstev pro tikz
 \pgfdeclarelayer{background}
-\pgfsetlayers{background,main}                          % pozadí+popředí
+\pgfsetlayers{background,main,connectionlayers}                          % pozadí+popředí
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % vlastní dokument
