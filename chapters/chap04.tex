@@ -138,6 +138,98 @@ To resolve this problem, a centralized data structure is introduced into the ser
 
 Please note that such a central structure shared amongst multiple components operating on different threads does not induce a race condition, because it allows multiple instances of the same file to be open at the same time.
 
+\section{User Interface Layout}
+The web visualization UI consists of a single static HTML page, which is served to users by the web server. Apart from UI definitions and style sheets, it includes several client-side scripts, controlling the behavior of the website in the web browser. From design standpoint, UI is divided into multiple sections (depicted in Figure \ref{fig:wireframe}), each with a dedicated role and purpose.
+
+\begin{figure}[t]
+\begin{center}
+	\begin{tikzpicture}[
+	section/.style={
+	  rectangle,
+	  draw=black,
+	  font=\scriptsize,
+	  align=center,
+	  inner sep=0pt,
+	  fit=#1
+	}]
+		\coordinate (A) at (0,0);
+		\coordinate (B) at (15,-1);
+		\coordinate (C) at (0,-1);
+		\coordinate (D) at (15,-3);
+		\coordinate (E) at (10,-3);
+		\coordinate (F) at (15,-10);
+		\coordinate (G) at (0,-3);
+		\coordinate (H) at (10,-9);
+		\coordinate (I) at (0,-9);
+		\coordinate (J) at (10,-10);
+
+		\node (header) [section={(A) (B)}] {Header};
+		\node (timeline) [section={(C) (D)}] {Overview Chart};
+		\node (details) [section={(E) (F)}] {Details};
+		\node (frame) [section={(G) (H)}] {Main Chart};
+		\node (status) [section={(I) (J)}] {Status};
+	\end{tikzpicture}
+
+\caption{Wireframe showing the layout of UI sections.}
+\label{fig:wireframe}
+\end{center}
+\end{figure}
+
+\subsection{Header Bar}
+The topmost section of the UI is dedicated to important descriptive and control elements of the screen. From the left to the right, it contains logos of the institutions involved in the acquisition of experimental data, detector control box, time control box and a frame stepper.
+
+\begin{description}
+	\item[Institution Logos]
+	This section includes the logos of the ATLAS collaboration, Institute of Experimental and Applied Physics and the Czech Technical University in Prague. All pictures are linked to the respective institution websites.
+
+	\item[Detector Control]
+	The detector control box allows user to specify a device (or a set of devices) in the ATLAS-TPX network to be used as a data source for the displayed frames. If only one device is selected (the default configuration), the box is optimized to allow quick switching using a dropdown control and incremental toggle buttons on its sides.
+
+	\item[Time Control]
+	This box controls the start time of the displayed frames. It is essentially a simple date input element with additional incremental toggle buttons for every component of the date.
+
+	\item[Frame Stepper]
+	This control is a simple extension of the time control box, allowing users to quickly browse frames sequentially in order of their acquisition. It consists of two big buttons with arrows pointing to both sides, signifying the direction of time movement. Next to these buttons, a number input element is located. This element is responsible for controlling the number of integral frames.
+\end{description}
+
+\subsection{Overview Chart Area}
+The overview chart lies under the header bar and fills the entire width of the screen. Its purpose is to inform users about detector acquisition in a determinate time period, referred to as \textit{the window}. To aid navigation in the data, the chart plots a vertical line at the point corresponding with the current start time of the displayed frames. Upon every change of this parameter, the line moves horizontally in the chart to adjust. Should the line be plotted out of bounds by leaving the chart either on the left or the right side, the window is automatically updated to compensate. It is worth noting that this mechanism also works the other way around. Users can set the start time of the displayed frames to any time point from the window by clicking at its respective position on the horizontal axis.
+
+In the chart, multiple series are plotted simultaneously. The horizontal axis always corresponds with time, whereas the vertical axis may correspond with the number of clusters, flux or frame occupancy, depending on the series in question. There are at most 8 plotted series at any instance. Their appearance is described by the legend located in the bottom left part of the chart area. Apart from providing description on the displayed series, the legend also allows users to turn plotted series on or off by clicking on the respective items of the legend. The series can be semantically divided in three groups:
+
+\begin{description}
+	\item[Cluster Counts]
+	For every of the six types of clusters, clusters from frames are counted separately, producing six different series in the chart. These series have no unit as their values merely correspond with the number of clusters occupying frames, whose start time falls into a specific time interval.
+
+	If the normalized mode is active, contributions to these series from every frame is first divided by the acquisition time of the frame, producing flux values with unit $s^{-1}$.
+
+	\item[Total Sum]
+	This series plots the sum of cluster counts over all cluster types. Its unit is same to that of the previous six series.
+
+	\item[Frame Occupancy]
+	The values of this series correspond with the portion of frame area occupied by non-zero pixels. It has no unit and is distinguished from the other series by a dashed line. 
+\end{description}
+
+The overview chart offers a number of custom settings. The length of the window can be reconfigured to any value from 30 seconds to 4 days by controls located in the bottom right corner of the chart area. The window itself can be also adjusted to align the vertical line corresponding to the current start time of displayed frames to the center of the screen. Furthermore, the chart offers two rendering modes to choose from, a comparable mode and a stacked mode.
+
+\begin{description}
+	\item[Absolute Mode]
+	In this mode, all series of the chart are rendered as points in the plane with respect to the horizontal and vertical axis. The consecutive points of every series are then connected by line segments of different color to indicate continuity in time.
+
+	This mode enables users to easily compare values of different series to each other. However, since the experimental data often includes one or two prevailent series, it also frequently overshadows the remaining series as they are rendered over each other, making it harder to read their values.
+
+	\item[Stacked Mode]
+	In this mode, the six series corresponding to cluster counts are rendered as in a stacked chart, cumulatively adding to each other. Each cluster type series corresponds to a colored area in the chart, while the remaining series are rendered in the same way as in the absolute mode.
+
+	This mode distorts the absolute values of the series. It however much better portrays the ratio of representation of one series to another.
+\end{description}
+
+\subsection{Main Chart Area}
+
+
+\subsection{Details Pane}
+\subsection{Status Bar}
+
 \section{Web Visualization}
 \label{chapter:web-visualization}
 % 5. Webová vizualizace
