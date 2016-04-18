@@ -27,6 +27,7 @@
   \item [{HTML}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{HTTP}]\begingroup Hypertext Transfer Protocol.\nomeqref {0}
 		\nompageref{iii}
+  \item [{IEAP}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{JSON}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{JSTP}]\begingroup JSON Timepix Protocol, a protocol used to transmit captured frames to the web visualization UI. For its description, see section \ref{protocol:introduction}.\nomeqref {0}
 		\nompageref{iii}
