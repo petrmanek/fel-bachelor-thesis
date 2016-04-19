@@ -6,7 +6,8 @@
 		\nompageref{iii}
   \item [{API}]\begingroup Application programming interface, a set of routines, protocols and tools for building software and applications.\nomeqref {0}
 		\nompageref{iii}
-  \item [{ASIC}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{ASIC}]\begingroup Application-specific integrated circuit.\nomeqref {0}
+		\nompageref{iii}
   \item [{ATLAS}]\begingroup A Toroidal LHC Apparatus, one of particle detector experiments constructed at LHC.\nomeqref {0}
 		\nompageref{iii}
   \item [{CERN}]\begingroup European Organization for Nuclear Research (French name: \textit{Conseil Européen pour la Recherche Nucléaire}), based in Geneva, Switzerland.\nomeqref {0}
@@ -16,6 +17,8 @@
   \item [{CPU}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{CRUD}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{CSS}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{CTU}]\begingroup Czech Technical University (Czech name: \textit{České vysoké učení technické}), based in Prague, Czech Republic.\nomeqref {0}
+		\nompageref{iii}
   \item [{DCS}]\begingroup Detector Control Systems, a system providing control of subdetectors and of common infrastructure of the experiment and communication with the services of CERN.\nomeqref {0}
 		\nompageref{iii}
   \item [{DOM}]\begingroup \nomeqref {0}\nompageref{iii}
@@ -27,7 +30,8 @@
   \item [{HTML}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{HTTP}]\begingroup Hypertext Transfer Protocol.\nomeqref {0}
 		\nompageref{iii}
-  \item [{IEAP}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{IEAP}]\begingroup Institute of Experimental and Applied Physics (Czech name: \textit{Ústav technické a experimentální fyziky}), based in Prague, Czech Republic.\nomeqref {0}
+		\nompageref{iii}
   \item [{JSON}]\begingroup \nomeqref {0}\nompageref{iii}
   \item [{JSTP}]\begingroup JSON Timepix Protocol, a protocol used to transmit captured frames to the web visualization UI. For its description, see section \ref{protocol:introduction}.\nomeqref {0}
 		\nompageref{iii}

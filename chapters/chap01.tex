@@ -1,38 +1,15 @@
 \chapter{Introduction}
-% 1. Úvod
 
-\section{About the Timepix Detectors}
-\todo
-%  - Historie a technické rozdíly mezi detektory typu Medipix, Medipix2, Timepix.
-
-\section{The Timepix Network at ATLAS}
-\todo
-%  - Předchozí využití detektorů Medipix a software pro vizualizaci naměřených dat.
-%  - Základní informace o CERN, ATLAS a síti detektorů Timepix.
-
-\section{The Problem of Efficient Data Manipulation}
-\todo
-%  - Co je známo: struktura dat pro vizualizaci, jejich očekávaný objem.
-%  - Co není známo: architektura systému za účelem dosažení rychlosti, robustnosti aplikace a požadovaných funkcí.
-%  - Cíl práce: rozvrhnout systém, napsat serverové aplikace, definovat protokol a postavit web s vizualizací.
-
-\section{Structure of This Document}
-\todo
-%  - Struktura práce.
-
-
-
-
-
-\section{Raw Timepix Output}
+\section{About Timepix Detectors}
 %% zde je trošku Benediktovo
-Timepix detectors are hybrid active pixel detectors, developed within the MPX collaboration at CERN. They consist of an active sensor layer bump-bonded to a readout ASIC. The ASIC divides the active sensor area into a square matrix of $256 \times 256$ pixels with a pixel-to-pixel distance of 55 µm. Each pixel has its own readout chain and can be controlled indenpendently. While the sensor layer material in the presented work was silicon, other sensor materials are available, most notably CdTe and GaAs, which are used e.g. for imaging applications.
+TPX detectors are hybrid active pixel detectors, developed within the MPX collaboration at CERN. They consist of an active sensor layer bump-bonded to a readout ASIC. The ASIC divides the active sensor area into a square matrix of $256 \times 256$ pixels with a pixel-to-pixel distance of 55 µm. Each pixel has its own readout chain and can be controlled indenpendently. While the sensor layer material in the presented work was silicon, other sensor materials are available, most notably CdTe and GaAs, which are used e.g. for imaging applications.
 
-Timepix detectors are operated in a way that is similar to commercially available cameras. What would be a picture in photography, is referred to as \textit{a frame}. Every pixel is equipped with a 14-bit integer register called \textit{the counter}. When acquisition starts, registers is set to zero, and then possibly incremented upon every interaction. A frame thus represents the status of each pixel after the set \textit{acqusition time}. Returning to the camera analogy, the acquisition time resembles the exposure time of a photograph---when increased, more particles are to be expected interacting with detector's pixels.
+TPX detectors are operated in a way that is similar to commercially available cameras. What would be a picture in photography, is referred to as \textit{a frame}. Every pixel is equipped with a 14-bit integer register called \textit{the counter}. When acquisition starts, registers is set to zero, and then possibly incremented upon every interaction. A frame thus represents the status of each pixel after the set \textit{acqusition time}. Returning to the camera analogy, the acquisition time resembles the exposure time of a photograph---when increased, more particles are to be expected interacting with detector's pixels.
 
 Since pixels may not be identical due to material irregularities and manufacturing errors, every pixel has adjustable \textit{threshold} parameter, which is subject to calibration. In a calibrated state, analog input measured from the pixel's semiconductor should exceed this threshold only when the pixel is interacting with a particle.
 
-Provided that every Timepix detector installed in the ATLAS-TPX network has 2 layers of $256 \times 256$ pixel matrices, every captured frame consists of 131,072 integer values in total. Interpretation of these values depends on another parameter, \textit{the operation mode}. While it is technically possible to configure every pixel to operate in a different mode, for the desired application all pixels are set to the same mode of operation, making this essentially not a parameter of a pixel, but that of a frame. The following operation modes are available:
+\subsection{Operation Modes}
+Depending on their application, TPX detectors can be manufactured to contain multiple active sensor areas. After acquisition is finished, every area produces a matrix of $256\times 256$ integer values. Interpretation of these values depends on another parameter, \textit{the operation mode}. The following operation modes are available:
 
 \begin{description}
 %% CITACE: Holík 1.2.5.1 pp. 27
@@ -46,14 +23,21 @@ Provided that every Timepix detector installed in the ATLAS-TPX network has 2 la
 	In this mode, the counter is incremented by every clock cycle after the threshold is first exceeded. The result is an integer value corresponding to the time interval before the end of the measurement.
 \end{description}
 
+\section{ATLAS-TPX Network}
+In the ATLAS experiment at CERN, a network of 15 TPX detectors (see Figure \ref{fig:tpx-positions-atlas}) has been installed during the recent shutdown (LS1). It is the successor of a MPX detector network of similar structure, which has been operated by IEAP researchers until 2013.
+
+\begin{figure}[t]
+\begin{center}
+	\includegraphics[height=7cm]{figures/imported/tpx_positions}
+\caption{TPX detectors installed within the ATLAS machine at CERN.}
+\label{fig:tpx-positions-atlas}
+\end{center}
+\end{figure}
+
+Its upgraded capabilities include improved measurements of the ATLAS machine luminosity and activation of materials surrounding the detectors, better characterization of the radiation field at various locations withing the cavern an 2-layer design with different modes of operation allowing to reliably separate charged particles from neutral particles.
+
 \subsection{Read-out Interface}
 A read-out interface is a special dedicated hardware device that reads data and controls acquisition of the detector. \cite{TurecekThesis2011} Given the harsh radiation environment within the ATLAS machine, the ATLASPIX interface was developed by modifying a regular FITPix interface.
-
-%% CITACE: ATLASPIX at CERN
-
-The interface has two parts connected by four cables. The detector itself is positioned and oriented within the ATLAS machine, whereas the rest of the interface is placed in a nearby server room, protected against ionizing radiation. Cables connect both parts, allowing protected hardware to control detectors remotely during operation of the machine. To manage multiple detectors simultaneously, a computer is directly connected to all read-out interfaces. This computer, also known as \textit{the control PC}, gathers all measured data and forwards commands from the system operator to the detectors through the ATLASPIX interface. This configuration is shown in Figure \ref{fig:ATLASPIX}.
-
-At the time of writing this work, the control PC is being operated manually from a remote location. The automation of the operation is under investigation.
 
 \begin{figure}[t]
 \begin{center}
@@ -63,6 +47,12 @@ At the time of writing this work, the control PC is being operated manually from
 \label{fig:ATLASPIX}
 \end{center}
 \end{figure}
+
+%% CITACE: ATLASPIX at CERN
+
+The interface has two parts connected by four cables. The detector itself is positioned and oriented within the ATLAS machine, whereas the rest of the interface is placed in a nearby server room, protected against ionizing radiation. Cables connect both parts, allowing protected hardware to control detectors remotely during operation of the machine. To manage multiple detectors simultaneously, a computer is directly connected to all read-out interfaces. This computer, also known as \textit{the control PC}, gathers all measured data and forwards commands from the system operator to the detectors through the ATLASPIX interface. This configuration is shown in Figure \ref{fig:ATLASPIX}.
+
+At the time of writing this work, the control PC is being operated manually from a remote location. The automation of the operation is under investigation.
 
 \subsection{Cluster Analysis}
 \label{intro:cluster-analysis}
@@ -203,12 +193,13 @@ In a cluster list, pixels are stored as tuples of their Carthessian coordinates 
 	If the energy approximations are available, many of the above-mentioned values can be also calculated with the energy substituted for counter values.
 \end{description}
 
-\section{Common Storage Formats}
+\section{Common Data Storage Formats}
 \label{db:storage-formats}
+Provided that every detector in the ATLAS-TPX network contains 2 active sensor layers, each with a square pixel matrix of size $256\times 256$, a single captured frame consists of 131,072 integer values in total\footnote{That is, discounting all configuration information of the detector.}. Given the fact that in the network, 15 detectors continuously perform acquisition as fast as 10 or 12 times per second, large amounts of data are produced. This section lists the most common file formats, in which such data is stored and archived for purposes of research.
 
 \subsection{Plain Text}
 %  - Multi-frame formáty, jejich výhody a nevýhody.
-The most straight-forward way of storing data acquired by Timepix detectors is to use plain text files. Such output, referred to as the single-frame or the multi-frame format, commonly stores data in three files per unit of acquisition.
+The most straightforward way of storing data acquired by TPX detectors is to use plain text files. Such output, referred to as \textit{the single-frame format} (or possibly \textit{the multi-frame format}), stores data in three files per unit of acquisition.
 
 \begin{description}
 	\item[Data File]
@@ -220,14 +211,14 @@ The most straight-forward way of storing data acquired by Timepix detectors is t
 	To store a configuration parameter, three lines of text are required. The display name of the parameter (along with the unit or any other notes) is written on the first line. The second line describes the data type of the value and its range. The third line contains the actual value.
 
 	\item[Index File]
-	Index files contain information, which binds data files and description files together. In an index file, every frame is represented by a tuple of data addresses pointing to the first entry of the frame in the data file and the first entry in the description file.
+	Index files contain binary information, which binds data files and description files together. In an index file, every frame is represented by a tuple of data addresses pointing to the first entry of the frame in the data file and the first entry in the description file.
 \end{description}
 
 Even though the plain text format has the advantage of being easily accessible with any text editor, it is disk-inefficient in terms of access speed and disk space.
 
 \subsection{ROOT Framework}
 \label{storage:ROOT}
-Another storage option is the ROOT Data Analysis Framework \cite{Brun199781}. Originally concieved at CERN in 1995, the framework provides a set of powerful tools with various applications in data mining, manipulation and visualization. Unlike other similar toolkits, ROOT comes with its own machine-independent binary file format (identified by the \texttt{.root} extension). This format is designed to store enormous amounts of data within various types of data structures efficiently, while maintaining good overall performance by employing low-level memory optimization techniques and multi-tier content caching.
+Another storage option is to use a proprietary data file format defined by the ROOT Data Analysis Framework \cite{Brun199781}. Originally concieved at CERN in 1995, the framework provides a set of powerful tools with various applications in data mining, manipulation and visualization. Unlike other similar toolkits, ROOT comes with its own machine-independent binary file format (identified by the \texttt{.root} extension). This format is designed to store enormous amounts of data within various types of data structures efficiently, while maintaining good overall performance by employing low-level memory optimization techniques and multi-tier content caching.
 
 %% ZKRATKA: API
 %% ZKRATKA: ROOT?
@@ -278,9 +269,29 @@ Should data be stored in ROOT, a basic relational database concept comes to mind
     };
 \end{tikzpicture}
 
-\caption{Structure of a ROOT file containing Timepix footage.}
+\caption{Structure of a ROOT file containing TPX footage.}
 \label{fig:root-trees}
 \end{center}
 \end{figure}
 
 In spite of being over 20 years in development, ROOT is not perfect. Using memory monitoring tools such as \cite{nethercote2007valgrind}, we have confirmed that the C++ implementation of the ROOT framework is riddled with various memory leaks, making it unsuitable for time-extensive operations. Some might also argue, that a full tree data structure might be overly-complicated and too generalized for a simple output described in previous sections. Lastly, ROOT framework has quite a complex object structure, making it hard to learn for first-time users.
+
+\subsection{Data Manipulation Problem}
+With large amounts of data generated periodically by the ATLAS-TPX network, an obvious question is raised: How to efficiently navigate the captured TPX footage while not being overwhelmed by the magnitude of data in question? Answering this question entails resolving several subsequent questions, mostly regarding the choice of data structures, their arrangement and roles within the system.
+
+There exist lot of computing approaches and techniques to deal with big data, as well as myriad of peculiar data strucutres, optimizing various properties and operations. With respect to the architecture of the network and goals set forth by its users, this work tackles the problem by standard means.
+
+Its purpose is to design and implement a network-based system capable of archiving, accessing and visualizing data acquired at CERN, while optimizing data retrieval speeds for certain types of user queries.
+
+\section{Structure of This Document}
+This section is intended as a quick walkthrough of the rest of this work.
+
+Chapter 2 formally defines all data structures, on which the system operates. Besides formally stating requirements on the storage facilities and listing assumptions about user queries, it introduces an auxiliary data structure, which is capable of accelerating certain types of data requests.
+
+Chapter 3 is dedicated to the definition of the JSON Timepix protocol (JSTP), which is later used to connect data facilities with the visualization system. The protocol is however not limited only to data visualization, but offers API for other applications as well.
+
+Chapter 4 describes the implementation and integration of concepts defined by the previous two chapters. Apart from commenting on the internal structure of the application, it also provides insights in its operation and contains UI documentation.
+
+In the last chapter of this work, the procedure of data import is described. The last section outlines several applications of the developed software outside the ATLAS-TPX project and discusses its future.
+
+The appendices mostly contain descriptive sections of technical nature, such as code listings, API documentation or the description of contents of CD attached to the printed version of the work.
