@@ -4,9 +4,9 @@
 
   \item [{AFP}]\begingroup Apple Filing Protocol, a network protocol mainly used for providing shared access to files on clients and servers compatible with operating systems developed by Apple Computer, Inc.\nomeqref {0}
 		\nompageref{iii}
-  \item [{API}]\begingroup Application programming interface, a set of routines, protocols and tools for building software and applications.\nomeqref {0}
+  \item [{API}]\begingroup Application Programming Interface, a set of routines, protocols and tools for building software and applications.\nomeqref {0}
 		\nompageref{iii}
-  \item [{ASIC}]\begingroup Application-specific integrated circuit.\nomeqref {0}
+  \item [{ASIC}]\begingroup Application-specific Integrated Circuit.\nomeqref {0}
 		\nompageref{iii}
   \item [{ATLAS}]\begingroup A Toroidal LHC Apparatus, one of particle detector experiments constructed at LHC.\nomeqref {0}
 		\nompageref{iii}
@@ -14,59 +14,74 @@
 		\nompageref{iii}
   \item [{CIFS}]\begingroup Common Internet File System. See SMB.\nomeqref {0}
 		\nompageref{iii}
-  \item [{CPU}]\begingroup \nomeqref {0}\nompageref{iii}
-  \item [{CRUD}]\begingroup \nomeqref {0}\nompageref{iii}
-  \item [{CSS}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{CPU}]\begingroup Central Processing Unit.\nomeqref {0}
+		\nompageref{iii}
+  \item [{CRUD}]\begingroup Create, Read, Update, Delete, four basic operations of persistent storage system.\nomeqref {0}
+		\nompageref{iii}
+  \item [{CSS}]\begingroup Cascading Style Sheets, a language used to describe presentation of web pages.\nomeqref {0}
+		\nompageref{iii}
   \item [{CTU}]\begingroup Czech Technical University (Czech name: \textit{České vysoké učení technické}), based in Prague, Czech Republic.\nomeqref {0}
 		\nompageref{iii}
   \item [{DCS}]\begingroup Detector Control Systems, a system providing control of subdetectors and of common infrastructure of the experiment and communication with the services of CERN.\nomeqref {0}
 		\nompageref{iii}
-  \item [{DOM}]\begingroup \nomeqref {0}\nompageref{iii}
-  \item [{DPI}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{DOM}]\begingroup Document Object Model, a family of XML parsers which generate a tree structure in memory from parsed content.\nomeqref {0}
+		\nompageref{iii}
+  \item [{DPI}]\begingroup Dots per Inch, a measure of screen pixel resolution.\nomeqref {0}
+		\nompageref{iii}
   \item [{EOS}]\begingroup A primary storage system at CERN for LHC experiments.\nomeqref {0}
 		\nompageref{iii}
   \item [{FTP}]\begingroup File Transfer Protocol, a network protocol mainly used for providing shared access to files.\nomeqref {0}
 		\nompageref{iii}
-  \item [{HTML}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{HTML}]\begingroup Hypertext Markup Language, a standard markup language used to create web pages. \cite{HtmlStandard}\nomeqref {0}
+		\nompageref{iii}
   \item [{HTTP}]\begingroup Hypertext Transfer Protocol.\nomeqref {0}
 		\nompageref{iii}
   \item [{IEAP}]\begingroup Institute of Experimental and Applied Physics (Czech name: \textit{Ústav technické a experimentální fyziky}), based in Prague, Czech Republic.\nomeqref {0}
 		\nompageref{iii}
-  \item [{JSON}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{JSON}]\begingroup JavaScript Object Notation, a data format derived from JavaScript.\nomeqref {0}
+		\nompageref{iii}
   \item [{JSTP}]\begingroup JSON Timepix Protocol, a protocol used to transmit captured frames to the web visualization UI. For its description, see section \ref{protocol:introduction}.\nomeqref {0}
 		\nompageref{iii}
-  \item [{LESS}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{LESS}]\begingroup A dynamic style sheet language which can be compiled into CSS.\nomeqref {0}
+		\nompageref{iii}
   \item [{LHC}]\begingroup Large Hadron Collider, an experimental factility built by CERN.\nomeqref {0}
 		\nompageref{iii}
   \item [{LS}]\begingroup Long Shutdown, a period in CERN time schedule characteristic by temporary cesation of operation of particle accelerators and increased maintenance.\nomeqref {0}
 		\nompageref{iii}
-  \item [{MIME}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{MIME}]\begingroup A two-part file format identifier.\nomeqref {0}
+		\nompageref{iii}
   \item [{MPX}]\begingroup Medipix, a semiconductor pixel detection chip.\nomeqref {0}
 		\nompageref{iii}
-  \item [{OS}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{OS}]\begingroup Operating System.\nomeqref {0}
+		\nompageref{iii}
   \item [{ROOT}]\begingroup An object oriented data analysis framework. \cite{Brun199781}\nomeqref {0}
 		\nompageref{iii}
-  \item [{RPC}]\begingroup \nomeqref {0}\nompageref{iii}
-  \item [{SAX}]\begingroup \nomeqref {0}\nompageref{iii}
-  \item [{SLS}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{RPC}]\begingroup Remote Procedure Call, a mechanism used to execute computer subroutines on machines over a network.\nomeqref {0}
+		\nompageref{iii}
+  \item [{SAX}]\begingroup Simple API for XML, a family of XML parsers which generate various events while processing content sequentially.\nomeqref {0}
+		\nompageref{iii}
   \item [{SMB}]\begingroup Server Message Block (also known as the Common Internet File System), a network protocol mainly used for providing shared access to files.\nomeqref {0}
 		\nompageref{iii}
   \item [{SQL}]\begingroup Structured Query Language, a language designed to define, manage and query data in a relational database system.\nomeqref {0}
 		\nompageref{iii}
   \item [{SSH}]\begingroup Secure Shell, a cryptographic network protocol commonly used for remote command-line access and remote command execution.\nomeqref {0}
 		\nompageref{iii}
-  \item [{TOA}]\begingroup Time of Arrival acquisition mode. For more information, see section~\ref{tpx:toa}.\nomeqref {0}
+  \item [{TOA}]\begingroup Time of Arrival operation mode. For more information, see section~\ref{tpx:toa}.\nomeqref {0}
 		\nompageref{iii}
-  \item [{TOT}]\begingroup Time of Threshold acquisition mode. For more information, see section~\ref{tpx:tot}.\nomeqref {0}
+  \item [{TOT}]\begingroup Time of Threshold operation mode. For more information, see section~\ref{tpx:tot}.\nomeqref {0}
 		\nompageref{iii}
   \item [{TPX}]\begingroup Timepix, a semiconductor pixel detection chip successing Medipix2.\nomeqref {0}
 		\nompageref{iii}
-  \item [{UI}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{UI}]\begingroup User Interface.\nomeqref {0}\nompageref{iii}
   \item [{UNIX}]\begingroup A family of computer operating systems.\nomeqref {0}
 		\nompageref{iii}
-  \item [{URI}]\begingroup \nomeqref {0}\nompageref{iii}
-  \item [{URL}]\begingroup \nomeqref {0}\nompageref{iii}
-  \item [{UTC}]\begingroup \nomeqref {0}\nompageref{iii}
-  \item [{XML}]\begingroup \nomeqref {0}\nompageref{iii}
+  \item [{URI}]\begingroup Uniform Resource Identifier, a string of characters used to identify a resource.\nomeqref {0}
+		\nompageref{iii}
+  \item [{URL}]\begingroup Uniform Resource Locator, commonly known as web address.\nomeqref {0}
+		\nompageref{iii}
+  \item [{UTC}]\begingroup Coordinated Universal Time, a primary worldwide standard used to regulate clocks and time.\nomeqref {0}
+		\nompageref{iii}
+  \item [{XML}]\begingroup Extensible Markup Language, a standard markup language.\nomeqref {0}
+		\nompageref{iii}
 
 \end{thenomenclature}
