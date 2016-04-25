@@ -4,27 +4,27 @@
 %% zde je trošku Benediktovo
 TPX detectors are hybrid active pixel detectors, developed within the MPX collaboration at CERN. They consist of an active sensor layer bump-bonded to a readout ASIC. The ASIC divides the active sensor area into a square matrix of $256 \times 256$ pixels with a pixel-to-pixel distance of 55 µm. Each pixel has its own readout chain and can be controlled indenpendently. While the sensor layer material in the presented work was silicon, other sensor materials are available, most notably CdTe and GaAs, which are used e.g. for imaging applications.
 
-TPX detectors are operated in a way that is similar to commercially available cameras. What would be a picture in photography, is referred to as \textit{a frame}. Every pixel is equipped with a 14-bit integer register called \textit{the counter}. When acquisition starts, registers is set to zero, and then possibly incremented upon every interaction. A frame thus represents the status of each pixel after the set \textit{acqusition time}. Returning to camera analogy, acquisition time resembles exposure time of a photograph---when increased, more particles are to be expected interacting with detector's pixels.
+TPX detectors are operated in a way that is similar to commercially available cameras. What would be a picture in photography, is referred to as \textit{a frame}. Every pixel is equipped with a 14-bit integer register called \textit{the counter}. When acquisition starts, registers are set to zero, and then possibly incremented upon every interaction. A frame thus represents the status of each pixel after the user set \textit{acqusition time}. Returning to camera analogy, acquisition time resembles exposure time of a photograph---when increased, more particles can be expected to interact with detector's pixels.
 
 Since pixels may not be identical due to material irregularities and manufacturing errors, every pixel has adjustable \textit{threshold} parameter, which is subject to calibration. In a calibrated state, analog input measured from the pixel's semiconductor should exceed this threshold only when the pixel is interacting with a particle.
 
 \subsection{Operation Modes}
-Depending on their application, TPX detectors can be manufactured to contain multiple active sensor areas. After acquisition is finished, every area produces a matrix of $256\times 256$ integer values. Interpretation of these values depends on another parameter, \textit{the operation mode}. The following operation modes are available:
+Depending on its application, a single TPX board can be assembled with more sensor layers, e.g. in a stack structure. After acquisition is finished, every area produces a matrix of $256\times 256$ integer values. Interpretation of these values depends on another parameter, \textit{the operation mode}. The following operation modes are available:
 
 \begin{description}
 %% CITACE: Holík 1.2.5.1 pp. 27
 	\item[Hit Counting Mode (also known as the Medipix Mode)]
-	The counter is incremented upon every transition from a state below the threshold to a state above the threshold. Pixel value represents the number of particles which have interacted with the pixel.
+	The counter is incremented upon every transition from a state below the threshold to a state above the threshold. The counter value of a pixel thus represents the number of particles which have interacted with the pixel.
 
 	\item[Time over Threshold Mode (TOT)]\label{tpx:tot}
-	The counter is incremented in every clock cycle spent above the threshold. Pixel value corresponding to the energy of the interacting particle. Energy calibration methods are described in \cite{Jakubek2011S262}.
+	The counter is incremented in every clock cycle, in which the analog input exceeds the set threshold. The pixel value therefore corresponds to the energy of the interacting particle. Energy calibration methods are described in \cite{Jakubek2011S262}.
 
 	\item[Time of Arrival Mode (TOA)]\label{tpx:toa}
-	The counter is incremented in every clock cycle after the threshold is first exceeded. Pixel value corresponds to the length of time interval before the end of the measurement.
+	The counter is incremented in every clock cycle after the threshold is first exceeded. The pixel value corresponds to the length of time interval before the end of the measurement.
 \end{description}
 
 \section{ATLAS-TPX Network}
-In the ATLAS experiment at CERN, a network of 15 TPX detectors (see Figure \ref{fig:tpx-positions-atlas}) has been installed during the recent shutdown (LS1). It is a successor of a MPX detector network of similar architecture, which has been operated for several years by IEAP researchers.
+In the ATLAS experiment at CERN, a network of 15 TPX detector stacks (see Figure \ref{fig:tpx-positions-atlas}) has been installed during the recent shutdown (LS1). It is a successor of a MPX detector network of similar architecture, which has been operated for several years by IEAP researchers.
 
 \begin{figure}[t]
 \begin{center}
@@ -34,7 +34,7 @@ In the ATLAS experiment at CERN, a network of 15 TPX detectors (see Figure \ref{
 \end{center}
 \end{figure}
 
-Its upgraded capabilities include improved measurements of the ATLAS machine luminosity and activation of materials surrounding the detectors, better characterization of the radiation field at various locations withing the cavern an 2-layer design with different modes of operation allowing to reliably separate charged particles from neutral particles.
+Each device's two-layer design allows improved measurements of the ATLAS machine luminosity. activation of materials surrounding the detectors, better characterization of the radiation field at various locations withing the cavern.
 
 \subsection{Read-out Interface}
 A read-out interface is a special dedicated hardware device that reads data and controls acquisition of the detector. \cite{TurecekThesis2011} Given the harsh radiation environment within the ATLAS machine, the ATLASPIX interface was developed by modifying a regular FITPix interface.
@@ -58,15 +58,16 @@ At the time of writing this work, the control PC is being operated manually from
 \label{intro:cluster-analysis}
 %% CITACE: flood-fill
 %% ZKRATKA: TOA, TOT
-In ATLAS-TPX detector footage, components of various shapes and sizes can be observed, depending on the experiments performed at the time of acquisition. These components, commonly known as \textit{clusters}, are discovered and evaluated in an automated process called \textit{the cluster analysis}. This procedure involves a connectivity-checking algorithm, such as \textit{flood-fill}, operating on pixel matrices to distinguish individual clusters. In later stages, clusters are processed, measured and classified in various categories with regards to their shape. In addition, counter values in frames captured in the TOT mode can be combined with earlier calibrations to produce energy approximations. \cite{Jakubek2011S262}
+Interacting particles in the sensor are seen as tracks (clusters of adjacent pixels). These tracks are searched for by processing tools, further referred to as \textit{the cluster analysis}. This procedure involves a connectivity-checking algorithm, such as \textit{flood-fill}, operating on pixel matrices to distinguish individual clusters. The identified clusters are categorized based on their geometrical properties. In addition, counter values in frames captured in the TOT mode can be combined with earlier calibrations to produce energy approximations. \cite{Jakubek2011S262}
 
+\todo
 %% OBR: saturovaný snímek - špatně (TPX01@1441600713.82345, 2015_09_07_TPX01.root, frame #16512)
 %% OBR: snímek s clustery - dobře (TPX01@1435930709.35062, 2015_07_03_TPX01.root, frame #34979)
 
 % CITACE: sparse matrix
-The output of cluster analysis consists of two separate lists of clusters, one per every sensor layer. It follows from the definition of a cluster that any pixel contained in it has a non-zero counter value. Conversely, all pixels unreferenced by any cluster are assumed to be equal to zero. The utilized technique of data encoding is well-known as it offers efficient compression rate for sparse pixel matrices. It is however worth noting at this point that in certain cases (represented most notably by saturated or nearly saturated frames), this approach generates voluminous data structures, which may take long time to enumerate, and in turn slow down other algorithms operating on them.
+The output of cluster analysis consists of two separate lists of clusters, one per every sensor layer. It follows from the definition of a cluster that any pixel contained in it has a non-zero counter value. All pixels unreferenced by any cluster are assumed to be equal to zero. The utilized technique of data encoding is well-known as it offers efficient compression rate for sparse pixel matrices. It is however worth noting at this point that in certain cases (represented most notably by saturated or nearly saturated frames), this approach generates voluminous data structures, which may take long time to enumerate, and in turn slow down other algorithms operating on them.
 
-In a cluster list, pixels are stored as tuples of their Carthessian coordinates and their respective counter values. From this information, the pixel matrix can be reconstructed at any time. The original pixel matrix is therefore discarded without data loss at the end of cluster analysis, in order to minimize occupied space. For every cluster, several properties are calculated in the automated processing, most notable of which are:
+In a cluster list, pixels are stored as tuples of their planar coordinates and their respective counter values. From this information, the pixel matrix can be reconstructed at any time. The original pixel matrix is therefore discarded without data loss at the end of cluster analysis, in order to minimize occupied space. For every cluster, several properties are calculated in the automated processing, most notable of which are:
 
 \label{db:cluster-properties}
 \begin{description}
@@ -187,7 +188,7 @@ In a cluster list, pixels are stored as tuples of their Carthessian coordinates 
 	The centroid is defined as an unweighted mean of pixel coordinates in the cluster. In analogous way, the volumetric centroid is the very same value weighted by corresponding counter values. 
 
 	\item[Minimum and Maximum Cluster Height]
-	These two figures refer to the lowest and the greatest counter values of pixels within the cluster.
+	These two values refer to the lowest and the greatest counter values of pixels within the cluster.
 
 	\item[Energy-based Properties \textit{(available only in TOT mode)}]
 	If energy approximations are available, many of the values mentioned above can be also calculated with the energy substituted for counter values.
@@ -195,14 +196,14 @@ In a cluster list, pixels are stored as tuples of their Carthessian coordinates 
 
 \section{Common Data Storage Formats}
 \label{db:storage-formats}
-Provided that every detector in the ATLAS-TPX network contains 2 active sensor layers, each with a square pixel matrix of size $256\times 256$, a single captured frame consists of 131,072 integer values in total\footnote{Not including configuration information of the detector.}. Given the fact that in the network, 15 detectors continuously perform acquisition as fast as 10 or 12 times per second, large amounts of data are produced. This section lists the most common file formats, in which such data is stored and archived for purposes of further research.
+Provided that every detector in the ATLAS-TPX network contains 2 active sensor layers, each with a square pixel matrix of size $256\times 256$, a single captured frame consists of 131,072 integer values in total\footnote{Not including configuration information of the detector.}. Given the fact that in the network, 15 detectors continuously perform acquisition as fast as 10 or 12 times per second, large amounts of data are produced. This section lists the most common file formats, in which such data is stored and archived for a detailed analysis.
 
 \subsection{Plain Text}
 The most straightforward way of storing data acquired by TPX detectors is to use plain text files. Such output, referred to as \textit{the single-frame format} (or possibly \textit{the multi-frame format} depending on the number of frames stored), encodes data in three files per unit of acquisition.
 
 \begin{description}
 	\item[Data File]
-	Data files contain captured data from individual pixels of the detector. The data is encoded as a simple list of tuples containing pixel positions and their respective counter values. All pixels which are not mentioned are assumed to be of zero value.
+	Data files contain captured data from individual pixels of the detector. The data is encoded as a simple list of tuples containing pixel positions and their respective counter values. All pixels which are not mentioned are of zero value.
 
 	\item[Description File]
 	Description files contain configuration of the detector at the time of acquisition. While there is no exhaustive definition listing every serialized parameter, description files allow to be easily extended, as they directly annotate all values of parameters they store.
@@ -217,14 +218,14 @@ Even though the plain text format has the advantage of being easily accessible w
 
 \subsection{ROOT Framework}
 \label{storage:ROOT}
-Another storage option is to use a proprietary data file format defined by the ROOT Data Analysis Framework \cite{Brun199781}. Originally concieved at CERN in 1995, the framework provides a set of powerful tools with various applications in data mining, manipulation and visualization. Unlike other similar toolkits, ROOT comes with its own machine-independent binary file format (identified by the \texttt{.root} extension). This format is designed to store enormous amounts of data within various types of data structures efficiently, while maintaining good overall performance by employing low-level memory optimization techniques and multi-tier content caching.
+Another storage option is to use a proprietary data file format defined by the ROOT Data Analysis Framework \cite{Brun199781}. Originally conceived at CERN in 1995, the framework provides a set of powerful tools with various applications in data mining, manipulation and visualization. Unlike other similar toolkits, ROOT comes with its own machine-independent binary file format (identified by the \texttt{.root} extension). This format is designed to store enormous amounts of data within various types of data structures efficiently, while maintaining good overall performance by employing low-level memory optimization techniques and multi-tier content caching.
 
 %% ZKRATKA: API
 %% ZKRATKA: ROOT?
 
 Used by many physicists at CERN for several years now, ROOT was chosen as the data archivation format as many researchers have already learned its properties and know well how to operate it despite often lacking deeper background in Computer Science. For the purposes of programmatic access, ROOT also does well with documented APIs in Python, R and C++.
 
-Should data be stored in ROOT, a basic relational database concept comes to mind. ROOT however offers even more abstract data structures with standard tables generalized in the form of \textit{trees} and their columns in the form of \textit{leaves}. One such tree would suffice for information about captured frames (such as acquisition time, operation mode, etc.) and other for a list of clusters for every frame. This schema (showcased in Figure \ref{fig:root-trees}) would efficiently abstract the entire storage structure, allowing for multiple frames to be stored in a single file, grouped for instance by a common time interval, similarly to the text file format.
+Should data be stored in ROOT, a basic relational database concept comes to mind. ROOT however offers even more abstract data structures with standard tables generalized in the form of \textit{trees} and their columns in the form of \textit{leaves}. One such tree would suffice for information about captured frames (such as acquisition time, operation mode, etc.) and other for a list of clusters for every frame. This scheme (showcased in Figure \ref{fig:root-trees}) would efficiently abstract the entire storage structure, allowing for multiple frames to be stored in a single file, grouped for instance by a common time interval, similarly to the text file format.
 
 \begin{figure}[t]
 \begin{center}
@@ -262,8 +263,9 @@ Should data be stored in ROOT, a basic relational database concept comes to mind
     child [missing] {}
     child [missing] {}
     child { node {\texttt{clusterFile}}
-    	child { node [draw=none] { Frame 1 cluster list } }
-    	child { node [draw=none] { Frame 2 cluster list } }
+    	child { node [draw=none] { Cluster 1 } }
+        child { node [draw=none] { Cluster 2 } }
+        child { node [draw=none] { Cluster 3 } }
     	child { node [draw=none] { \ldots } }
     };
 \end{tikzpicture}
@@ -273,7 +275,7 @@ Should data be stored in ROOT, a basic relational database concept comes to mind
 \end{center}
 \end{figure}
 
-In spite of being over 20 years in development, ROOT is not perfect. Using memory monitoring tools such as \cite{nethercote2007valgrind}, we have confirmed that the C++ implementation of the ROOT framework is riddled with various memory leaks, making it unsuitable for time-extensive operations. Some might also argue that a its tree data structure offers too much versatility, thus being an overly-complicated storage solution for a simple output described in the previous sections. Lastly, ROOT framework has quite a complex object structure, making it difficult to learn for first-time users.
+In spite of being over 20 years in development, ROOT is not perfect. Using memory monitoring tools such as \cite{nethercote2007valgrind}, we have confirmed that the C++ implementation of the ROOT framework is riddled with various memory leaks, making it unsuitable for time-extensive operations.
 
 \subsection{Data Manipulation Problem}
 With large amounts of data generated periodically by the ATLAS-TPX network, an obvious question is raised: How to efficiently read, process and display captured TPX footage while not being overwhelmed by the magnitude of data in question? Answering it entails addressing several subsidiary concerns, mostly regarding the choice of data structures, their arrangement and roles within the system.
