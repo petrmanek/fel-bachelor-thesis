@@ -8,7 +8,7 @@ The server application consists of two major components, a JSTP data server and 
 Both applications run simultaneously and independently of each other as Linux daemons or services in an initialization system, communicating only by means of network sockets. Each application listens and responds to client requests on its own dedicated port.
 
 \subsection{JSTP Data Server}
-The JSTP data server is a C++ application built using the Facebook Proxygen open source library\footnote{For more information, see project website: \texttt{https://github.com/facebook/proxygen}}. It is responsible for interacting with the ATLAS-TPX footage database and the index database, in order to transcode TPX footage into the JSTP format.
+The JSTP data server is a C++ application built using the Facebook Proxygen open source library\footnote{For more information, see project website: \url{https://github.com/facebook/proxygen}}. It is responsible for interacting with the ATLAS-TPX footage database and the index database, in order to transcode TPX footage into the JSTP format.
 
 The core component of the server is a thread pool. It allows simultaneous communication with multiple clients, provided that the server's hardware offers parallel processing support. At the startup, multiple \textit{worker threads} are created. These threads are immediately suspended to conserve server's resources. When a new request arrives, one of the suspended threads is awakened and notified to process the request and compose a response, which is then transmitted back to the client. During this operation, the thread is said to be \textit{busy} and cannot receive new requests until the processing is completed. Should a new request arrive at that time, the server would opt to awaken another of the suspended threads, gradually exhausting its pool. After a response is sent, the busy thread returns to a suspended state, awaiting further instructions. This way, threads are recycled within the pool throughout server operation.
 
@@ -371,3 +371,21 @@ The Grunt system links all deployment phases together. In a way similar to Makef
 	\item[Debug Target]
 	This target is not intended for production use. Its purpose is to maximize readability of the code for the purposes of debugging and development. To achieve this effect, several build phases such as minification and obfuscation are skipped.
 \end{description}
+
+\section{Data Import}
+Since the JSTP server uses the index database to locate data files based on any given start time, all data files subject to visualization must be stored in the ROOT format and referenced in the \texttt{rootfiles} SQL table.
+
+Accounting for the ever-growing nature of ATLAS-TPX footage, a periodical prodcedure needs to be performed every time new data arrives from CERN, in order to keep the visualization UI up-to-date. At the time of writing this work, this procedure is semi-automated and initiated manually every day by the researchers at IEAP.
+
+\subsection{Processing Stages}
+At CERN, the control PC generates raw data files from the read-out interface of every detector in the network. Data is produced on a hourly basis and saved in the form of multi-frame files. Using FTP, these files are transferred into a temporary directory on the target hard drive. When all file transfers are completed and the validity of files is confirmed, several scripts designed to check consistency of detector acquisition are executed. These scripts analyze contents of received files, reading common configuration values such as the acquisition time or bias voltage, and attempt to find variations between individual frames.
+
+Should these scripts succeed in detecting suspicious values, the files in question are moved into a separate directory and await further inspection by researchers. Otherwise, they move on to the next stage of processing. In this stage, captured frames are subjected to the cluster analysis (for more information about this process, see section \ref{intro:cluster-analysis}). Should the frames be captured in the TOT mode, at this point calibration data is used in combination with the method described in \cite{Jakubek2011S262} to calculate energy values. At the end of this process, ROOT files are produced.
+
+Since the original multi-frame files are not needed anymore, they can be discarded without data loss (or compressed for the purposes of long-term archiving). The ROOT files are moved from the temporary directory to their final location on the hard drive containing the ATLAS-TPX footage database. Subsequently, a dedicated instance of the JSTP data server application is configured to generate information in the index database, in effect registering them for retrieval of JSTP information. From this point onward, the JSTP server as well as the web visualization UI are able to read frames stored within newly added files.
+
+\subsection{Automation of the Procedure}
+\label{import-automation}
+At the present time, the procedure of extending TPX database with new footage is time-consuming as its processing stages often perform similar operations repeatedly for diferent purposes. For example, a single enumeration of multi-frame files should suffice both for consistency checking and cluster analysis. Furthermore, index data corresponding with produced ROOT files can be generated at the time of their production.
+
+It is however worth noting that this procedure was originally designed in the fall of 2015 with the sole purpose of transferring data from CERN to IEAP. Its automation is currently under investigation.
