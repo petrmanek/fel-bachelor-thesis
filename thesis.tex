@@ -10,7 +10,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % informace o práci
-\newcommand\WorkTitle{Interactive visualization system for hybrid active pixel detectors within the ATLAS experiment at CERN}		% název
+\newcommand\WorkTitle{Interactive Visualization System for Hybrid Active Pixel Detectors Within the ATLAS Experiment at CERN}		% název
 \newcommand\FirstandFamilyName{Petr Mánek}																							% autor
 \newcommand\Supervisor{Ing. Stanislav Pospíšil, DrSc.}																				% vedoucí
 
@@ -50,6 +50,7 @@ unicode=true,
 \usepackage{pgf-umlcd}			%UML třídy
 \usepackage{tikz-timing}		%časové grafy
 \usepackage{soul}				%zvýrazňovač
+\usepackage[final]{pdfpages}    %PDF include
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % příkazy šablony
@@ -117,11 +118,15 @@ unicode=true,
 	%\newpage
 	%}
 
-	% TODO - Sehnat podepsany original zadani.
-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%    
 	% Titulni stranka / Title page 
 	\coverpagestarts
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%    
+	% Zadani / Assignment
+	\newpage~
+	\includepdf[pages=-]{assignment.pdf}~
+	\newpage
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 	% Poděkovani / Acknowledgements 
