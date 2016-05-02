@@ -1,12 +1,12 @@
 \chapter{Introduction}
 
-\section{About Timepix Detectors}
+\section{About Timepix Detector}
 %% zde je trošku Benediktovo
-TPX detectors are hybrid active pixel detectors, developed within the MPX collaboration at CERN. They consist of an active sensor layer bump-bonded to a readout ASIC. The ASIC divides the active sensor area into a square matrix of $256 \times 256$ pixels with a pixel-to-pixel distance of 55 µm. Each pixel has its own readout chain and can be controlled indenpendently. While the sensor layer material in the presented work was silicon, other sensor materials are available, most notably CdTe and GaAs, which are used e.g. for imaging applications.
+TPX detector is a hybrid active pixel detectors, developed within the MPX collaboration at CERN. It consists of an active sensor layer bump-bonded to a readout ASIC. The ASIC divides the active sensor area into a square matrix of $256 \times 256$ pixels with a pixel-to-pixel distance of 55 µm. Each pixel has its own readout chain and can be controlled indenpendently. While the sensor layer material in the presented work was silicon, other sensor materials are available, most notably CdTe and GaAs, which are used e.g. for imaging applications.
 
-TPX detectors are operated in a way that is similar to commercially available cameras. What would be a picture in photography, is referred to as \textit{a frame}. Every pixel is equipped with a 14-bit integer register called \textit{the counter}. When acquisition starts, registers are set to zero, and then possibly incremented upon every interaction. A frame thus represents the status of each pixel after the user set \textit{acqusition time}. Returning to camera analogy, acquisition time resembles exposure time of a photograph---when increased, more particles can be expected to interact with detector's pixels.
+TPX detector is operated in a way that is similar to commercially available cameras. What would be a picture in photography, is referred to as \textit{a frame}. Every pixel is equipped with a 14-bit integer register called \textit{the counter}. When acquisition starts, registers are set to zero, and then possibly incremented upon every interaction. A frame thus represents the status of each pixel after the user set \textit{acqusition time}. Returning to camera analogy, acquisition time resembles exposure time of a photograph---when increased, more particles can be expected to interact with detector's pixels.
 
-Since pixels may not be identical due to material irregularities and manufacturing errors, every pixel has adjustable \textit{threshold} parameter, which is subject to calibration. In a calibrated state, analog input measured from the pixel's semiconductor should exceed this threshold only when the pixel is interacting with a particle.
+Since pixels may not be identical due to material irregularities and manufacturing errors, every pixel has adjustable \textit{threshold} parameter, which is subject to equalization. In an equalized state, analog input measured from the pixel's semiconductor should exceed this threshold only when the pixel is interacting with a particle.
 
 \subsection{Operation Modes}
 Depending on its application, a single TPX board can be assembled with more sensor layers, e.g. in a stack structure. After acquisition is finished, every area produces a matrix of $256\times 256$ integer values. Interpretation of these values depends on another parameter, \textit{the operation mode}. The following operation modes are available:
@@ -43,6 +43,7 @@ A read-out interface is a special dedicated hardware device that reads data and 
 \begin{center}
 \includegraphics[height=7cm]{figures/imported/atlaspix}
 \includegraphics[height=7cm]{figures/imported/atlaspix-installed}
+\todo % Přeanotovat obrázek! Detector (bez s)
 \caption{The ATLASPIX read-out interface installed at CERN.}
 \label{fig:ATLASPIX}
 \end{center}
@@ -58,7 +59,7 @@ At the time of writing this work, the control PC is being operated manually from
 \label{intro:cluster-analysis}
 %% CITACE: flood-fill
 %% ZKRATKA: TOA, TOT
-Interacting particles in the sensor are seen as tracks (clusters of adjacent pixels). These tracks are searched for by processing tools, further referred to as \textit{the cluster analysis}. This procedure involves a connectivity-checking algorithm, such as \textit{flood-fill}, operating on pixel matrices to distinguish individual clusters. The identified clusters are categorized based on their geometrical properties. In addition, counter values in frames captured in the TOT mode can be combined with earlier calibrations to produce energy approximations. \cite{Jakubek2011S262}
+Interacting particles in the sensor are seen as tracks (clusters of adjacent pixels). These tracks are searched for by processing tools, further referred to as \textit{the cluster analysis}. This procedure involves a connectivity-checking algorithm, such as \textit{flood-fill}, operating on pixel matrices to distinguish individual clusters. The identified clusters are categorized based on their morphological properties. In addition, counter values in frames captured in the TOT mode can be combined with earlier calibrations to produce energy approximations. \cite{Jakubek2011S262}
 
 \todo
 %% OBR: saturovaný snímek - špatně (TPX01@1441600713.82345, 2015_09_07_TPX01.root, frame #16512)
@@ -73,7 +74,7 @@ In a cluster list, pixels are stored as tuples of their planar coordinates and t
 \begin{description}
 	\item[Shape Classification]
 	\label{db:shape-classification}
-	By measuring geometric properties of a cluster (such as radius or size), it is possible to estimate whether the cluster resembles more a line segment or a circular blob. Similarly, an algorithm can ascertain if the cluster looks thin or thick. From that information, type of interacting particle can be determined, along with direction of its movement relative to the plane of incidence. 
+	By measuring morphological properties of a cluster (such as radius or size), it is possible to estimate whether the cluster resembles more a line segment or a circular blob. Similarly, an algorithm can ascertain if the cluster looks thin or thick. From that information, type of interacting particle can be determined, along with direction of its movement relative to the plane of incidence. 
 
 	\todo
 	%To formally define cluster categories, we use terminology consistent with the ATLAS Medipix research (see Figure \ref{fig:cluster-types}).
