@@ -2,7 +2,7 @@
 
 \section{About Timepix Detector}
 %% zde je trošku Benediktovo
-TPX detector is a hybrid active pixel detectors, developed within the MPX collaboration at CERN. It consists of an active sensor layer bump-bonded to a readout ASIC. The ASIC divides the active sensor area into a square matrix of $256 \times 256$ pixels with a pixel-to-pixel distance of 55 µm. Each pixel has its own readout chain and can be controlled indenpendently. While the sensor layer material in the presented work was silicon, other sensor materials are available, most notably CdTe and GaAs, which are used e.g. for imaging applications.
+TPX detector \cite{Timepix} is a hybrid active pixel detector, developed within the MPX collaboration at CERN. It consists of an active sensor layer bump-bonded to a readout ASIC. The ASIC divides the active sensor area into a square matrix of $256 \times 256$ pixels with a pixel-to-pixel distance of 55 µm. Each pixel has its own readout chain and can be controlled indenpendently. While the sensor layer material in the presented work was silicon, other sensor materials are available, most notably CdTe and GaAs, which are used e.g. for imaging applications.
 
 TPX detector is operated in a way that is similar to commercially available cameras. What would be a picture in photography, is referred to as \textit{a frame}. Every pixel is equipped with a 14-bit integer register called \textit{the counter}. When acquisition starts, registers are set to zero, and then possibly incremented upon every interaction. A frame thus represents the status of each pixel after the user set \textit{acqusition time}. Returning to camera analogy, acquisition time resembles exposure time of a photograph---when increased, more particles can be expected to interact with detector's pixels.
 
@@ -17,14 +17,14 @@ Depending on its application, a single TPX board can be assembled with more sens
 	The counter is incremented upon every transition from a state below the threshold to a state above the threshold. The counter value of a pixel thus represents the number of particles which have interacted with the pixel.
 
 	\item[Time over Threshold Mode (TOT)]\label{tpx:tot}
-	The counter is incremented in every clock cycle, in which the analog input exceeds the set threshold. The pixel value therefore corresponds to the energy of the interacting particle. Energy calibration methods are described in \cite{Jakubek2011S262}.
+	The counter is incremented in every clock cycle, in which the analog input exceeds the set threshold. The pixel value therefore corresponds to the energy of the interacting particle. Energy calibration methods are described in \cite{EnergyCalibration}.
 
 	\item[Time of Arrival Mode (TOA)]\label{tpx:toa}
 	The counter is incremented in every clock cycle after the threshold is first exceeded. The pixel value corresponds to the length of time interval before the end of the measurement.
 \end{description}
 
 \section{ATLAS-TPX Network}
-In the ATLAS experiment at CERN, a network of 15 TPX detector stacks (see Figure \ref{fig:tpx-positions-atlas}) has been installed during the recent shutdown (LS1). It is a successor of a MPX detector network of similar architecture, which has been operated for several years by IEAP researchers.
+In the ATLAS experiment at CERN, a network of 15 TPX detector stacks (see Figure \ref{fig:tpx-positions-atlas}) has been installed during the recent shutdown (LS1). It is a successor of a MPX detector network \cite{RemoteControl} of similar architecture, which has been operated for several years by IEAP researchers.
 
 \begin{figure}[t]
 \begin{center}
@@ -34,10 +34,10 @@ In the ATLAS experiment at CERN, a network of 15 TPX detector stacks (see Figure
 \end{center}
 \end{figure}
 
-Each device's two-layer design allows improved measurements of the ATLAS machine luminosity. activation of materials surrounding the detectors, better characterization of the radiation field at various locations withing the cavern.
+Each device's two-layer design allows improved measurements of the ATLAS machine luminosity, activation of materials surrounding the detectors, better characterization of the radiation field at various locations withing the cavern.
 
 \subsection{Read-out Interface}
-A read-out interface is a special dedicated hardware device that reads data and controls acquisition of the detector. \cite{TurecekThesis2011} Given the harsh radiation environment within the ATLAS machine, the ATLASPIX interface was developed by modifying a regular FITPix interface.
+A read-out interface is a special dedicated hardware device that reads data and controls acquisition of the detector. \cite{Pixelman} Given the harsh radiation environment within the ATLAS machine, the ATLASPIX interface was developed by modifying a regular FITPix interface. \cite{FITPix}
 
 \begin{figure}[t]
 \begin{center}
@@ -49,9 +49,7 @@ A read-out interface is a special dedicated hardware device that reads data and 
 \end{center}
 \end{figure}
 
-%% CITACE: ATLASPIX at CERN
-
-The interface has two parts connected by four cables. The detector itself is positioned and oriented within the ATLAS machine, whereas the rest of the interface is placed in a nearby server room, shielded against ionizing radiation. Cables connect both parts, allowing protected hardware to control detectors remotely during operation of the machine. To manage multiple detectors simultaneously, a computer is directly connected to all read-out interfaces. This computer, also known as \textit{the control PC}, gathers all measured data and forwards commands from the system operator to the detectors through the ATLASPIX interface. This configuration is shown in Figure \ref{fig:ATLASPIX}.
+The interface has two parts connected by four cables. The detector itself is positioned and oriented within the ATLAS machine, whereas the rest of the interface is placed in a nearby server room, shielded against ionizing radiation. Cables connect both parts, allowing protected hardware to control detectors remotely\footnote{The software used to control and process results of data acquisition is fundamentally similar to the software used in the MPX network. \cite{ProcessingSoftware}} during operation of the machine. To manage multiple detectors simultaneously, a computer is directly connected to all read-out interfaces. This computer, also known as \textit{the control PC}, gathers all measured data and forwards commands from the system operator to the detectors through the ATLASPIX interface. This configuration is shown in Figure \ref{fig:ATLASPIX}.
 
 At the time of writing this work, the control PC is being operated manually from a remote location. The automation of the operation is under investigation (for more information, see section \ref{import-automation}).
 
@@ -59,7 +57,7 @@ At the time of writing this work, the control PC is being operated manually from
 \label{intro:cluster-analysis}
 %% CITACE: flood-fill
 %% ZKRATKA: TOA, TOT
-Interacting particles in the sensor are seen as tracks (clusters of adjacent pixels). These tracks are searched for by processing tools, further referred to as \textit{the cluster analysis}. This procedure involves a connectivity-checking algorithm, such as \textit{flood-fill}, operating on pixel matrices to distinguish individual clusters. The identified clusters are categorized based on their morphological properties. In addition, counter values in frames captured in the TOT mode can be combined with earlier calibrations to produce energy approximations. \cite{Jakubek2011S262}
+Interacting particles in the sensor are seen as tracks (clusters of adjacent pixels). These tracks are searched for by processing tools, further referred to as \textit{the cluster analysis}. \cite{PatternRecognition} This procedure involves a connectivity-checking algorithm, such as \textit{flood-fill}, operating on pixel matrices to distinguish individual clusters. The identified clusters are categorized based on their morphological properties. In addition, counter values in frames captured in the TOT mode can be combined with earlier calibrations to produce energy approximations. \cite{EnergyCalibration}
 
 \todo
 %% OBR: saturovaný snímek - špatně (TPX01@1441600713.82345, 2015_09_07_TPX01.root, frame #16512)
@@ -219,7 +217,7 @@ Even though the plain text format has the advantage of being easily accessible w
 
 \subsection{ROOT Framework}
 \label{storage:ROOT}
-Another storage option is to use a proprietary data file format defined by the ROOT Data Analysis Framework \cite{Brun199781}. Originally conceived at CERN in 1995, the framework provides a set of powerful tools with various applications in data mining, manipulation and visualization. Unlike other similar toolkits, ROOT comes with its own machine-independent binary file format (identified by the \texttt{.root} extension). This format is designed to store enormous amounts of data within various types of data structures efficiently, while maintaining good overall performance by employing low-level memory optimization techniques and multi-tier content caching.
+Another storage option is to use a proprietary data file format defined by the ROOT Data Analysis Framework \cite{ROOT}. Originally conceived at CERN in 1995, the framework provides a set of powerful tools with various applications in data mining, manipulation and visualization. Unlike other similar toolkits, ROOT comes with its own machine-independent binary file format (identified by the \texttt{.root} extension). This format is designed to store enormous amounts of data within various types of data structures efficiently, while maintaining good overall performance by employing low-level memory optimization techniques and multi-tier content caching.
 
 %% ZKRATKA: API
 %% ZKRATKA: ROOT?
@@ -276,7 +274,7 @@ Should data be stored in ROOT, a basic relational database concept comes to mind
 \end{center}
 \end{figure}
 
-In spite of being over 20 years in development, ROOT is not perfect. Using memory monitoring tools such as \cite{nethercote2007valgrind}, we have confirmed that the C++ implementation of the ROOT framework is riddled with various memory leaks, making it unsuitable for time-extensive operations.
+In spite of being over 20 years in development, ROOT is not perfect. Using memory monitoring tools such as Valgrind \cite{Valgrind}, we have confirmed that the C++ implementation of the ROOT framework is riddled with various memory leaks, making it unsuitable for time-extensive operations.
 
 \subsection{Data Manipulation Problem}
 With large amounts of data generated periodically by the ATLAS-TPX network, an obvious question is raised: How to efficiently read, process and display captured TPX footage while not being overwhelmed by the magnitude of data in question? Answering it entails addressing several subsidiary concerns, mostly regarding the choice of data structures, their arrangement and roles within the system.

@@ -18,7 +18,7 @@ The web server is a standard server application implemented in Node.js. It store
 For security reasons, the HTTP socket managed by the web server is the only socket accessible from the Internet. All JSTP traffic is routed through this socket and then redirected to a private socket owned by the JSTP server, eliminating the need to expose more than one port to the Internet.
 
 \section{Object-Oriented Design}
-In the JSTP data server, much emphasis was put on the object design and the use of standard design patterns. This section contains the most notable instances.
+In the JSTP data server, much emphasis was put on the object design and the use of standard design patterns. \cite{DesignPatterns} This section contains the most notable instances.
 
 \subsection{Request Handling}
 When a request arrives, a worker thread is assigned to process it and respond accordingly. To avoid keeping all server logic inside implementation of worker threads, the process of producing a response to a single instance of a request is genereated by \textit{a request handler}.
@@ -28,7 +28,7 @@ When the worker thread determines, which JSTP method is called, a corresponding 
 Using object polymorphism, multiple types of request handlers are implemented to service requests corresponding with various JSTP web methods listed in section \ref{jstp:web-methods}.
 
 \subsection{Behavior Selection}
-Apart from producing server responses, the worker threads are also responsible for choosing the appropriate behavior for every client request. In comparison to processing requests themselves, this logic consists mostly of picking the correct request handlers. Thus, it is autonomous by the application of the factory method design pattern (see Figure \ref{fig:handler-factory}).
+Apart from producing server responses, the worker threads are also responsible for choosing the appropriate behavior for every client request. In comparison to processing requests themselves, this logic consists mostly of picking the correct request handlers. Thus, it is autonomous by the application of the factory method design pattern (see Figure \ref{fig:handler-factory}). \cite{DesignPatterns}
 
 When started, every worker thread creates \textit{a factory} object. This object is later called when requests arrive, and, based on their parameters, determines which request handler shall be used in order to produce a response.
 
@@ -258,7 +258,7 @@ Each cell consists of two square charts, corresponding to individual sensor laye
 
 \begin{description}
 	\item[Visualized Values]
-	If a visualized frame has been captured in the TOT mode, calibration method described in \cite{Jakubek2011S262} can be used to obtain energy values from raw counter values. In other operation modes, only counter values are available.
+	If a visualized frame has been captured in the TOT mode, calibration method described in \cite{EnergyCalibration} can be used to obtain energy values from raw counter values. In other operation modes, only counter values are available.
 
 	By default, both charts visualize energy values in the TOT mode and counter values in the other modes. This setting can however be overridden to always visualize counter values in all modes instead.
 
@@ -380,7 +380,7 @@ Accounting for the ever-growing nature of ATLAS-TPX footage, a periodical prodce
 \subsection{Processing Stages}
 At CERN, the control PC generates raw data files from the read-out interface of every detector in the network. Data is produced on a hourly basis and saved in the form of multi-frame files. Using FTP, these files are transferred into a temporary directory on the target hard drive. When all file transfers are completed and the validity of files is confirmed, several scripts designed to check consistency of detector acquisition are executed. These scripts analyze contents of received files, reading common configuration values such as the acquisition time or bias voltage, and attempt to find variations between individual frames.
 
-Should these scripts succeed in detecting suspicious values, the files in question are moved into a separate directory and await further inspection by researchers. Otherwise, they move on to the next stage of processing. In this stage, captured frames are subjected to the cluster analysis (for more information about this process, see section \ref{intro:cluster-analysis}). Should the frames be captured in the TOT mode, at this point calibration data is used in combination with the method described in \cite{Jakubek2011S262} to calculate energy values. At the end of this process, ROOT files are produced.
+Should these scripts succeed in detecting suspicious values, the files in question are moved into a separate directory and await further inspection by researchers. Otherwise, they move on to the next stage of processing. In this stage, captured frames are subjected to the cluster analysis (for more information about this process, see section \ref{intro:cluster-analysis}). Should the frames be captured in the TOT mode, at this point calibration data is used in combination with the method described in \cite{EnergyCalibration} to calculate energy values. At the end of this process, ROOT files are produced.
 
 Since the original multi-frame files are not needed anymore, they can be discarded without data loss (or compressed for the purposes of long-term archiving). The ROOT files are moved from the temporary directory to their final location on the hard drive containing the ATLAS-TPX footage database. Subsequently, a dedicated instance of the JSTP data server application is configured to generate information in the index database, in effect registering them for retrieval of JSTP information. From this point onward, the JSTP server as well as the web visualization UI are able to read frames stored within newly added files.
 
