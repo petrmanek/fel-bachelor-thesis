@@ -65,15 +65,12 @@ unicode=true,
 \newcommand*{\nomExpl}[2]{#2 (#1)\nomenclature{#1}{#2}} 	% usnadňuje zápis zkratek : Slova ke Zkrácení (SZ)
 \newcommand*{\nom}[2]{#1\nomenclature{#1}{#2}} 			% usnadňuje zápis zkratek : SZ
 
-% barvičky
-\definecolor{LightGray}{HTML}{EEEEEE}
-
 % výchozí nastavení pro kód
 \def\args{linenos,										% číslování řádek
           breaklines,									% lámání dlouhých řádek
-          bgcolor=LightGray,							% šedé pozadí
           style=tango,									% barevné schéma
-          fontsize=\footnotesize						% velikost písma
+          fontsize=\footnotesize,						% velikost písma
+          frame=lines									% čáry nahoře a dole
           }
 
 \newcommand{\makenewmintedfiles}[1]{

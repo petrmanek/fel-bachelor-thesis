@@ -1,30 +1,19 @@
-\chapter{Database Creation Scripts}
-In this appendix, we include several PostgreSQL scripts used to create the index database.
+\chapter{Index Database Scripts}
+This appendix contains PostgreSQL scripts used to define the data structure of the index database.
 
-\newpage
-\begin{listing}[H]
-	\inputsql{code/security.sql}
-    \caption{Definition of user access roles necessary to read and modify the database.}
-    \label{lst:sql-security}
-\end{listing}
+\section{Access Roles}
+To access the database, two user roles are created. While the first allows read-only access, the latter also permits users to modify the data.
+~
+\inputsql{code/security.sql}
 
-\newpage
-\begin{listing}[H]
-	\inputsql{code/sensors.sql}
-    \caption{Definition of the \textit{sensors} table.}
-    \label{lst:sql-sensors}
-\end{listing}
+\section{Tables}
+All index data is stored in the form of SQL table rows. This section contains definition of three tables, capable of persisting information further described in section \ref{db:definition}.
 
-\newpage
-\begin{listing}[H]
-	\inputsql{code/rootfiles.sql}
-    \caption{Definition of the \textit{rootfiles} table.}
-    \label{lst:sql-rootfiles}
-\end{listing}
+\subsection{Detector Table}
+\inputsql{code/sensors.sql}
 
-\newpage
-\begin{listing}[H]
-	\inputsql{code/frames.sql}
-    \caption{Definition of the \textit{frames} table.}
-    \label{lst:sql-frames}
-\end{listing}
+\subsection{File Table}
+\inputsql{code/rootfiles.sql}
+
+\subsection{Frame Table}
+\inputsql{code/frames.sql}
