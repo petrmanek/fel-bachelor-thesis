@@ -2,12 +2,9 @@
 In this chapter, a data structure capable of archiving TPX footage for longer time periods is proposed. The motivation is to minimize access time in queries based on certain parameters. To help accomplishing this goal, the index database is introduced.
 
 \section{Formal Requirements}
-Requirements of the data storage system are as common as database requirements can get. It shall be a reliable permanent storage element, accessible for reading from multiple workstations at a same time and robust enough to withstand minor hardware failures. With 15 detectors already installed at ATLAS, and possible option of installing another 5, the database should be designed to hold frames from up to 20 TPX devices for the entire expected time period of their operation at LHC (that from June 2015 to LS3 in 2021).
+Requirements of the data storage system are as common as database requirements can get. It shall be a reliable permanent storage element, accessible for reading from multiple workstations at a same time and robust enough to withstand minor hardware failures. With 15 detectors already installed at ATLAS, and possible option of installing another 5, the database should be designed to hold frames from up to 20 TPX devices for the entire expected time period of their operation\footnote{The-long term plan of LHC operation is available online at \url{https://lhc-commissioning.web.cern.ch/lhc-commissioning/schedule/LHC-long-term.htm}.} at LHC (that from June 2015 to LS3 in 2021).
 % ZKRATKA: LHC
 % ZKRATKA: LS
-
-\todo
-% CITACE: LHC schedule, LS2, LS3
 
 As more and more frames arrive from the detector network, the database must allow to be periodically extended with new data, possibly processing and converting pixel matrices into cluster lists, as described in the previous sections. Since the database is going to be primary storage site for all research data, it shall have multiple independent copies and its structure should be designed with logic to enable their periodic synchronization.
 
@@ -16,7 +13,6 @@ Apart from all requirements already listed, it is important to mention that the 
 It was determined that the most queries are going to filter data by time of acquisition and by device of origin. This is indeed a very natural approach, provided that every detector in the network is positioned and oriented in way allowing only for a certain type of particles to be observed. Researchers looking for signs of specific particles might often request data based on other experiments, which were conducted in a determinate time period and only affected detectors at specific locations within the ATLAS machine.
 
 \section{Database}
-\label{db:definition}
 In this section, the TPX footage database is defined. Accounting for the ever-growing nature of the data, the database is separated into two parts. The first part is to contain data which has already been processed by the cluster analysis, and is ready to be accessed by users. The second part is to contain data which has arrived from CERN in its raw form but hasn't been processed yet. As one might observe, this separation of data serves a fundamental purpose, that is to distinguish intermediate products from finished ones.
 
 % ZKRATKA: UNIX
@@ -31,11 +27,9 @@ In this section, the TPX footage database is defined. Accounting for the ever-gr
 \subsection{Definition}
 For the sake of compatibility, the database is supposed to be based on a UNIX file system. Many users, not necessarily only those using UNIX-based operating systems, shall be able to access it directly by any of widely-used and standardized network protocols such as FTP, SMB, SSH, AFP or HTTP\label{db:supported-protocols}. Utilization of these protocols contributes not only to the universality of the database, it also resolves shared resource access and other data concurrency issues. Some of these features might be useful later on when synchronizing various storage sites in order to back up or restore data. In addition, UNIX file systems also offer fundamental security features, allowing administrators to grant read-write privileges to a certain group of users, while limiting others to a mere read-only access.
 
-The stored data is grouped in two directories named \texttt{processed} and \texttt{downloading}, corresponding to the respective sections of the database. In these directories, data is further divided in subdirectories by the device of origin. To make navigation easier, device directory names use numeric identifiers in compliance with already published literature. For instance, all data originating from the detector no. 7 would be stored in a directory named \texttt{ATPX07}. In such directory, footage would be stored in time-coded files (or directories, should multiple files be grouped under single time code) according to the naming pattern: \texttt{[yyyy]\_[mm]\_[dd]\_ATPX[id]} (where \texttt{[id]} represents the device identifier and \texttt{[yyyy]}, \texttt{[mm]}, \texttt{[dd]} represent year, month and day of acquisition respectively).
+The stored data is grouped in two directories named \texttt{processed} and \texttt{downloading}, corresponding to the respective sections of the database. In these directories, data is further divided in subdirectories by the device of origin. To make navigation easier, device directory names use numeric identifiers in compliance with already published literature. For instance, all data originating from the detector no. 7 would be stored in a directory named \texttt{ATPX07}. In such directory, footage would be stored in time-coded files (or directories, should multiple files be grouped under single time code) according to the naming pattern: \texttt{[yyyy]\_[mm]\_[dd]\_ATPX[id]} (where \texttt{[id]} represents the device identifier and \texttt{[yyyy]}, \texttt{[mm]}, \texttt{[dd]} represent year, month and day of acquisition respectively). Should it be impractical to group frames by the day of acquisition, file and directory names may follow an alternate naming pattern with hourly granularity: \texttt{[yyyy]\_[mm]\_[dd]\_ATPX[id]\_[hh]} (where \texttt{[hh]} represents the hour of acquisition and other entities are treated as in the previous pattern). Note that in spite of grouping data files in separate subdirectories by the device of origin, the device identifier is intentionally included in the naming pattern for reasons of redundancy.
 
-Should it be impractical to group frames by the day of acquisition, file and directory names may follow an alternate naming pattern with hourly granularity: \texttt{[yyyy]\_[mm]\_[dd]\_ATPX[id]\_[hh]} (where \texttt{[hh]} represents the hour of acquisition and other entities are treated as in the previous pattern). Note that in spite of grouping data files in separate subdirectories by the device of origin, the device identifier is intentionally included in the naming pattern for reasons of redundancy.
-
-The directory structure described so far satisfies all requirements from the previous section.Moreover, it optimizes the access to data generated from specific devices at specific times, so that the majority of user requests is handled in timely manner.
+The directory structure described so far satisfies all requirements from the previous section. Moreover, it optimizes the access to data generated from specific devices at specific times, so that the majority of user requests is handled in timely manner.
 
 All data files are stored at the lowest level of the directory structure under time-coded names according to our naming patterns (see Figure \ref{fig:db-structure}). Should more files fall under the same time code (marginal scenario), they are grouped in a directory with a time-coded name. The file structure in such a directory is undefined. Although it is not required, it is expected that files in the \texttt{processed} directory are encoded in the ROOT format, whereas files in the \texttt{downloading} directory are encoded in plain text, as that is the initial format of all unprocessed footage. Apart from these two formats, files of different types will be tolerated, but regarded as secondary.
 
@@ -89,35 +83,30 @@ To preserve storage space, the database must support file compression. The suppo
 
 As individual data files are expected to grow quite large in size, compression is to be utilized only at the lowest level of the directory structure, that is in the time-coded data files and directories. Individual archives are allowed to store at most one time-coded file (or directory), thus being able to overtake file's time-coded name while remaining unique in the file listing. It is preferred (but not required) that all data files stored in a single directory are either all compressed, or none of them is, as any deviation from this scheme might point to an incomplete data transaction.
 
-\todo % Benedikt nechápe co chci říct od "It is preferred..."
-
 \subsection{Expected Volume of Data}
 This section includes a simple calculation to obtain an upper bound on the size of the database.
 
-Assuming that one hour of footage stored in the multi-frame format may take up to 4~gigabytes in size (depending on the frequency of acquisition), acquisition from one detectore generates at most 96~gigabytes per day. Accounting for the longest possible time of operation, the database will store up to 2,437~days of footage simultaneously recorded by up to 20~detectors. That means that the database will have to hold about 4.7~petabytes worth of uncompressed information. If we use Collin's compression algorithm benchmark from \cite{GzipBenchmark} as baseline, it is possible to estimate that a common variant of GZIP algorithm will reduce the file size in average by 75.9\%. Applying such compression on the multi-frame data files, the database would have to hold about 1.1 petabyte of archives.
+Assuming that one hour of footage stored in the multi-frame format may take up to 4~gigabytes in size (depending on the frequency of acquisition), acquisition from one detector generates at most 96~gigabytes per day. Accounting for the longest possible time of operation, the database will store up to 2,437~days of footage simultaneously recorded by up to 20~detectors. That means that the database will have to hold about 4.7~petabytes worth of uncompressed information. If we use Collin's compression algorithm benchmark from \cite{GzipBenchmark} as baseline, it is possible to estimate that a common variant of GZIP algorithm will reduce the file size in average by 75.9\%. Applying such compression on the multi-frame data files, the database would have to hold about 1.1 petabyte of archives.
 
 An analogous calculation can be performed for the ROOT file format as well. Since the file structure already utilizes its own proprietary compression algorithms, the expectation is that the overall volume decreases significantly in comparison with the raw uncompressed multi-frame data. From the data recorded by the ATLAS-TPX network in the fall of 2015, a single day of footage stored in the ROOT format takes up to 18~gigabytes in size. The same extrapolation as before yields that the database will have to hold about 877~terabytes of information. This result is in agreement with the expectations stated before.
 
-This estimation shows that the ROOT data format seems to be more space-efficient than the plain text format. For long-term archivation, it is recommended that the amount of footage kept in plain text is minimized either by compressing or erasing data files after cluster analysis is finished.
+This estimation shows that the ROOT data format seems to be more space-efficient than the plain text format. For long-term archiving, it is recommended that the amount of footage kept in plain text is minimized either by compressing or erasing data files after cluster analysis is finished.
 
 \section{Index Database}
 So far, a set of rules has been established for the file system in order to quickly obtain data from a specific device at time. These facilities are sufficient for navigating and accessing data in rudimentary manner, but are certainly not optimal. For instance, the database definition does not contain any conventions regarding retrieval of specific frames from files in the ROOT data format. Due to this limitation, users seeking individual frames would have to download bulks of data corresponding to longer time periods (their length can vary from an hour to a day in time and from hundreds of megabytes to several gigabytes in size), which may induce unnecessary processing overhead and memory shortages.
 
-There is also no guarantee that time-coded nodes in our directory structure will be individual files. If such nodes happen to be directories, the file structure inside of such directories is undefined, and may require additional decisions on the user side. And what do users do when they want to retrieve frames based on different criteria than time and device of origin? At the moment, there is no other option than directly enumerating frames stored in all files on the file system, which (considering their potential size) might not be a preferrable solution. To resolve all these issues, one more element to our design is introduced---an index database.
+There is also no guarantee that time-coded nodes in our directory structure will be individual files. If such nodes happen to be directories, the file structure inside of such directories is undefined, and may require additional decisions on the user side. And what do users do when they want to retrieve frames based on different criteria than time and device of origin? At the moment, there is no other option than directly enumerating frames stored in all files on the file system, which (considering their potential size) might not be a preferable solution. To resolve all these issues, one more element to our design is introduced---an index database.
 
 This database is to contain information, which can be recalculated at any instant from the primary data files, and thus will need no backups or redundancies. The information stored in the index database shall mostly include, as the name suggests, index of all files and frames on record and addresses pointing to the them on the file system. In addition, the index database is to store commonly requested aggregated values.
 
 \subsection{Definition}
 % ZKRATKA: SQL
-The index database is compliant with the SQL standard. For the reasons of simplicity, only three basic entities are defined. The relationships between these entities are depicted in Figure \ref{db:index-uml}, whereas the meaning of their members is defined in this section.
-
-% OBR: UML diagram databáze
-\todo
+The index database is compliant with the SQL standard. For the reasons of simplicity, only three basic entities are defined. The relationships between these entities and the meaning of their members is defined in this section. For SQL creation scripts, see Section \ref{section:table-definition} of the Appendix.
 
 \label{db:definition}
 \begin{description}
 	\item[Sensor]
-	Sensor represents a single ATLAS-TPX device, from which data can be acquired. For a full definition of the SQL table, see Listing \ref{lst:sql-sensors}.
+	Sensor represents a single ATLAS-TPX device, from which data can be acquired.
 
 	\begin{description}
 		\item[Sensor Identifier (\texttt{sid})]
@@ -131,7 +120,7 @@ The index database is compliant with the SQL standard. For the reasons of simpli
 	\end{description}
 
 	\item[ROOT File]
-	This file represents a single file in the ROOT data format, containing data acquired from a single ATLAS-TPX device in a determinate time period. For a full definition of the SQL table, see Listing \ref{lst:sql-rootfiles}.
+	This file represents a single file in the ROOT data format, containing data acquired from a single ATLAS-TPX device in a determinate time period.
 
 	\begin{description}
 		\item[File Identifier (\texttt{fid})] 
@@ -157,7 +146,7 @@ The index database is compliant with the SQL standard. For the reasons of simpli
 	\end{description}
 
 	\item[Frame]
-	Frame represents a single event of data acquisition from a ATLAS-TPX device. Every frame is stored in a file, which can contain multiple frames. For a full definition of the SQL table, see Listing \ref{lst:sql-frames}.
+	Frame represents a single event of data acquisition from a ATLAS-TPX device. Every frame is stored in a file, which can contain multiple frames.
 
 	\begin{description}
 		\item[Frame Identifier (\texttt{frid})] 
@@ -246,10 +235,10 @@ The indices of entries in the \texttt{dscData} and \texttt{clusterFile} trees ar
 \end{figure}
 
 \subsection{Data Aggregation and Metaindexing}
-In some cases, users of the database may want to calculate aggregated statistics. Since these types of requests are hard to anticipate and do not constitute a significant portion of all user queries, it is not worth the effort to create separate data structures in order to accelerate their processing. Existing data structures are however extended to support some of such requests. For example, the index database is a great candidate in particular since it contains data associated with individual files and frames, and since it is easily accessible and queriable using SQL. For that reason, several statistical values are included with every frame, such as count of clusters differentiated by individual cluster types and frame occupancy encoded as number of non-zero pixels.
+In some cases, users of the database may want to calculate aggregated statistics. Since these types of requests are hard to anticipate and do not constitute a significant portion of all user queries, it is not worth the effort to create separate data structures in order to accelerate their processing. Existing data structures are however extended to support some of such requests. For example, the index database is a great candidate in particular since it contains data associated with individual files and frames, and since it is easily accessible and queryable using SQL. For that reason, several statistical values are included with every frame, such as count of clusters differentiated by individual cluster types and frame occupancy encoded as number of non-zero pixels.
 
 Users can utilize filtering and aggregation features of SQL to quickly find files and frames in the index database, and, if required, analyze their contents more thoroughly.
 
-Lastly, SQL implementations include an analogy to the index mechanism used to accelerate access to individual frames within data files. Using their own tree indices built from various columns of data tables, SQL servers can speed up certain queries containing predicates or orderings based on such columns. This significantly improves data acess speed by indexing the index database. For the detailed application of this technique, the reader may refer to Listings \ref{lst:sql-sensors}, \ref{lst:sql-rootfiles} and \ref{lst:sql-frames}.
+Lastly, SQL implementations include an analogy to the index mechanism used to accelerate access to individual frames within data files. Using their own tree indices built from various columns of data tables, SQL servers can speed up certain queries containing predicates or orderings based on such columns. This significantly improves data access speed by indexing the index database. For the detailed application of this technique, the reader may refer to Section \ref{section:table-definition} of the Appendix.
 
 

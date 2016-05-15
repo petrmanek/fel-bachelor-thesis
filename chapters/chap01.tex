@@ -1,18 +1,16 @@
 \chapter{Introduction}
 
 \section{About Timepix Detector}
-%% zde je trošku Benediktovo
-TPX detector \cite{Timepix} is a hybrid active pixel detector, developed within the MPX collaboration at CERN. It consists of an active sensor layer bump-bonded to a readout ASIC. The ASIC divides the active sensor area into a square matrix of $256 \times 256$ pixels with a pixel-to-pixel distance of 55 µm. Each pixel has its own readout chain and can be controlled indenpendently. While the sensor layer material in the presented work was silicon, other sensor materials are available, most notably CdTe and GaAs, which are used e.g. for imaging applications.
+TPX detector \cite{Timepix} is a hybrid active pixel detector, developed within the MPX collaboration at CERN. It consists of an active sensor layer bump-bonded to a readout ASIC. The ASIC divides the active sensor area into a square matrix of $256 \times 256$ pixels with a pixel-to-pixel distance of 55 µm. Each pixel has its own readout chain and can be controlled independently. While the sensor layer material in the presented work was silicon, other sensor materials are available, most notably CdTe and GaAs, which are used e.g. for imaging applications.
 
-TPX detector is operated in a way that is similar to commercially available cameras. What would be a picture in photography, is referred to as \textit{a frame}. Every pixel is equipped with a 14-bit integer register called \textit{the counter}. When acquisition starts, registers are set to zero, and then possibly incremented upon every interaction. A frame thus represents the status of each pixel after the user set \textit{acqusition time}. Returning to camera analogy, acquisition time resembles exposure time of a photograph---when increased, more particles can be expected to interact with detector's pixels.
+TPX detector is operated in a way that is similar to commercially available cameras. What would be a picture in photography, is referred to as \textit{a frame}. Every pixel is equipped with a 14-bit integer register called \textit{the counter}. When acquisition starts, registers are set to zero, and then possibly incremented upon every interaction. A frame thus represents the status of each pixel after the user set \textit{acquisition time}. Returning to camera analogy, acquisition time resembles exposure time of a photograph---when increased, more particles can be expected to interact with detector's pixels.
 
 Since pixels may not be identical due to material irregularities and manufacturing errors, every pixel has adjustable \textit{threshold} parameter, which is subject to equalization. In an equalized state, analog input measured from the pixel's semiconductor should exceed this threshold only when the pixel is interacting with a particle.
 
-\subsection{Operation Modes}
+\subsection{Operation Modes}\label{section:operation-modes}
 Depending on its application, a single TPX board can be assembled with more sensor layers, e.g. in a stack structure. After acquisition is finished, every area produces a matrix of $256\times 256$ integer values. Interpretation of these values depends on another parameter, \textit{the operation mode}. The following operation modes are available:
 
 \begin{description}
-%% CITACE: Holík 1.2.5.1 pp. 27
 	\item[Hit Counting Mode (also known as the Medipix Mode)]
 	The counter is incremented upon every transition from a state below the threshold to a state above the threshold. The counter value of a pixel thus represents the number of particles which have interacted with the pixel.
 
@@ -51,17 +49,13 @@ A read-out interface is a special dedicated hardware device that reads data and 
 
 The interface has two parts connected by four cables. The detector itself is positioned and oriented within the ATLAS machine, whereas the rest of the interface is placed in a nearby server room, shielded against ionizing radiation. Cables connect both parts, allowing protected hardware to control detectors remotely\footnote{The software used to control and process results of data acquisition is fundamentally similar to the software used in the MPX network. \cite{ProcessingSoftware}} during operation of the machine. To manage multiple detectors simultaneously, a computer is directly connected to all read-out interfaces. This computer, also known as \textit{the control PC}, gathers all measured data and forwards commands from the system operator to the detectors through the ATLASPIX interface. This configuration is shown in Figure \ref{fig:ATLASPIX}.
 
-At the time of writing this work, the control PC is being operated manually from a remote location. The automation of the operation is under investigation (for more information, see section \ref{import-automation}).
+At the time of writing this work, the control PC is being operated manually from a remote location. The automation of the operation is under investigation (for more information, see Section \ref{import-automation}).
 
 \subsection{Cluster Analysis}
 \label{intro:cluster-analysis}
 %% CITACE: flood-fill
 %% ZKRATKA: TOA, TOT
 Interacting particles in the sensor are seen as tracks (clusters of adjacent pixels). These tracks are searched for by processing tools, further referred to as \textit{the cluster analysis}. \cite{PatternRecognition} This procedure involves a connectivity-checking algorithm, such as \textit{flood-fill}, operating on pixel matrices to distinguish individual clusters. The identified clusters are categorized based on their morphological properties. In addition, counter values in frames captured in the TOT mode can be combined with earlier calibrations to produce energy approximations. \cite{EnergyCalibration}
-
-\todo
-%% OBR: saturovaný snímek - špatně (TPX01@1441600713.82345, 2015_09_07_TPX01.root, frame #16512)
-%% OBR: snímek s clustery - dobře (TPX01@1435930709.35062, 2015_07_03_TPX01.root, frame #34979)
 
 % CITACE: sparse matrix
 The output of cluster analysis consists of two separate lists of clusters, one per every sensor layer. It follows from the definition of a cluster that any pixel contained in it has a non-zero counter value. All pixels unreferenced by any cluster are assumed to be equal to zero. The utilized technique of data encoding is well-known as it offers efficient compression rate for sparse pixel matrices. It is however worth noting at this point that in certain cases (represented most notably by saturated or nearly saturated frames), this approach generates voluminous data structures, which may take long time to enumerate, and in turn slow down other algorithms operating on them.
@@ -72,12 +66,7 @@ In a cluster list, pixels are stored as tuples of their planar coordinates and t
 \begin{description}
 	\item[Shape Classification]
 	\label{db:shape-classification}
-	By measuring morphological properties of a cluster (such as radius or size), it is possible to estimate whether the cluster resembles more a line segment or a circular blob. Similarly, an algorithm can ascertain if the cluster looks thin or thick. From that information, type of interacting particle can be determined, along with direction of its movement relative to the plane of incidence. 
-
-	\todo
-	%To formally define cluster categories, we use terminology consistent with the ATLAS Medipix research (see Figure \ref{fig:cluster-types}).
-
-    %% CITACE: Medipix cluster types
+	By measuring morphological properties of a cluster (such as radius or size), it is possible to estimate whether the cluster resembles more a line segment or a circular blob. Similarly, an algorithm can ascertain if the cluster looks thin or thick. From that information, type of the interacting particle can be determined, along with the direction of its movement relative to the plane of incidence. This information is summarized by classifying the cluster in one of the six cluster categories (see Figure \ref{fig:cluster-types}).
 
     \begin{figure}[t]
     \begin{center}
@@ -217,12 +206,12 @@ Even though the plain text format has the advantage of being easily accessible w
 
 \subsection{ROOT Framework}
 \label{storage:ROOT}
-Another storage option is to use a proprietary data file format defined by the ROOT Data Analysis Framework \cite{ROOT}. Originally conceived at CERN in 1995, the framework provides a set of powerful tools with various applications in data mining, manipulation and visualization. Unlike other similar toolkits, ROOT comes with its own machine-independent binary file format (identified by the \texttt{.root} extension). This format is designed to store enormous amounts of data within various types of data structures efficiently, while maintaining good overall performance by employing low-level memory optimization techniques and multi-tier content caching.
+Another storage option is to use a proprietary data file format defined by the ROOT Data Analysis Framework \cite{ROOT}. Originally conceived at CERN in 1995, the framework provides a set of powerful tools with various applications in data mining, manipulation and visualization (for demonstration, see Figure \ref{fig:tpx-frames}). Unlike other similar toolkits, ROOT comes with its own machine-independent binary file format (identified by the \texttt{.root} extension). This format is designed to store enormous amounts of data within various types of data structures efficiently, while maintaining good overall performance by employing low-level memory optimization techniques and multi-tier content caching.
 
 %% ZKRATKA: API
 %% ZKRATKA: ROOT?
 
-Used by many physicists at CERN for several years now, ROOT was chosen as the data archivation format as many researchers have already learned its properties and know well how to operate it despite often lacking deeper background in Computer Science. For the purposes of programmatic access, ROOT also does well with documented APIs in Python, R and C++.
+Used by many physicists at CERN for several years now, ROOT was chosen as the data archiving format as many researchers have already learned its properties and know well how to operate it despite often lacking deeper background in Computer Science. For the purposes of programmatic access, ROOT also does well with documented APIs in Python, R and C++.
 
 Should data be stored in ROOT, a basic relational database concept comes to mind. ROOT however offers even more abstract data structures with standard tables generalized in the form of \textit{trees} and their columns in the form of \textit{leaves}. One such tree would suffice for information about captured frames (such as acquisition time, operation mode, etc.) and other for a list of clusters for every frame. This scheme (showcased in Figure \ref{fig:root-trees}) would efficiently abstract the entire storage structure, allowing for multiple frames to be stored in a single file, grouped for instance by a common time interval, similarly to the text file format.
 
@@ -274,12 +263,36 @@ Should data be stored in ROOT, a basic relational database concept comes to mind
 \end{center}
 \end{figure}
 
+\begin{figure}[t]
+\begin{center}
+    \begin{subfigure}{\textwidth}
+    %% TPX01@1435930709.35062, 2015_07_03_TPX01.root, frame #34979
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/frame-not-saturated}
+    \caption{A frame with disconnected clusters.}
+    \label{fig:frame-not-saturated}
+    \end{subfigure}
+
+    \vspace{0.2cm}
+
+    \begin{subfigure}{\textwidth}
+    %% TPX01@1441600713.82345, 2015_09_07_TPX01.root, frame #16512
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/frame-saturated}
+    \caption{A frame with high saturation level.}
+    \label{fig:frame-saturated}
+    \end{subfigure}
+\caption{TPX frame plots generated by the ROOT framework.}
+\label{fig:tpx-frames}
+\end{center}
+\end{figure}
+
 In spite of being over 20 years in development, ROOT is not perfect. Using memory monitoring tools such as Valgrind \cite{Valgrind}, we have confirmed that the C++ implementation of the ROOT framework is riddled with various memory leaks, making it unsuitable for time-extensive operations.
 
 \subsection{Data Manipulation Problem}
 With large amounts of data generated periodically by the ATLAS-TPX network, an obvious question is raised: How to efficiently read, process and display captured TPX footage while not being overwhelmed by the magnitude of data in question? Answering it entails addressing several subsidiary concerns, mostly regarding the choice of data structures, their arrangement and roles within the system.
 
-There exist many computing approaches and techniques to deal with big data, as well as myriad of peculiar data strucutres, each optimizing different of its properties and operations. With respect to the architecture of the network, the format of data it produces, other works done on its predecessor and goals set forth by its users, this work tackles the problem by standard means. Its purpose is to design and implement a network-based system capable of archiving, accessing and visualizing data, while optimizing data retrieval speeds for certain types of user queries.
+There exist many computing approaches and techniques to deal with big data, as well as myriad of peculiar data structures, each optimizing different of its properties and operations. With respect to the architecture of the network, the format of data it produces, other works done on its predecessor and goals set forth by its users, this work tackles the problem by standard means. Its purpose is to design and implement a network-based system capable of archiving, accessing and visualizing data, while optimizing data retrieval speeds for certain types of user queries.
 
 \section{Structure of This Document}
 This section is intended as a brief outline of the rest of this work.
@@ -290,6 +303,6 @@ Chapter 3 is dedicated to the definition of the JSON Timepix protocol (JSTP), wh
 
 Chapter 4 describes implementation and integration of concepts defined by the previous two chapters in the form of a server application. Apart from commenting on its internal structure, it also provides insights in its operation and contains UI documentation.
 
-In the last chapter of this work, the procedure of data import is described. The last section outlines several applications of the software outside the ATLAS-TPX project and discusses its possible future.
+The last chapter of this work outlines several applications of the software outside the ATLAS-TPX project and discusses its possible future.
 
 The appendices mostly contain descriptive sections of technical nature, such as code listings, API documentation or the description of contents of CD attached to the printed version of the work.

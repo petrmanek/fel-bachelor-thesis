@@ -2,14 +2,25 @@
 \label{apx:jstp-doc}
 This chapter includes detailed documentation of the JSTP web service along with protocol conventions, parameter descriptions and examples of requests and responses.
 
-\section{Conventions}
-Note that when referring to the service endpoint in method URLs, we use \texttt{<endpoint>} as a stand-in string.
-TODO
+\section{API Conventions}
+\begin{enumerate}
+	\item
+	When referring to the HTTP endpoint of the web service in method URLs, ``\texttt{<endpoint>}'' is used as a stand-in string.
+
+	\item
+	All date and time information is transmitted as the number of seconds from the midnight of January 1, 1970 (in UTC). Durations are transmitted in seconds and energies in keV.
+
+	\item 
+	JSTP responses support HTTP status codes: 200 (OK), 400 (Bad Request), 404 (Not Found) and 500 (Internal Server Error).
+
+	\item
+	All JSTP web methods use the JSON format for serialization of request parameters and response data. When parameters are required, the server expects the client to initiate a POST request, passing their values in a JSON object as a part of the post data. Unless specified otherwise, all method parameters are mandatory.
+\end{enumerate}
 
 \section{Detector List}
 \label{apx:jstp-sensors}
-To execute this method, a client must initiate GET request to \texttt{<endpoint>/sensors} without any parameters. When successful, the server responds by returning an array of objects, each of which corresponds to a single device in the network. Example of such response is provided in Listing \ref{lst:jstp-sensors}. Every object in the array is guaranteed to contain:
-
+To execute this method, a client must initiate a GET request to \texttt{<endpoint>/sensors} without any parameters. When successful, the server responds by returning an array of objects, each of which corresponds to a single device in the TPX network. Example of such response is provided in Listing \ref{lst:jstp-sensors}. Every object in the array is guaranteed to contain:
+~
 \begin{description}
 	\item[\texttt{sid}]
 	Unique numeric identifier of the device retrieved from the index database.
@@ -20,26 +31,26 @@ To execute this method, a client must initiate GET request to \texttt{<endpoint>
 
 \begin{listing}
 	\inputjson{code/jstp-sensors.json}
-    \caption{Example response containing a list of two devices.}
+    \caption[JSTP detector list response body.]{Example response containing a list of two devices.}
     \label{lst:jstp-sensors}
 \end{listing}
 
 
 \section{Overview of Acquisition}
 \label{apx:jstp-timeline}
-To execute this method, a client must initiate POST request to \texttt{<endpoint>/timeline}. The request body must contain a JSON object with \textit{all} parameter values. You can examine an example request in Listing \ref{lst:jstp-timeline-request}.
+To execute this method, a client must initiate a POST request to \texttt{<endpoint>/timeline}. The request body must contain a JSON object with \textit{all} parameter values. You can examine an example request body in Listing \ref{lst:jstp-timeline-request}.
 
 \begin{listing}
 	\inputjson{code/jstp-timeline-request.json}
-    \caption{Example request body with time period starting at July 28, 2015 at 3:00 AM and ending at 6:00 AM. Data from 2 detectors is requested to be normalized and grouped by every hour. Response is expected to contain exactly 3 intervals.}
+    \caption[JSTP acquisition overview request body.]{Example request body with time period starting at July 28, 2015 at 3:00 AM and ending at 6:00 AM. Data from 2 detectors is requested to be normalized and grouped by every hour. Response is expected to contain exactly 3 intervals.}
     \label{lst:jstp-timeline-request}
 \end{listing}
 
 When successful, the server responds by returning an array of objects, each of which responds to a single interval in the time period. For example response, see Listing \ref{lst:jstp-timeline-response}. Every object in the array is guaranteed to contain:
-
+~
 \begin{description}
 	\item[\texttt{time}]
-	UNIX timestamp in UTC of the start time of the interval. End time of the interval can be calculated at by adding \texttt{groupPeriod} to this value.
+	Start time of the interval. End time of the interval can be calculated at by adding \texttt{groupPeriod} to this value.
 
 	\item[\texttt{frames}]
 	Number of frames aggregated in the time interval.
@@ -55,36 +66,36 @@ When successful, the server responds by returning an array of objects, each of w
 
 \begin{listing}
 	\inputjson{code/jstp-timeline-response.json}
-    \caption{Example response to the request from Listing \ref{lst:jstp-timeline-request}.}
+    \caption[JSTP acquisition overview response body.]{Example response to the request from Listing \ref{lst:jstp-timeline-request}.}
     \label{lst:jstp-timeline-response}
 \end{listing}
 
 \section{Frame Search}
 \label{apx:jstp-frame}
-To execute this method, a client must initiate POST request to \texttt{<endpoint>/frame}. The request body must contain a JSON object with \textit{all} parameter values:
-
+To execute this method, a client must initiate a POST request to \texttt{<endpoint>/frame}. The request body must contain a JSON object with \textit{all} parameter values:
+~
 \begin{description}
 	\item[\texttt{time}]
-	UNIX timestamp in UTC of the search time parameter.
+	The search time parameter.
 
 	\item[\texttt{sensors}]
 	Array of distinct \texttt{sid} values of the devices, from which we wish to retrieve data. This array must not be empty.
 
 	\item[\texttt{searchMode}]
-	A non-negative integer value specifying the algorithm to be used in the search operation. Possible values are 0 for the Sequential Forward Mode and 1 for the Sequential Backward Mode.
+	A non-negative integer value specifying the algorithm to be used in the search operation. Possible values are 0 (Sequential Forward Mode) and 1 ( Sequential Backward Mode).
 
 	\item[\texttt{integralFrames}]
-	A positive integer not greater than 100 controlling the number of frames integrated in time. Value equal to 1 retrieves only a single frame per device.
+	A positive integer not greater than 100 controlling the number of frames integrated in time. Value equal to 1 retrieves only a single frame. This value must be equal to 1 when frames from more than one device are requested.
 \end{description}
 
 \begin{listing}
 	\inputjson{code/jstp-frames-request.json} % TODO
-    \caption{Example request body with time parameter equal to July 28, 2015, 3:00 AM. A single frame captured by a single detector is requested to be located by the Sequential Forward Mode.}
+    \caption[JSTP frame search request body.]{Example request body with time parameter equal to July 28, 2015, 3:00 AM. A single frame captured by a single detector is requested to be located by the Sequential Forward Mode.}
     \label{lst:jstp-frames-request}
 \end{listing}
 
-For an example request, see Listing \ref{lst:jstp-frames-request}. In response, the server returns an object containing \texttt{foundTime}, the start time of the master frame, and \texttt{frames}, an array of objects corresponding with frames captured by  every device in order, in which they were referenced in the \texttt{sensors} array. Every object is guaranteed to contain:
-
+For an example request, see Listing \ref{lst:jstp-frames-request}. In response, the server returns an object containing \texttt{foundTime}, the start time of the master frame, and \texttt{frames}, an array of objects corresponding with frames captured by every device in the order, in which they were referenced in the \texttt{sensors} array. Every object is guaranteed to contain:
+~
 \begin{description}
 	\item[\texttt{rootFile}]
 	Path to the ROOT file, from which this frame was extracted (in the server's file system).
@@ -99,26 +110,96 @@ For an example request, see Listing \ref{lst:jstp-frames-request}. In response, 
 	Number of detector's sensor layers.
 
 	\item[\texttt{startTime}]
-	UNIX timestamp in UTC of the start time of acquisition.
+	The start time of acquisition.
 
 	\item[\texttt{acquisitionTime}]
 	The acquisition time (the length of acquisition) in seconds.
 
 	\item[\texttt{biasVoltage}]
-	TODO
+	The array of bias voltages of the active sensor layers of the TPX detector.
 
 	\item[\texttt{mode}]
-	TODO
+	Operation mode of the TPX detector. Possible values are: MPX (0), TOT (1), one-hit (2), TOA (3), mixed (4). For more information, see Section \ref{section:operation-modes}.
 
 	\item[\texttt{chipboardId}]
-	TODO
+	The identifier of the hardware used in the TPX detector.
 
 	\item[\texttt{maskedPixels}]
-	TODO
+	The number of masked pixels at the time of acquisition.
+
+	\item[\texttt{layerNames}]
+	The array of human-readable labels for the active sensor layers of the TPX detector.
 
 	\item[\texttt{calibrationConstants}]
-	TODO (only TOT)
+	The array of constants, which can be used in conjunction with TOT data to calculate instantaneous luminosity estimation for every active sensor layer. These constants are available only for some devices.
+
+	\item[\texttt{position}]
+	Position of the TPX detector within the ATLAS machine's coordinate system.
 
 	\item[\texttt{clusters}]
-	TODO
+	Sparse array of clusters found in the frame. Each cluster is represented by a separate JSON object. The ordering of such objects is not defined.
+\end{description}
+
+Every object in the \texttt{clusters} array is guaranteed to contain:
+~
+\begin{description}
+	\item[\texttt{x}]
+	Array of X coordinates of the pixels in the cluster.
+
+	\item[\texttt{y}]
+	Array of Y coordinates of the pixels in the cluster.
+
+	\item[\texttt{counter}]
+	Array of counter values of the pixels in the cluster.
+
+	\item[\texttt{energy}]
+	Array of energy values of the pixels in the cluster (available only in the TOT mode).
+
+	\item[\texttt{entry}]
+	Index of the entry in ROOT file's \texttt{clusterFile} tree, corresponding to this cluster.
+
+	\item[\texttt{layer}]
+	Number of the active sensor layer, to which the cluster belongs.
+
+	\item[\texttt{type}]
+	Nonnegative integer determining the type classification of the cluster. Possible values are: dot (1), small blob (2), heavy blob (3), heavy track (4), straight track (5) and curly track (6). For more information, see Figure \ref{fig:cluster-types}.
+
+	\item[\texttt{size}]
+	The number of pixels in the cluster.
+
+	\item[\texttt{roundness}]
+	Morphological value describing the roundness of the cluster.
+
+	\item[\texttt{linearity}]
+	Morphological value describing the linearity of the cluster.
+
+	\item[\texttt{region}]
+	Nonnegative integer determining the region of the active sensor layer, in which the cluster is located. Possible values are: mixed (0), silicon (1), polyethylene (2), polyethylene with aluminum (3), lithium fluoride (4).
+
+	\item[\texttt{energyMaxHeight}]
+	The highest energy value of the pixels in the cluster (available only in the TOT mode).
+
+	\item[\texttt{energyMinHeight}]
+	The lowest energy value of the pixels in the cluster (available only in the TOT mode).
+
+	\item[\texttt{energyVolume}]	
+	The sum of energy values of the pixels in the cluster (available only in the TOT mode).
+
+	\item[\texttt{counterMaxHeight}]
+	The highest counter value of the pixels in the cluster.
+
+	\item[\texttt{counterMinHeight}]
+	The lowest counter value of the pixels in the cluster.
+
+	\item[\texttt{meanX}]
+	The average X coordinate of the pixels in the cluster.
+
+	\item[\texttt{meanY}]
+	The average Y coordinate of the pixels in the cluster.
+
+	\item[\texttt{volCentroidX}]
+	The average X coordinate of the pixels in the cluster, weighted by counter values.
+
+	\item[\texttt{volCentroidY}]
+	The average Y coordinate of the pixels in the cluster, weighted by counter values.
 \end{description}

@@ -3,9 +3,9 @@
 This chapter describes the JSON Timepix Protocol, i.e. a communication protocol used to transmit TPX footage for purposes of visualization.
 
 \section{Remote Access}
-Since the database, defined in the previous chapter, is based on a UNIX file system, multiple users can access it simultaneously by either directly interacting with the computer responsible for its operation, or by using some of the supported protocols\footnote{Recall that the section \ref{db:supported-protocols} mentions access over FTP, SMB, SSH, AFP and HTTP.} for direct or remote communication.
+Since the database, defined in the previous chapter, is based on a UNIX file system, multiple users can access it simultaneously by either directly interacting with the computer responsible for its operation, or by using some of the supported protocols\footnote{Recall that the Section \ref{db:supported-protocols} mentions access over FTP, SMB, SSH, AFP and HTTP.} for direct or remote communication.
 
-Due to this capability, one might argue that defining another dedicated communication protocol such as JSTP seems rather redundant. What advantages does this approach offer? The primary motivation for the existence of JSTP are features required by the web visualization UI, which is described in the Chapter \ref{chapter:server}. It is expected that users of such an application would want to observe recorded footage frame by frame. If no protocol is defined to facilitate transmissions of individual frames from the database to the visualization UI, data has to be transferred in one of the formats listed in section \ref{db:storage-formats}, none of which is particularly suitable for this task.
+Due to this capability, one might argue that defining another dedicated communication protocol such as JSTP seems rather redundant. What advantages does this approach offer? The primary motivation for the existence of JSTP are features required by the web visualization UI, which is described in the Chapter \ref{chapter:server}. It is expected that users of such an application would want to observe recorded footage frame by frame. If no protocol is defined to facilitate transmissions of individual frames from the database to the visualization UI, data has to be transferred in one of the formats listed in Section \ref{db:storage-formats}, none of which is particularly suitable for this task.
 
 For instance, the plain text format stores data in multiple files implying that several parallel downloads would be required, possibly putting strain on user's network connection in the process. The ROOT format on the other hand uses its own compression algorithms, making it non-trivial to deflate in a website context. Lastly, since both ROOT and plain text formats store data in bulks of frames per file, the information overhead to transmit units of frames would be nearly unbearable, especially considering that data files in question may be several gigabytes in size.
 
@@ -72,11 +72,10 @@ In the definition, a multi-layered system architecture is upheld. This primarily
 
 This may be illustrated on a practical application. Users who want a quick peek at detector operation without any effort might decide to use the visualization UI in their web browser. The website is quite easy to use, does not require any particular skills to operate, and is capable of displaying frames captured by the detectors as well as an overview of their operation. In contrast, users who want to retrieve data for statistical evaluation might utilize SQL or JSTP as these two protocols are not designed to interact with humans, but with other applications, most notably scripts designed for custom data processing. Lastly, users in need of information, which is not displayed by the visualization UI nor transmitted by any of the mentioned protocols, can connect to the database storage facility remotely and directly download data files by means of some of the supported network transfer protocols. This concept is illustrated in Figure \ref{fig:multilayered-diagram}.
 
-Lastly, JSTP is designed keeping extensibility in mind. With multiple concurrent projects utilizing TPX detectors, it is likely that the protocol will be used in other applications as well. It therefore allows for limited variability, gracefully handling minor alterations in transmitted data structures.
-\todo % vysvětlit Benediktovi co myslím omezenou upravitelností
+Lastly, JSTP is designed keeping extensibility in mind. With multiple concurrent projects utilizing TPX detectors, it is likely that the protocol will be used in other applications as well. It therefore allows variability, gracefully handling minor alterations in transmitted data structures.
 
 \subsection{Requirements}
-This section lists all formal requirements on JSTP. The most basic requirement is that the protocol allows to retrieve frames captured by the ATLAS-TPX network by their start time and device of origin. This might remind observant readers of a similar requirement stated in the database definition (see section \ref{db:definition}), as it is the most likely user request. However unlike the database, JSTP must be able to transmit only those frames, which satisfy the user predicate, effectively reducing information overhead in transmitted messages to zero.
+This section lists all formal requirements on JSTP. The most basic requirement is that the protocol allows to retrieve frames captured by the ATLAS-TPX network by their start time and device of origin. This might remind observant readers of a similar requirement stated in the database definition (see Section \ref{db:definition}), as it is the most likely user request. However unlike the database, JSTP must be able to transmit only those frames, which satisfy the user predicate, effectively reducing information overhead in transmitted messages to zero.
 
 In the first version, JSTP only transmits the results of cluster analysis, leaving the door open for pixel matrix transmissions in the future. This indirectly implies that every message transmitted through JSTP containing a captured frame consists of two parts: a header (containing detector configuration, position, orientation, etc.) and a body (containing a list of clusters, or possibly a pixel matrix).
 
@@ -89,7 +88,7 @@ JSTP is a web protocol and as such, it utilizes HTTP as its underlying standard,
 
 In its architecture, JSTP consists of two parts: a web service providing API for remote procedure calls (RPC) and a data format built atop of it to facilitate such calls. Since JSTP does not include any universal service description mechanism such as WSDL or WADL, all clients need to know its capabilities and calling conventions prior to initiating communication with the server. For data serialization, JSTP utilizes JavaScript Object Notation (JSON). This format was selected for various reasons. It is simple to parse, offers an extensible tree structure and is very common among web services of this kind, as it is directly supported by the JavaScript client-side runtime used in the web visualization UI. Apart from JSON, JSTP does not offer nor accept communication in any other data formats.
 
-Even though the protocol shows many traits often attributed to RESTful services (client-server model, stateless protocol, cacheability, layered system), it certainly does not satisfy all of them. For example, JSTP does not uniquely identify resources by their URI because it does not offer any of the common CRUD operations. Moreover, in referencing entities, JSTP uses arbitrary identifiers (such as members \texttt{fid}, \texttt{frid} and \texttt{sid} of entities defined in section \ref{db:definition}), which are not passed in the URI but through an array in the request body. Moreover, JSTP does not offer a uniform interface, capable of negotiating data format according to client limitations. Instead, it forces clients to communicate strictly in JSON, adhering to its own arbitrary data structures and calling conventions.
+Even though the protocol shows many traits often attributed to RESTful services (client-server model, stateless protocol, cacheability, layered system), it certainly does not satisfy all of them. For example, JSTP does not uniquely identify resources by their URI because it does not offer any of the common CRUD operations. Moreover, in referencing entities, JSTP uses arbitrary identifiers (such as members \texttt{fid}, \texttt{frid} and \texttt{sid} of entities defined in Section \ref{db:definition}), which are not passed in the URI but through an array in the request body. Moreover, JSTP does not offer a uniform interface, capable of negotiating data format according to client limitations. Instead, it forces clients to communicate strictly in JSON, adhering to its own arbitrary data structures and calling conventions.
 
 \section{Web Methods}
 \label{jstp:web-methods}
@@ -100,7 +99,7 @@ The first method is dedicated to providing an updated list of operational detect
 
 As mentioned earlier, this method allows for situations when the physical structure of the network changes due to malfunctions or upgrades. It is required that any client intending to retrieve frames from a specific detector must first consult the list provided by this method to verify, whether the device they intend to interact with is still connected and operational. In addition, other clients unaware of network's architecture may use this method to obtain a list of all currently available data sources.
 
-Execution of this method requires no parameters. The server responds by transmitting a list of devices, from which data can be retrieved at the time of request. For detailed documentation of this method including examples of requests and responses, see section \ref{apx:jstp-sensors} of the Appendix.
+Execution of this method requires no parameters. The server responds by transmitting a list of devices, from which data can be retrieved at the time of request. For detailed documentation of this method including examples of requests and responses, see Section \ref{apx:jstp-sensors} of the Appendix.
 
 \subsection{Overview of Acquisition}
 To satisfy demands on navigation in voluminous amounts of data, the second web method is dedicated to providing an overview of detector acquisition. This is achieved by uniformly dividing a parametrized time period into a subset of short time intervals, in which all relevant frames are gathered with respect to their start time (acquisition time is not considered). In every interval, frames are subsequently processed to produce aggregate statistics, which might indicate time points containing frames of interest to users. This approach is in its essence very similar to the binning performed when constructing histograms.
@@ -127,7 +126,7 @@ If the server finds valid request parameters and succeeds in generating requeste
 
 \begin{description}
 	\item[Cluster Counts]
-	Sums of cluster counts from every frame in the interval, summed separately per every of the six cluster types (for type definitions, see section \ref{db:shape-classification}).
+	Sums of cluster counts from every frame in the interval, summed separately per every of the six cluster types (for type definitions, see Section \ref{db:shape-classification}).
 
 	\item[Frame Occupancy]
 	Total number of non-zero pixels in all frames in the interval, indicating when frames where overexposed and individual clusters could not be separated.
@@ -136,7 +135,7 @@ If the server finds valid request parameters and succeeds in generating requeste
 	The count of frames aggregated in the interval.
 \end{description}
 
-For a detailed documentation of this method, including examples of requests and responses, see section \ref{apx:jstp-timeline} of the Appendix.
+For a detailed documentation of this method, including examples of requests and responses, see Section \ref{apx:jstp-timeline} of the Appendix.
 
 \subsection{Frame Search}
 The third method serves to retrieve frames captured by a detector (or a group of detectors) at any given point in time. The timestamp does not need to be exact, resulting in a search for the nearest frame operating on the scope of the index database. There are several search modes available, each offering a different strategy to find \textit{the master frame}. Once such frame is identified, its start time is then used to locate other frames from the remaining detectors, yielding at most one frame per every detector. Two search modes are supported:
@@ -147,9 +146,6 @@ The third method serves to retrieve frames captured by a detector (or a group of
 
 	\item[Sequential Backward Mode]
 	The master frame is the frame with the start time nearest to, but lower or equal than the time parameter of the search.
-
-	%\item[Sequential Omnidirectional Mode]
-	%\item[Exact Match Mode]
 \end{description}
 
 % Detector 1: acq 5s, period 15s
@@ -172,8 +168,6 @@ The third method serves to retrieve frames captured by a detector (or a group of
 % search 2: 40->37.5s
 
 To demonstrate the operation of these modes on a practical example, suppose that users are interested in frames captured by three devices. Detector 1 captures frames every 15 seconds with acquisition time of 5 seconds, detector 2 captures frames every 27.5 seconds with acquisition time of 25 seconds and detector 3 captures frames every 12.5 seconds with acquisition time of 10 seconds. All three detectors synchronize start of their acquisition and generate a minute of TPX footage. If the search time is set to 40 seconds in the forward mode, the search designates frame 4 captured by detector 1 as the master frame. Since the start time of this frame is 45 seconds, the search returns frame 2 for detector 2 (starts at 27.5 seconds and ends at 52.5 seconds) and frame 4 for detector 3 (starts at 37.5 seconds and ends at 47.5 seconds). This scenario is depicted in Figure \ref{fig:frame-search-forward}. If the backward mode is set instead, the search designates frame 4 captured by detector 3 as the master frame. Since its start time is 37.5 seconds, the search returns no frame from detector 1 (there is a gap between seconds 35 and 45) and frame 2 from detector 2 (starts 27.5 seconds and ends at 52.5 seconds). This is illustrated in Figure \ref{fig:frame-search-backward}.
-
-% TODO: doplnit dva obrázky
 
 \begin{figure}[t]
 \begin{center}
@@ -227,14 +221,14 @@ To summarize, clients calling this method are required to submit four parameters
 	Number of consecutive frames to be integrated for every device.
 \end{description}
 
-If the server finds request parameters to be valid and succeeds in locating at least one frame, it responds by transmitting the start time of the master frame, followed by headers and bodies of all found frames, corresponding to the order of identifiers in the detector predicate of the request. Frame bodies are transmitted in the form of cluster lists (for properties of clusters, see section \ref{db:cluster-properties}). Detailed documentation of this method, including examples of requests and responses, is available in section \ref{apx:jstp-frame} of the Appendix.
+If the server finds request parameters to be valid and succeeds in locating at least one frame, it responds by transmitting the start time of the master frame, followed by headers and bodies of all found frames, corresponding to the order of identifiers in the detector predicate of the request. Frame bodies are transmitted in the form of cluster lists (for properties of clusters, see Section \ref{db:cluster-properties}). Detailed documentation of this method, including examples of requests and responses, is available in Section \ref{apx:jstp-frame} of the Appendix.
 
 \section{Miscellaneous}
 JSTP has been originally designed to serve solely as a data transmission component of the visualization UI. Over time, it has however grown to be a more complex protocol, with applications in other projects than ATLAS-TPX and outside the conventional task of data visualization. It is the intention of the author to continue the development of this protocol with further releases in the future, eventually abstracting it to a point where it could be utilized in combinations with different hardware as well.
 
 Since the amount of data in the database is expected to become rather huge, the protocol itself is structured and meant to be used in a top-down model (see Figure \ref{fig:jstp-uml}), allowing clients to gradually refine parameters of their requests and locate the information they seek, while avoiding transmission of data in overly granular bulks. In other cases, the protocol minimizes information overhead by requiring strong usage of predicates operating on the index database.
 
-Note that in the protocol definition, it is not specified whether the results of individual web method calls are cacheable by clients. This is due to the diversified nature of its applications. Since HTTP already contains its own caching logic\footnote{Caching in HTTP is controlled by values of headers provided in every response message. Relevant header names are: \texttt{Cache-Control}, \texttt{Expires} and \texttt{Pragma}.}, all clients are encouraged to comply with the strategies described in \cite{HTTP1999}, section 13, as JSTP servers are permitted to use this mechanism to employ different caching policies for individual response messages. An analogous declaration is used for data compression (for HTTP specification, see section 3.5 of \cite{HTTP1999}).
+Note that in the protocol definition, it is not specified whether the results of individual web method calls are cacheable by clients. This is due to the diversified nature of its applications. Since HTTP already contains its own caching logic\footnote{Caching in HTTP is controlled by values of headers provided in every response message. Relevant header names are: \texttt{Cache-Control}, \texttt{Expires} and \texttt{Pragma}.}, all clients are encouraged to comply with the strategies described in \cite{HTTP1999}, Section 13, as JSTP servers are permitted to use this mechanism to employ different caching policies for individual response messages. An analogous declaration is used for data compression (for HTTP specification, see Section 3.5 of \cite{HTTP1999}).
 
 \begin{figure}[t]
 \begin{center}

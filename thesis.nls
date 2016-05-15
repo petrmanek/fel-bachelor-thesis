@@ -22,7 +22,7 @@
 		\nompageref{i}
   \item [{CTU}]\begingroup Czech Technical University (Czech name: \textit{České vysoké učení technické}), based in Prague, Czech Republic.\nomeqref {0}
 		\nompageref{i}
-  \item [{DCS}]\begingroup Detector Control Systems, a system providing control of subdetectors and of common infrastructure of the experiment and communication with the services of CERN.\nomeqref {0}
+  \item [{DCS}]\begingroup Detector Control Systems, a system providing control of sub-detectors and of common infrastructure of the experiment and communication with the services of CERN.\nomeqref {0}
 		\nompageref{i}
   \item [{DOM}]\begingroup Document Object Model, a family of XML parsers which generate a tree structure in memory from parsed content.\nomeqref {0}
 		\nompageref{i}
@@ -40,20 +40,20 @@
 		\nompageref{i}
   \item [{JSON}]\begingroup JavaScript Object Notation, a data format derived from JavaScript.\nomeqref {0}
 		\nompageref{i}
-  \item [{JSTP}]\begingroup JSON Timepix Protocol, a protocol used to transmit captured frames to the web visualization UI. For its description, see section \ref{protocol:introduction}.\nomeqref {0}
+  \item [{JSTP}]\begingroup JSON Timepix Protocol, a protocol used to transmit captured frames to the web visualization UI. For its description, see Section \ref{protocol:introduction}.\nomeqref {0}
 		\nompageref{i}
   \item [{LESS}]\begingroup A dynamic style sheet language which can be compiled into CSS.\nomeqref {0}
 		\nompageref{i}
-  \item [{LHC}]\begingroup Large Hadron Collider, an experimental factility built by CERN.\nomeqref {0}
+  \item [{LHC}]\begingroup Large Hadron Collider, an experimental facility built by CERN.\nomeqref {0}
 		\nompageref{i}
-  \item [{LS}]\begingroup Long Shutdown, a period in CERN time schedule characteristic by temporary cesation of operation of particle accelerators and increased maintenance.\nomeqref {0}
+  \item [{LS}]\begingroup Long Shutdown, a period in CERN time schedule characteristic by temporary cessation of operation of particle accelerators and increased maintenance.\nomeqref {0}
 		\nompageref{i}
   \item [{MIME}]\begingroup A two-part file format identifier.\nomeqref {0}
 		\nompageref{i}
   \item [{MPX}]\begingroup Medipix, a semiconductor pixel detection chip.\nomeqref {0}
 		\nompageref{i}
   \item [{OS}]\begingroup Operating System.\nomeqref {0}\nompageref{i}
-  \item [{ROOT}]\begingroup An object oriented data analysis framework. \cite{Brun199781}\nomeqref {0}
+  \item [{ROOT}]\begingroup An object oriented data analysis framework. \cite{ROOT}\nomeqref {0}
 		\nompageref{i}
   \item [{RPC}]\begingroup Remote Procedure Call, a mechanism used to execute computer subroutines on machines over a network.\nomeqref {0}
 		\nompageref{i}
@@ -69,7 +69,7 @@
 		\nompageref{i}
   \item [{TOT}]\begingroup Time of Threshold operation mode. For more information, see section~\ref{tpx:tot}.\nomeqref {0}
 		\nompageref{i}
-  \item [{TPX}]\begingroup Timepix, a semiconductor pixel detection chip successing Medipix2.\nomeqref {0}
+  \item [{TPX}]\begingroup Timepix, a semiconductor pixel detection chip succeeding Medipix2.\nomeqref {0}
 		\nompageref{i}
   \item [{UI}]\begingroup User Interface.\nomeqref {0}\nompageref{i}
   \item [{UNIX}]\begingroup A family of computer operating systems.\nomeqref {0}

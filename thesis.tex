@@ -130,7 +130,10 @@ unicode=true,
 
 	\acknowledgements
 	\noindent
-	Zde můžete napsat své poděkování, pokud chcete a máte komu děkovat.
+	I would like to express my deep sense of gratitude to the staff of IEAP for their support and for providing me with stimulating working environment. My special thanks go to my colleague Benedikt Bergmann, MSc. for his valuable advice and counseling. I would also like to thank my supervisor Ing. Stanislav Pospíšil, DrSc. for proposing and supervising this project. Lastly, I would like to thank my friends and family for their support, for without them, this work would not have been possible.
+	\\[15mm]
+
+	\hfill\FirstandFamilyName
 
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%   
@@ -146,17 +149,18 @@ unicode=true,
 	\abstractpage
 
 	% Translation of Czech abstract into English.
-	TODO
+	Within the ATLAS experiment at CERN, a network of 15 Timepix pixel detectors has been installed. Since the summer of 2015, these detectors have been producing measurements periodically, generating voluminous amounts of research data. The subject of this thesis is the definition and implementation of a software system to archive, process and visualize such information within a web browser. The resulting system is comprised of two fundamental components: a data server and a visualization website. The data server ensures efficient data access by optimizing file storage structures, utilizing indexing methods, and defining a proprietary transfer protocol. Apart from plotting charts and calculating statistics from multiple detectors in the network, the visualization website allows its users to interact with the displayed content by applying magnification, setting arbitrary predicates, and integrating over consecutive frames. The produced software has various applications in data analysis and visualization, and can be used in other experiments involving Timepix detectors.
 
 	% Prace v cestine musi krome abstraktu v anglictine obsahovat i
 	% abstrakt v cestine.
-	\vglue60mm
+	\vglue35mm
 
 	\noindent{\Huge \textbf{Abstrakt}}
 	\vskip 2.75\baselineskip
 
 	\noindent
-	TODO
+	V experimentu ATLAS v CERN byla nainstalována síť 15 pixelových detektorů typu Timepix. Od léta 2015 tyto detektory pravidelně zaznamenávaly snímky, čímž vytvořily velké množství výzkumných dat. Předmětem této práce je definice a implementace softwarového systému pro archivaci, zpracování a vizualizaci těchto dat ve webovém prohlížeči. Navržený systém se skládá ze dvou komponent: z datového serveru a webové stránky s vizualizací. Datový server zajišťuje efektivní přístup k datům prostřednictvím optimalizace struktur souborového systému, aplikace indexovacích metod a definice dedikovaného přenosového protokolu. Webová stránka s vizualizací umožňuje vykreslování grafů a počítání statistik pro více detektorů najednou. Kromě toho však také umožňuje uživatelům interaktivní zacházení s daty, např. přiblížení, nastavování libovolných predikátů a integrování přes větší počet snímků v řadě. Vyvinutý software má aplikace v analýze a vizualizaci dat a může být použit v dalších experimentech, které využívají detektory typu Timepix.
+
 	% Abstrakt práce by měl velmi stručně vystihovat její obsah. Tedy čím se práce zabývá a co je jejím výsledkem/přínosem.
 
 	% \noindent
@@ -197,7 +201,7 @@ unicode=true,
 
 %\bibliographystyle{csplainnat}
 
-\bibliographystyle{acm}
+\bibliographystyle{plain}
 %\bibliographystyle{psc}
 {
 %JZ: 11.12.2008 Kdo chce mit v techto ukazkovych odkazech take odkaz na CSTeX:
@@ -221,17 +225,59 @@ unicode=true,
 \printnomenclature
 \label{apx:zkratky}
 
-\chapter{Obsah přiloženého CD}
-% TODO
-\textbf{\large Tato příloha je povinná pro každou práci. Každá práce musí totiž obsahovat přiložené CD. Viz dále.}
-
-Může vypadat například takto. Váš seznam samozřejmě bude odpovídat typu vaší práce. (viz \cite{infodp}):
-
+\chapter{Contents of the Attached DVD}
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=14cm]{figures/seznamcd}
-\caption{Seznam přiloženého CD --- příklad}
-\label{fig:seznamcd}
+
+\begin{tikzpicture}[
+    every node/.style={
+        anchor=west,
+        inner sep=2pt,
+        minimum size=1pt,
+    },
+    grow via three points={
+        one child at (0.8,-0.7) and two children at (0.8,-0.7) and (0.8,-1.4)
+    },
+    edge from parent path={
+        ($(\tikzparentnode\tikzparentanchor)+(.4cm,0pt)$) |- (\tikzchildnode\tikzchildanchor)
+    },
+    growth parent anchor=west,
+    parent anchor=south west
+  ]
+  \node [draw=black,thick] {Attached DVD}
+    child { node {\texttt{index.html} -- the main disambiguation file}}
+    child { node {\texttt{texts/} -- directory containing additional texts} 
+    	child { node {\texttt{bachelor-project.pdf} -- digital version of this document}}
+    	child { node {\texttt{abstract-czech.txt} -- abstract in Czech}}
+    	child { node {\texttt{abstract-english.txt} -- abstract in English}}
+    }
+    child [missing] {}
+    child [missing] {}
+    child [missing] {}
+    child { node {\texttt{images/} -- directory containing figures and additional images}}
+    child { node {\texttt{data/} -- sample TPX data encoded in the ROOT format}}
+    child { node {\texttt{visualization/} -- node.js visualization directory}
+    	child { node {\texttt{public/} -- optimized website application}}
+    	child { node {\texttt{src/} -- source code in HTML, LESS and TypeScript}}
+    	child { node {\texttt{README.md} -- dependencies and deployment instructions}}
+    }
+    child [missing] {}
+    child [missing] {}
+    child [missing] {}
+    child { node {\texttt{jstp-server/} -- JSTP server directory}
+    	child { node {\texttt{dist/} -- compiled binaries}}
+    	child { node {\texttt{src/} -- server source code in C++}}
+    	child { node {\texttt{docs/} -- HTML documentation generated by Doxygen}}
+    	child { node {\texttt{README.md} -- dependencies and building instructions}}
+    }    
+    child [missing] {}
+    child [missing] {}
+    child [missing] {}
+    child [missing] {};
+\end{tikzpicture}
+
+\caption{Contents of the attached DVD}
+\label{fig:attached-cd}
 \end{center}
 \end{figure}
 
