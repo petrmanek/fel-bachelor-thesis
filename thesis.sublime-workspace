@@ -119,7 +119,87 @@
 			"file": "thesis.tex",
 			"settings":
 			{
-				"buffer_size": 8628,
+				"buffer_size": 12841,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "reference.bib",
+			"settings":
+			{
+				"buffer_size": 19814,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "k336_thesis_macros.sty",
+			"settings":
+			{
+				"buffer_size": 5580,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "nomenclature.tex",
+			"settings":
+			{
+				"buffer_size": 4548,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "chapters/chap01.tex",
+			"settings":
+			{
+				"buffer_size": 22397,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "chapters/chap02.tex",
+			"settings":
+			{
+				"buffer_size": 21555,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "chapters/chap03.tex",
+			"settings":
+			{
+				"buffer_size": 22469,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "chapters/chap04.tex",
+			"settings":
+			{
+				"buffer_size": 40302,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "chapters/chap05.tex",
+			"settings":
+			{
+				"buffer_size": 1939,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "chapters/appendix_creation_scripts.tex",
+			"settings":
+			{
+				"buffer_size": 735,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "chapters/appendix_jstp.tex",
+			"settings":
+			{
+				"buffer_size": 9920,
 				"line_ending": "Unix"
 			}
 		}
@@ -151,13 +231,7 @@
 	},
 	"console":
 	{
-		"height": 224.0,
-		"history":
-		[
-			"say_hello()",
-			"help",
-			"import urllib.request,os,hashlib; h = 'eb2297e1a458f27d836c04bb0cbaf282' + 'd0e7a3098092775ccb37ca9d6b2e4b7d'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
-		]
+		"height": 224.0
 	},
 	"distraction_free":
 	{
@@ -170,6 +244,9 @@
 	},
 	"file_history":
 	[
+		"/Users/petrmanek/Projekty/fel-bachelor-thesis/reference.bib",
+		"/Users/petrmanek/Projekty/fel-bachelor-thesis/nomenclature.tex",
+		"/Users/petrmanek/Projekty/fel-bachelor-thesis/nomenclature.aux",
 		"/home/petrmanek/proj/tpx/thesis/chapters/appendix-jstp-doc",
 		"/home/petrmanek/proj/tpx/thesis/thesis.tex",
 		"/home/petrmanek/Dokumenty/proj/tpx/thesis/code/jstp-timeline-request.json",
@@ -294,10 +371,7 @@
 		"/home/petrmanek/asd.c",
 		"/home/petrmanek/Dropbox/cvut/architektura/hw02/ota.sh",
 		"/home/petrmanek/Dropbox/cvut/architektura/hw02/output.ppm",
-		"/home/petrmanek/Dropbox/cvut/architektura/hw02/vit_small.ppm",
-		"/home/petrmanek/mff/robotika/hw01/manekp.py",
-		"/home/petrmanek/.dotfiles/.config/sublime-text-3/Packages/Pylinter/Pylinter.sublime-settings",
-		"/home/petrmanek/.dotfiles/.config/sublime-text-3/Packages/SublimeREPL/SublimeREPL.sublime-settings"
+		"/home/petrmanek/Dropbox/cvut/architektura/hw02/vit_small.ppm"
 	],
 	"find":
 	{
@@ -312,9 +386,23 @@
 	},
 	"find_state":
 	{
-		"case_sensitive": false,
+		"case_sensitive": true,
 		"find_history":
 		[
+			" section",
+			"todo",
+			"note = ",
+			"should",
+			"section \\ref",
+			"[h]",
+			"db:definition",
+			"todo",
+			"wireframe",
+			"todo",
+			"\n\n",
+			"todo",
+			"subfigu",
+			"todo",
 			"device",
 			"listing",
 			"the \\",
@@ -428,28 +516,15 @@
 			"logarithmic",
 			"show-entire",
 			"min-energy",
-			"max",
-			"min",
-			"snapscales",
-			"loaddata",
-			"reset",
-			"frontoverrideconfig",
-			"minmax",
-			";\n",
-			"sensor-sele",
-			"frame-time",
-			"loadframe",
-			"datetimep",
-			"binddat",
-			"inserted",
-			"popover"
+			"max"
 		],
 		"highlight": true,
 		"in_selection": false,
 		"preserve_case": false,
-		"regex": true,
+		"regex": false,
 		"replace_history":
 		[
+			"Section \\ref",
 			"    ",
 			"{ min: 1, max: 999 }",
 			"scaleRange",
@@ -472,24 +547,23 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 8,
 			"sheets":
 			[
 				{
 					"buffer": 0,
 					"file": "thesis.tex",
-					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8628,
+						"buffer_size": 12841,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								494,
-								494
+								11145,
+								11145
 							]
 						],
 						"settings":
@@ -498,10 +572,277 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
+						"translation.y": 5566.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "reference.bib",
+					"settings":
+					{
+						"buffer_size": 19814,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1581,
+								1581
+							]
+						],
+						"settings":
+						{
+							"spell_check": true,
+							"syntax": "Packages/LaTeX/Bibtex.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "k336_thesis_macros.sty",
+					"settings":
+					{
+						"buffer_size": 5580,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2911,
+								2911
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LaTeX/TeX.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1556.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "nomenclature.tex",
+					"settings":
+					{
+						"buffer_size": 4548,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1645,
+								1645
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LaTeXing/support/LaTeX.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "chapters/chap01.tex",
+					"settings":
+					{
+						"buffer_size": 22397,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								14061,
+								14069
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LaTeXing/support/LaTeX.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 5767.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "chapters/chap02.tex",
+					"settings":
+					{
+						"buffer_size": 21555,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								8513,
+								8521
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LaTeXing/support/LaTeX.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 3391.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "chapters/chap03.tex",
+					"settings":
+					{
+						"buffer_size": 22469,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6196,
+								6204
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LaTeXing/support/LaTeX.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 2445.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "chapters/chap04.tex",
+					"settings":
+					{
+						"buffer_size": 40302,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								24916,
+								24916
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LaTeXing/support/LaTeX.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 11883.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "chapters/chap05.tex",
+					"settings":
+					{
+						"buffer_size": 1939,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1383,
+								1383
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LaTeXing/support/LaTeX.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "chapters/appendix_creation_scripts.tex",
+					"settings":
+					{
+						"buffer_size": 735,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								542,
+								542
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LaTeXing/support/LaTeX.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "chapters/appendix_jstp.tex",
+					"settings":
+					{
+						"buffer_size": 9920,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1780,
+								1780
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LaTeXing/support/LaTeX.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 575.0,
+						"zoom_level": 1.0
+					},
 					"type": "text"
 				}
 			]
@@ -542,10 +883,13 @@
 	{
 		"height": 0.0
 	},
-	"project": "thesis.sublime-project",
+	"output.latex_log":
+	{
+		"height": 142.0
+	},
 	"replace":
 	{
-		"height": 48.0
+		"height": 78.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -568,25 +912,10 @@
 		],
 		"width": 380.0
 	},
-	"select_symbol":
-	{
-		"height": 0.0,
-		"selected_items":
-		[
-		],
-		"width": 0.0
-	},
-	"selected_group": 0,
-	"settings":
-	{
-	},
 	"show_minimap": true,
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": false,
 	"side_bar_width": 184.0,
-	"status_bar_visible": true,
-	"template_settings":
-	{
-	}
+	"status_bar_visible": true
 }
